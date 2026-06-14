@@ -8,7 +8,7 @@ Phase 0 is complete. The project now has a Node.js/Express foundation, environme
 
 ## Last Action
 
-Initialized Git in the project folder and added `origin` as `https://github.com/PerspicaciousGuy/exercises-api.git`. No commit or push was made.
+Created the initial Phase 0 commit, fetched the existing GitHub repository, and merged the remote `LICENSE` commit into local `main` before pushing.
 
 ## In Progress
 
@@ -21,12 +21,12 @@ Phase 1: build the Supabase/PostgreSQL schema for a sync-friendly public exercis
 ## Known Issues
 
 - `npm install` reported 5 audit findings: 3 moderate, 1 high, and 1 critical. Dependency upgrades or `npm audit fix --force` were not run because that can introduce breaking changes and is outside Phase 0.
-- Git is initialized and connected to the GitHub remote, but there are no commits yet. All project files are currently untracked.
+- Git required `safe.directory` configuration because the repository was initialized under the sandbox user and pushed under the Windows user.
 
 ## Files Status
 
 - Created: `.env.example`, `.gitignore`, `.prettierignore`, `.prettierrc`, `README.md`, `HANDOFF.md`, `docs/openapi.yaml`, `eslint.config.js`, `package.json`, `package-lock.json`, `server.js`, `src/app.js`, `src/config/env.js`, `src/constants/service.js`, `src/middleware/errorHandler.js`, `src/middleware/notFound.js`, `src/routes/health.js`, `tests/env.test.js`, `tests/health.test.js`
-- Modified: `IMPLEMENTATION_PLAN.md` marked Phase 0 checklist items complete; `HANDOFF.md` updated with Git remote status.
+- Modified: `IMPLEMENTATION_PLAN.md` marked Phase 0 checklist items complete; `HANDOFF.md` updated with Git push/remote integration status.
 - Currently Being Edited: none
 - Planned to Edit: Phase 1 migration/schema files, Supabase configuration, seed/reference schema docs
 - Untouched: `PLAN.md`, `AGENTS.md`
