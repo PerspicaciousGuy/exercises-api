@@ -1,0 +1,49 @@
+openapi: 3.0.3
+info:
+  title: ExerciseDB API
+  version: 0.1.0
+  description: Public exercise catalog API for fitness app developers.
+servers:
+  - url: http://localhost:3000
+    description: Local development
+paths:
+  /health:
+    get:
+      summary: Check API health
+      operationId: getHealth
+      tags:
+        - Health
+      responses:
+        '200':
+          description: API is running
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - data
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    required:
+                      - status
+                      - service
+                      - version
+                      - environment
+                    properties:
+                      status:
+                        type: string
+                        example: ok
+                      service:
+                        type: string
+                        example: exercisedb-api
+                      version:
+                        type: string
+                        example: 0.1.0
+                      environment:
+                        type: string
+                        example: development
