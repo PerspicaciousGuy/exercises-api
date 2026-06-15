@@ -85,15 +85,17 @@ Exit criteria:
 
 **Goal:** Make data collection repeatable and validated before any public endpoint depends on it.
 
-- [ ] Add seed data for muscles with region/group metadata.
-- [ ] Add seed data for equipment and categories.
-- [ ] Define canonical JSON shape for exercises.
-- [ ] Add import script for JSON or CSV exercise data.
-- [ ] Validate imports with Zod before database writes.
-- [ ] Generate slugs consistently.
-- [ ] Upsert aliases, muscles, equipment, media, tags, and related exercise links.
-- [ ] Record change events when public exercise records are inserted, updated, deprecated, or deleted.
-- [ ] Add sample fixture exercises for test coverage.
+- [x] Add seed data for muscles with region/group metadata.
+- [x] Add seed data for equipment and categories.
+- [x] Define canonical JSON shape for exercises.
+- [x] Add import script for JSON or CSV exercise data.
+- [x] Validate imports with Zod before database writes.
+- [x] Generate slugs consistently.
+- [x] Upsert aliases, muscles, equipment, media, tags, and related exercise links.
+- [x] Record change events when public exercise records are inserted, updated, deprecated, or deleted.
+- [x] Add sample fixture exercises for test coverage.
+
+Phase 2 is implemented locally with JSON fixtures, validation, import planning, and Supabase REST scripts. Hosted import execution requires `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in `.env`.
 
 Exit criteria:
 
