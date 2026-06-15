@@ -58,10 +58,29 @@ Expected response:
 
 - `npm run dev` - start the API with nodemon
 - `npm start` - start the API with Node
+- `npm run fixtures:validate` - validate Phase 2 reference and sample exercise fixtures
+- `npm run seed:reference` - upsert reference fixtures into Supabase
+- `npm run seed:sample` - upsert reference fixtures and sample exercises into Supabase
 - `npm test` - run the test suite
 - `npm run lint` - run ESLint
 - `npm run format` - format files with Prettier
 - `npm run format:check` - check formatting
+
+## Seed And Import Fixtures
+
+Phase 2 fixture data lives under `data/`:
+
+- `data/reference/` - muscles, equipment, categories, flags, and joint regions
+- `data/exercises/sample-exercises.json` - 12 sample exercises for pipeline validation
+
+Hosted Supabase import scripts require these `.env` values:
+
+```bash
+SUPABASE_URL=your-project-url
+SUPABASE_SERVICE_ROLE_KEY=your-server-side-key
+```
+
+Never expose `SUPABASE_SERVICE_ROLE_KEY` in a public client.
 
 ## Project Structure
 
@@ -70,13 +89,29 @@ src/
   app.js
   config/
     env.js
+    supabaseEnv.js
   constants/
     service.js
+  import/
+    catalogFixtureFiles.js
+    catalogImportPlans.js
+    catalogSeeder.js
   middleware/
     errorHandler.js
     notFound.js
   routes/
     health.js
+  supabase/
+    restClient.js
+  validation/
+    catalogFixtures.js
+data/
+  reference/
+  exercises/
+scripts/
+  validate-fixtures.js
+  seed-reference-data.js
+  import-sample-exercises.js
 tests/
   env.test.js
   health.test.js
@@ -86,4 +121,4 @@ docs/
 
 ## Current Status
 
-Phase 0 is the backend foundation: package setup, Express app structure, environment validation, health endpoint, tests, linting, and docs placeholder.
+Phase 0 is the backend foundation. Phase 1 created and applied the hosted Supabase schema. Phase 2 adds validated fixture data and repeatable seed/import scripts.
