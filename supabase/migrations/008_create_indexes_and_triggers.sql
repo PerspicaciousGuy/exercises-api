@@ -20,9 +20,9 @@ language sql
 immutable
 as $$
   select
-    setweight(to_tsvector('english', unaccent(coalesce(exercise_name, ''))), 'A') ||
-    setweight(to_tsvector('english', unaccent(coalesce(exercise_description, ''))), 'B') ||
-    setweight(to_tsvector('english', unaccent(array_to_string(coalesce(exercise_tags, '{}'), ' '))), 'C');
+    setweight(to_tsvector('english', coalesce(exercise_name, '')), 'A') ||
+    setweight(to_tsvector('english', coalesce(exercise_description, '')), 'B') ||
+    setweight(to_tsvector('english', array_to_string(coalesce(exercise_tags, '{}'), ' ')), 'C');
 $$;
 
 create trigger muscles_updated_at

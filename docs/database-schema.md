@@ -6,7 +6,7 @@ This document summarizes the local Supabase/PostgreSQL migrations for Phase 1. T
 
 | File                                                      | Purpose                                                                                 |
 | --------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `supabase/migrations/001_enable_extensions.sql`           | Enables `pgcrypto`, `citext`, and `unaccent`.                                           |
+| `supabase/migrations/001_enable_extensions.sql`           | Enables `pgcrypto` and `citext`.                                                        |
 | `supabase/migrations/002_create_enums.sql`                | Creates enums for exercise classification, media, sync changes, and subscription tiers. |
 | `supabase/migrations/003_create_reference_tables.sql`     | Creates muscles, equipment, categories, flags, and joint-region reference tables.       |
 | `supabase/migrations/004_create_exercises.sql`            | Creates the main public exercise catalog table and aliases.                             |
@@ -41,32 +41,17 @@ Before applying to Supabase:
 - If direct client access is needed later, add explicit grants and policies in a new migration.
 - Run Supabase advisors after applying migrations to a real project.
 
-## Local Supabase Test Flow
+## Hosted Supabase Test Flow
 
-The project uses the Supabase CLI as a local dev dependency. Do not install it globally with npm.
+The project will apply these migrations directly to a hosted Supabase project through the Supabase MCP or SQL editor. Docker-local testing is intentionally skipped for this project because the local machine is not a good fit for running the full Supabase Docker stack.
 
-Prerequisites:
+Recommended hosted flow:
 
-- Node.js 20 or later.
-- Docker Desktop or another Docker-compatible runtime.
-
-Commands:
-
-```bash
-npm run supabase:start
-npm run supabase:reset
-npm run supabase:status
-npm test
-```
-
-Expected behavior:
-
-- `npm run supabase:start` starts the local Supabase stack.
-- `npm run supabase:reset` applies every SQL file in `supabase/migrations/` to the local database.
-- `npm run supabase:status` prints local URLs and credentials.
-- `npm test` verifies the application test suite and migration file assumptions.
-
-Current local-machine note: the Supabase CLI is installed, but Docker is not available/running yet. Local database migration testing can start after Docker Desktop is installed and the Docker daemon is running.
+1. Connect the Supabase MCP to the target project.
+2. Apply the migration SQL files in numeric order.
+3. Verify table, enum, index, trigger, RLS, and policy creation.
+4. Run Supabase advisors and review warnings.
+5. Run the project test suite with `npm test`.
 
 ## Review Checklist
 
