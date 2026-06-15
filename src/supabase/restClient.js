@@ -45,6 +45,19 @@ export class SupabaseRestClient {
     });
   }
 
+  async update(table, values, { filters = {}, select = '*' } = {}) {
+    const url = this.buildTableUrl(table, {
+      ...filters,
+      select
+    });
+
+    return this.request(url, {
+      method: 'PATCH',
+      body: JSON.stringify(values),
+      prefer: 'return=representation'
+    });
+  }
+
   async request(url, { method, body, prefer }) {
     const response = await this.fetchImpl(url, {
       method,

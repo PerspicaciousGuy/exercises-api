@@ -1,10 +1,16 @@
 import { Router } from 'express';
 import { z } from 'zod';
 
+import { PREMIUM_ACCESS_TIERS } from '../constants/rateLimits.js';
 import { AppError } from '../errors/AppError.js';
 import { createExerciseService } from '../services/exerciseService.js';
 
 const BULK_ID_LIMIT = 50;
+const PREMIUM_ACCESS_ERROR = {
+  statusCode: 403,
+  code: 'PREMIUM_ACCESS_REQUIRED',
+  message: 'Premium content requires a pro or enterprise API tier'
+};
 
 const listExercisesQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
@@ -14,6 +20,11 @@ const listExercisesQuerySchema = z.object({
   equipment: z.string().min(1).optional(),
   muscle: z.string().min(1).optional(),
   search: z.string().min(1).optional(),
+  updated_since: z.string().datetime({ offset: true }).optional(),
+  include_deprecated: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true'),
   fields: z.string().min(1).optional()
 });
 
@@ -33,10 +44,11 @@ export function createExercisesRouter({ exerciseRepository, exerciseService }) {
     asyncHandler(async (request, response) => {
       const { fields, ...filters } = parseListFilters(request.query);
       const result = await service.listExercises(filters);
+      const exercises = filterPremiumExercises(result.exercises, request);
 
       response.status(200).json({
         success: true,
-        data: applySparseFields(result.exercises, fields),
+        data: applySparseFields(exercises, fields),
         pagination: result.pagination
       });
     })
@@ -50,7 +62,7 @@ export function createExercisesRouter({ exerciseRepository, exerciseService }) {
 
       response.status(200).json({
         success: true,
-        data: result.exercises,
+        data: filterPremiumExercises(result.exercises, request),
         pagination: result.pagination
       });
     })
@@ -64,7 +76,7 @@ export function createExercisesRouter({ exerciseRepository, exerciseService }) {
 
       response.status(200).json({
         success: true,
-        data: exercises
+        data: filterPremiumExercises(exercises, request)
       });
     })
   );
@@ -73,6 +85,7 @@ export function createExercisesRouter({ exerciseRepository, exerciseService }) {
     '/exercises/slug/:slug',
     asyncHandler(async (request, response) => {
       const exercise = await service.getExerciseBySlug(request.params.slug);
+      requirePremiumAccess(exercise, request);
 
       response.status(200).json({
         success: true,
@@ -88,7 +101,7 @@ export function createExercisesRouter({ exerciseRepository, exerciseService }) {
 
       response.status(200).json({
         success: true,
-        data: related
+        data: filterPremiumRelationGroups(related, request)
       });
     })
   );
@@ -112,6 +125,7 @@ export function createExercisesRouter({ exerciseRepository, exerciseService }) {
     '/exercises/:id',
     asyncHandler(async (request, response) => {
       const exercise = await service.getExerciseById(request.params.id);
+      requirePremiumAccess(exercise, request);
 
       response.status(200).json({
         success: true,
@@ -132,9 +146,36 @@ function createRelationHandler(service, relationType) {
 
     response.status(200).json({
       success: true,
-      data: exercises
+      data: filterPremiumExercises(exercises, request)
     });
   });
+}
+
+function filterPremiumRelationGroups(relationGroups, request) {
+  return Object.fromEntries(
+    Object.entries(relationGroups).map(([relationType, exercises]) => [
+      relationType,
+      filterPremiumExercises(exercises, request)
+    ])
+  );
+}
+
+function filterPremiumExercises(exercises, request) {
+  if (canAccessPremium(request)) {
+    return exercises;
+  }
+
+  return exercises.filter((exercise) => !exercise.isPremium);
+}
+
+function requirePremiumAccess(exercise, request) {
+  if (exercise.isPremium && !canAccessPremium(request)) {
+    throw new AppError(PREMIUM_ACCESS_ERROR);
+  }
+}
+
+function canAccessPremium(request) {
+  return PREMIUM_ACCESS_TIERS.has(request.apiConsumer?.user?.tier);
 }
 
 function parseListFilters(query) {
@@ -144,7 +185,18 @@ function parseListFilters(query) {
     throwValidationError(parsed.error.issues[0]);
   }
 
-  return parsed.data;
+  return {
+    limit: parsed.data.limit,
+    offset: parsed.data.offset,
+    category: parsed.data.category,
+    difficulty: parsed.data.difficulty,
+    equipment: parsed.data.equipment,
+    muscle: parsed.data.muscle,
+    search: parsed.data.search,
+    updatedSince: parsed.data.updated_since,
+    includeDeprecated: parsed.data.include_deprecated,
+    fields: parsed.data.fields
+  };
 }
 
 function parseSearchFilters(query) {
