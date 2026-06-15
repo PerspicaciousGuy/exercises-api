@@ -11,7 +11,11 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:status": "supabase status",
+    "supabase:reset": "supabase db reset"
   },
   "keywords": [
     "exercise",
@@ -38,6 +42,7 @@
     "globals": "^15.14.0",
     "nodemon": "^3.1.9",
     "prettier": "^3.4.2",
+    "supabase": "^2.106.0",
     "supertest": "^7.0.0",
     "vitest": "^2.1.8"
   }
