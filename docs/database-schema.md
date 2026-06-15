@@ -4,17 +4,19 @@ This document summarizes the local Supabase/PostgreSQL migrations for Phase 1. T
 
 ## Migration Files
 
-| File                                                      | Purpose                                                                                 |
-| --------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `supabase/migrations/001_enable_extensions.sql`           | Enables `pgcrypto` and `citext`.                                                        |
-| `supabase/migrations/002_create_enums.sql`                | Creates enums for exercise classification, media, sync changes, and subscription tiers. |
-| `supabase/migrations/003_create_reference_tables.sql`     | Creates muscles, equipment, categories, flags, and joint-region reference tables.       |
-| `supabase/migrations/004_create_exercises.sql`            | Creates the main public exercise catalog table and aliases.                             |
-| `supabase/migrations/005_create_exercise_relations.sql`   | Creates muscle/equipment junctions and variation/progression/regression relations.      |
-| `supabase/migrations/006_create_media_and_sync.sql`       | Creates normalized media and catalog change-event tables.                               |
-| `supabase/migrations/007_create_api_users_keys_usage.sql` | Creates API users, API keys, daily counters, and request logs.                          |
-| `supabase/migrations/008_create_indexes_and_triggers.sql` | Creates `updated_at` triggers, filter indexes, GIN indexes, and full-text search index. |
-| `supabase/migrations/009_create_rls_and_grants.sql`       | Adds explicit `service_role` grants and enables RLS policies for defense in depth.      |
+| File                                                         | Purpose                                                                                      |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| `supabase/migrations/001_enable_extensions.sql`              | Enables `pgcrypto` and `citext`.                                                             |
+| `supabase/migrations/002_create_enums.sql`                   | Creates enums for exercise classification, media, sync changes, and subscription tiers.      |
+| `supabase/migrations/003_create_reference_tables.sql`        | Creates muscles, equipment, categories, flags, and joint-region reference tables.            |
+| `supabase/migrations/004_create_exercises.sql`               | Creates the main public exercise catalog table and aliases.                                  |
+| `supabase/migrations/005_create_exercise_relations.sql`      | Creates muscle/equipment junctions and variation/progression/regression relations.           |
+| `supabase/migrations/006_create_media_and_sync.sql`          | Creates normalized media and catalog change-event tables.                                    |
+| `supabase/migrations/007_create_api_users_keys_usage.sql`    | Creates API users, API keys, daily counters, and request logs.                               |
+| `supabase/migrations/008_create_indexes_and_triggers.sql`    | Creates `updated_at` triggers, filter indexes, GIN indexes, and full-text search index.      |
+| `supabase/migrations/009_create_rls_and_grants.sql`          | Adds explicit `service_role` grants and enables RLS policies for defense in depth.           |
+| `supabase/migrations/010_harden_functions_and_indexes.sql`   | Hardens function search paths, revokes direct helper execution, and adds reverse FK indexes. |
+| `supabase/migrations/011_revoke_public_helper_execution.sql` | Revokes inherited `PUBLIC` execution on the Supabase `rls_auto_enable()` helper.             |
 
 ## Scope Decisions
 
@@ -40,6 +42,12 @@ Before applying to Supabase:
 - Confirm whether the project will expose any tables through Supabase Data API directly.
 - If direct client access is needed later, add explicit grants and policies in a new migration.
 - Run Supabase advisors after applying migrations to a real project.
+
+Hosted Supabase application status:
+
+- Migrations `001` through `011` have been applied to `https://yfdxihexqcsccoxhgxgm.supabase.co`.
+- All 20 expected public tables exist with RLS enabled.
+- The remaining security advisor warning is `citext` installed in `public`; moving it needs a separate migration decision because `api_users.email` currently uses that type.
 
 ## Hosted Supabase Test Flow
 

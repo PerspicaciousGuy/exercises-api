@@ -69,8 +69,9 @@ Exit criteria:
 - [x] Add indexes for slug lookup, filters, full-text search, tags, updated timestamps, and sync event ordering.
 - [x] Add triggers for `updated_at`.
 - [x] Enable RLS where tables are exposed through Supabase, even if the Express API is the primary public surface.
+- [x] Apply migrations to hosted Supabase and harden advisor findings that are safe to fix immediately.
 
-Local migration files are complete. The exit criteria that require running migrations on a fresh database will be verified after connecting a Supabase project.
+Local migration files are complete and have been applied to the hosted Supabase project.
 
 Exit criteria:
 
