@@ -6,6 +6,8 @@ info:
 servers:
   - url: http://localhost:3000
     description: Local development
+security:
+  - ApiKeyAuth: []
 paths:
   /health:
     get:
@@ -13,6 +15,7 @@ paths:
       operationId: getHealth
       tags:
         - Health
+      security: []
       responses:
         '200':
           description: API is running
@@ -47,6 +50,152 @@ paths:
                       environment:
                         type: string
                         example: development
+  /auth/register:
+    post:
+      summary: Register a developer account and issue the first API key
+      operationId: registerDeveloper
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: dev@example.com
+                password:
+                  type: string
+                  minLength: 8
+                  example: change-this-password
+                name:
+                  type: string
+                  example: Example Developer
+      responses:
+        '201':
+          description: Developer account and one-time plaintext API key
+        '400':
+          description: Invalid registration body
+        '409':
+          description: Email is already registered
+  /auth/login:
+    post:
+      summary: Log in and issue a new API key
+      operationId: loginDeveloper
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: dev@example.com
+                password:
+                  type: string
+                  example: change-this-password
+      responses:
+        '200':
+          description: Developer account and one-time plaintext API key
+        '400':
+          description: Invalid login body
+        '401':
+          description: Invalid credentials
+  /me:
+    get:
+      summary: Get the current developer account
+      operationId: getCurrentDeveloper
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: Current developer account and tier
+        '401':
+          description: Missing or invalid API key
+  /me/keys:
+    get:
+      summary: List API keys for the current developer account
+      operationId: listDeveloperApiKeys
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: API key metadata without plaintext key values
+        '401':
+          description: Missing or invalid API key
+    post:
+      summary: Create a new API key
+      operationId: createDeveloperApiKey
+      tags:
+        - Auth
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                label:
+                  type: string
+                  maxLength: 100
+                  example: Mobile app
+                expiresAt:
+                  type: string
+                  format: date-time
+                  example: 2027-06-15T10:00:00.000Z
+      responses:
+        '201':
+          description: API key metadata and one-time plaintext key
+        '400':
+          description: Invalid key creation body
+        '401':
+          description: Missing or invalid API key
+  /me/keys/{id}:
+    delete:
+      summary: Revoke an API key
+      operationId: revokeDeveloperApiKey
+      tags:
+        - Auth
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Revoked API key metadata
+        '401':
+          description: Missing or invalid API key
+        '404':
+          description: API key was not found for the current developer
+  /me/usage:
+    get:
+      summary: Get usage stats for the current developer account
+      operationId: getDeveloperUsage
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: Tier limit and recent daily usage rows
+        '401':
+          description: Missing or invalid API key
   /exercises:
     get:
       summary: List public exercises
@@ -92,6 +241,17 @@ paths:
           schema:
             type: string
             example: push
+        - name: updated_since
+          in: query
+          schema:
+            type: string
+            format: date-time
+            example: 2026-06-15T10:00:00.000Z
+        - name: include_deprecated
+          in: query
+          schema:
+            type: boolean
+            default: false
         - name: fields
           in: query
           schema:
@@ -102,6 +262,8 @@ paths:
           description: Exercise summaries
         '400':
           description: Invalid query parameters
+        '401':
+          description: Missing or invalid API key
   /exercises/{id}:
     get:
       summary: Get an exercise by id
@@ -117,6 +279,8 @@ paths:
       responses:
         '200':
           description: Exercise detail
+        '403':
+          description: Premium content requires a pro or enterprise API tier
         '404':
           description: Exercise not found
   /exercises/{id}/related:
@@ -203,6 +367,8 @@ paths:
       responses:
         '200':
           description: Exercise detail
+        '403':
+          description: Premium content requires a pro or enterprise API tier
         '404':
           description: Exercise not found
   /exercises/search:
@@ -308,3 +474,57 @@ paths:
       responses:
         '200':
           description: Joint region references
+  /sync/metadata:
+    get:
+      summary: Get public catalog sync metadata
+      operationId: getSyncMetadata
+      tags:
+        - Sync
+      responses:
+        '200':
+          description: Catalog version, latest timestamps, resources, and sync limits
+  /sync/exercises:
+    get:
+      summary: Sync changed public exercises
+      operationId: syncExercises
+      tags:
+        - Sync
+      parameters:
+        - name: updated_since
+          in: query
+          schema:
+            type: string
+            format: date-time
+            example: 2026-06-15T10:00:00.000Z
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 100
+        - name: cursor
+          in: query
+          schema:
+            type: string
+            description: Opaque cursor returned by the previous sync page.
+        - name: include_deprecated
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Changed exercise records, deleted/deprecated tombstones, and pagination cursor
+        '400':
+          description: Invalid sync query parameters
+        '401':
+          description: Missing or invalid API key
+        '429':
+          description: Daily usage limit exceeded
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
