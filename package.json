@@ -7,6 +7,9 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
+    "fixtures:validate": "node scripts/validate-fixtures.js",
+    "seed:reference": "node scripts/seed-reference-data.js",
+    "seed:sample": "node scripts/import-sample-exercises.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
