@@ -59,16 +59,18 @@ Exit criteria:
 
 **Goal:** Build the Supabase/PostgreSQL schema for a sync-friendly public catalog.
 
-- [ ] Create enums for status, difficulty, movement pattern, force type, mechanics, position, plane of motion, laterality, load type, media type, and subscription tier.
-- [ ] Create reference tables for muscles, equipment, categories, and optional taxonomy values.
-- [ ] Create `exercises` with rich classification fields, sync metadata, and status fields.
-- [ ] Create junction tables for muscles, equipment, variations, progressions, and regressions.
-- [ ] Create `exercise_media` instead of hardcoding only image/video/gif columns.
-- [ ] Create `exercise_change_events` for sync consumers and deleted/deprecated records.
-- [ ] Create `api_users`, `api_keys`, `api_usage_daily`, and `api_usage_log`.
-- [ ] Add indexes for slug lookup, filters, full-text search, tags, updated timestamps, and sync event ordering.
-- [ ] Add triggers for `updated_at`.
-- [ ] Enable RLS where tables are exposed through Supabase, even if the Express API is the primary public surface.
+- [x] Create enums for status, difficulty, movement pattern, force type, mechanics, position, plane of motion, laterality, load type, media type, and subscription tier.
+- [x] Create reference tables for muscles, equipment, categories, and optional taxonomy values.
+- [x] Create `exercises` with rich classification fields, sync metadata, and status fields.
+- [x] Create junction tables for muscles, equipment, variations, progressions, and regressions.
+- [x] Create `exercise_media` instead of hardcoding only image/video/gif columns.
+- [x] Create `exercise_change_events` for sync consumers and deleted/deprecated records.
+- [x] Create `api_users`, `api_keys`, `api_usage_daily`, and `api_usage_log`.
+- [x] Add indexes for slug lookup, filters, full-text search, tags, updated timestamps, and sync event ordering.
+- [x] Add triggers for `updated_at`.
+- [x] Enable RLS where tables are exposed through Supabase, even if the Express API is the primary public surface.
+
+Local migration files are complete. The exit criteria that require running migrations on a fresh database will be verified after connecting a Supabase project.
 
 Exit criteria:
 
