@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Strength",
+    "slug": "strength",
+    "category": "strength",
+    "description": "Resistance training movements for strength and hypertrophy.",
+    "displayOrder": 10
+  },
+  {
+    "name": "Cardio",
+    "slug": "cardio",
+    "category": "cardio",
+    "description": "Conditioning exercises focused on aerobic or anaerobic capacity.",
+    "displayOrder": 20
+  },
+  {
+    "name": "Flexibility",
+    "slug": "flexibility",
+    "category": "flexibility",
+    "description": "Static and dynamic movements for range of motion.",
+    "displayOrder": 30
+  },
+  {
+    "name": "Plyometrics",
+    "slug": "plyometrics",
+    "category": "plyometrics",
+    "description": "Explosive jumping, bounding, and power movements.",
+    "displayOrder": 40
+  },
+  {
+    "name": "Mobility",
+    "slug": "mobility",
+    "category": "mobility",
+    "description": "Controlled movement drills for usable range and joint control.",
+    "displayOrder": 50
+  }
+]
