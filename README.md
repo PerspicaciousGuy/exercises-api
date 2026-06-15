@@ -54,38 +54,107 @@ Expected response:
 }
 ```
 
+Register a developer account and get the first API key:
+
+```bash
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"dev@example.com\",\"password\":\"change-this-password\",\"name\":\"Example Developer\"}"
+```
+
+The plaintext API key is returned once. Store it securely and use it with protected endpoints:
+
+```bash
+EXERCISEDB_API_KEY=exdb_your_key_here
+```
+
 List exercises:
 
 ```bash
-curl "http://localhost:3000/exercises?limit=10&category=strength"
+curl "http://localhost:3000/exercises?limit=10&category=strength" \
+  -H "x-api-key: $EXERCISEDB_API_KEY"
+```
+
+List exercises updated after a timestamp:
+
+```bash
+curl "http://localhost:3000/exercises?updated_since=2026-06-15T10:00:00.000Z&include_deprecated=true" \
+  -H "x-api-key: $EXERCISEDB_API_KEY"
 ```
 
 Fetch one exercise:
 
 ```bash
-curl http://localhost:3000/exercises/slug/push-up
+curl http://localhost:3000/exercises/slug/push-up \
+  -H "x-api-key: $EXERCISEDB_API_KEY"
 ```
 
 Search exercises by name, alias, or exact tag:
 
 ```bash
-curl "http://localhost:3000/exercises/search?q=press&limit=10"
+curl "http://localhost:3000/exercises/search?q=press&limit=10" \
+  -H "x-api-key: $EXERCISEDB_API_KEY"
 ```
 
 Fetch multiple exercise records:
 
 ```bash
-curl "http://localhost:3000/exercises/bulk?ids=exercise-id-1,exercise-id-2"
+curl "http://localhost:3000/exercises/bulk?ids=exercise-id-1,exercise-id-2" \
+  -H "x-api-key: $EXERCISEDB_API_KEY"
 ```
 
 Fetch reference metadata:
 
 ```bash
-curl http://localhost:3000/metadata
-curl http://localhost:3000/muscles
-curl http://localhost:3000/equipment
-curl http://localhost:3000/categories
+curl http://localhost:3000/metadata -H "x-api-key: $EXERCISEDB_API_KEY"
+curl http://localhost:3000/muscles -H "x-api-key: $EXERCISEDB_API_KEY"
+curl http://localhost:3000/equipment -H "x-api-key: $EXERCISEDB_API_KEY"
+curl http://localhost:3000/categories -H "x-api-key: $EXERCISEDB_API_KEY"
 ```
+
+Fetch sync metadata:
+
+```bash
+curl http://localhost:3000/sync/metadata \
+  -H "x-api-key: $EXERCISEDB_API_KEY"
+```
+
+Fetch changed exercise records since a local cache timestamp:
+
+```bash
+curl "http://localhost:3000/sync/exercises?updated_since=2026-06-15T10:00:00.000Z&limit=100" \
+  -H "x-api-key: $EXERCISEDB_API_KEY"
+```
+
+Manage developer account keys and usage:
+
+```bash
+curl http://localhost:3000/me -H "x-api-key: $EXERCISEDB_API_KEY"
+curl http://localhost:3000/me/keys -H "x-api-key: $EXERCISEDB_API_KEY"
+curl -X POST http://localhost:3000/me/keys \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: $EXERCISEDB_API_KEY" \
+  -d "{\"label\":\"Mobile app\"}"
+curl http://localhost:3000/me/usage -H "x-api-key: $EXERCISEDB_API_KEY"
+```
+
+Protected responses include `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` headers.
+
+## Client Sync Strategy
+
+Mobile and web clients should treat the API as a public catalog source of truth and keep a local cache.
+
+Recommended flow:
+
+1. Call `GET /sync/metadata` to read the current catalog version and latest change timestamp.
+2. For a first sync, call `GET /sync/exercises?limit=100` until `pagination.hasMore` is false.
+3. Store returned `data.exercises` by `id`.
+4. Apply `data.tombstones` by removing or marking local records whose `changeType` is `deleted` or `deprecated`.
+5. Save the latest processed sync timestamp locally.
+6. For future syncs, call `GET /sync/exercises?updated_since=<saved timestamp>&limit=100`.
+7. If `pagination.nextCursor` is present, request the next page with `cursor=<nextCursor>` until no more pages remain.
+
+Use `include_deprecated=true` only when the client needs deprecated exercise records for migration or cleanup UI.
 
 ## Scripts
 
@@ -124,25 +193,37 @@ src/
     env.js
     supabaseEnv.js
   constants/
+    rateLimits.js
     service.js
   import/
     catalogFixtureFiles.js
     catalogImportPlans.js
     catalogSeeder.js
   middleware/
+    apiKeyAuth.js
     errorHandler.js
     notFound.js
   repositories/
+    authRepository.js
     exerciseMappers.js
+    exerciseQueries.js
     exerciseRepository.js
     referenceRepository.js
+    syncRepository.js
   routes/
+    auth.js
     exercises.js
     health.js
     references.js
+    sync.js
+  security/
+    apiKeys.js
+    passwords.js
   services/
+    authService.js
     exerciseService.js
     referenceService.js
+    syncService.js
   supabase/
     restClient.js
   validation/
@@ -163,4 +244,4 @@ docs/
 
 ## Current Status
 
-Phase 0 is the backend foundation. Phase 1 created and applied the hosted Supabase schema. Phase 2 adds validated fixture data and repeatable seed/import scripts. Phase 3 public catalog read endpoints are implemented with list, detail, search, bulk, relation, and reference metadata routes.
+Phase 0 is the backend foundation. Phase 1 created and applied the hosted Supabase schema. Phase 2 adds validated fixture data and repeatable seed/import scripts. Phase 3 public catalog read endpoints are implemented. Phase 4 sync endpoints are implemented for metadata, incremental exercise sync, tombstones, and cursor pagination. Phase 5 protects catalog/sync/reference endpoints with API keys, tracks usage, exposes developer account/key endpoints, returns rate limit headers, and gates premium exercise rows by tier.
