@@ -47,3 +47,264 @@ paths:
                       environment:
                         type: string
                         example: development
+  /exercises:
+    get:
+      summary: List public exercises
+      operationId: listExercises
+      tags:
+        - Exercises
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: category
+          in: query
+          schema:
+            type: string
+            example: strength
+        - name: difficulty
+          in: query
+          schema:
+            type: string
+            enum: [beginner, intermediate, advanced]
+        - name: muscle
+          in: query
+          schema:
+            type: string
+            example: chest
+        - name: equipment
+          in: query
+          schema:
+            type: string
+            example: bodyweight
+        - name: search
+          in: query
+          schema:
+            type: string
+            example: push
+        - name: fields
+          in: query
+          schema:
+            type: string
+            example: id,slug,name
+      responses:
+        '200':
+          description: Exercise summaries
+        '400':
+          description: Invalid query parameters
+  /exercises/{id}:
+    get:
+      summary: Get an exercise by id
+      operationId: getExerciseById
+      tags:
+        - Exercises
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Exercise detail
+        '404':
+          description: Exercise not found
+  /exercises/{id}/related:
+    get:
+      summary: Get grouped related exercises for an exercise
+      operationId: getRelatedExercises
+      tags:
+        - Exercises
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Grouped variations, progressions, and regressions
+        '404':
+          description: Exercise not found
+  /exercises/{id}/variations:
+    get:
+      summary: Get exercise variations
+      operationId: getExerciseVariations
+      tags:
+        - Exercises
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Variation exercise summaries
+        '404':
+          description: Exercise not found
+  /exercises/{id}/progressions:
+    get:
+      summary: Get exercise progressions
+      operationId: getExerciseProgressions
+      tags:
+        - Exercises
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Progression exercise summaries
+        '404':
+          description: Exercise not found
+  /exercises/{id}/regressions:
+    get:
+      summary: Get exercise regressions
+      operationId: getExerciseRegressions
+      tags:
+        - Exercises
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Regression exercise summaries
+        '404':
+          description: Exercise not found
+  /exercises/slug/{slug}:
+    get:
+      summary: Get an exercise by slug
+      operationId: getExerciseBySlug
+      tags:
+        - Exercises
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+            example: push-up
+      responses:
+        '200':
+          description: Exercise detail
+        '404':
+          description: Exercise not found
+  /exercises/search:
+    get:
+      summary: Search public exercises by name, alias, or exact tag
+      operationId: searchExercises
+      tags:
+        - Exercises
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            example: press
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Matching exercise summaries
+        '400':
+          description: Invalid query parameters
+  /exercises/bulk:
+    get:
+      summary: Fetch multiple exercises by id
+      operationId: getExercisesBulk
+      tags:
+        - Exercises
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          schema:
+            type: string
+            example: exercise-id-1,exercise-id-2
+      responses:
+        '200':
+          description: Exercise detail records
+        '400':
+          description: Missing or invalid ids
+  /metadata:
+    get:
+      summary: Get catalog reference metadata and enum values
+      operationId: getMetadata
+      tags:
+        - References
+      responses:
+        '200':
+          description: Reference tables and enum values
+  /muscles:
+    get:
+      summary: List muscles
+      operationId: listMuscles
+      tags:
+        - References
+      responses:
+        '200':
+          description: Muscle references
+  /equipment:
+    get:
+      summary: List equipment
+      operationId: listEquipment
+      tags:
+        - References
+      responses:
+        '200':
+          description: Equipment references
+  /categories:
+    get:
+      summary: List exercise categories
+      operationId: listCategories
+      tags:
+        - References
+      responses:
+        '200':
+          description: Category references
+  /exercise-flags:
+    get:
+      summary: List exercise flags
+      operationId: listExerciseFlags
+      tags:
+        - References
+      responses:
+        '200':
+          description: Exercise flag references
+  /joint-regions:
+    get:
+      summary: List joint regions
+      operationId: listJointRegions
+      tags:
+        - References
+      responses:
+        '200':
+          description: Joint region references
