@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Bodyweight",
+    "slug": "bodyweight",
+    "equipmentGroup": "bodyweight",
+    "displayOrder": 10
+  },
+  {
+    "name": "Barbell",
+    "slug": "barbell",
+    "equipmentGroup": "free_weight",
+    "displayOrder": 20
+  },
+  {
+    "name": "Dumbbell",
+    "slug": "dumbbell",
+    "equipmentGroup": "free_weight",
+    "displayOrder": 30
+  },
+  {
+    "name": "Kettlebell",
+    "slug": "kettlebell",
+    "equipmentGroup": "free_weight",
+    "displayOrder": 40
+  },
+  {
+    "name": "Cable Machine",
+    "slug": "cable-machine",
+    "equipmentGroup": "machine",
+    "displayOrder": 50
+  },
+  {
+    "name": "Resistance Band",
+    "slug": "resistance-band",
+    "equipmentGroup": "band",
+    "displayOrder": 60
+  },
+  {
+    "name": "Pull-up Bar",
+    "slug": "pull-up-bar",
+    "equipmentGroup": "station",
+    "displayOrder": 70
+  },
+  {
+    "name": "Bench",
+    "slug": "bench",
+    "equipmentGroup": "support",
+    "displayOrder": 80
+  },
+  {
+    "name": "Treadmill",
+    "slug": "treadmill",
+    "equipmentGroup": "cardio_machine",
+    "displayOrder": 90
+  },
+  {
+    "name": "Stationary Bike",
+    "slug": "stationary-bike",
+    "equipmentGroup": "cardio_machine",
+    "displayOrder": 100
+  }
+]
