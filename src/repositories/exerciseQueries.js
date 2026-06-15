@@ -21,13 +21,16 @@ const RELATION_CONFIG = {
 
 export function buildListFilters(filters, exerciseIds) {
   return {
-    status: 'eq.active',
+    status: filters.includeDeprecated ? 'in.(active,deprecated)' : 'eq.active',
     deleted_at: 'is.null',
     ...(filters.difficulty ? { difficulty: `eq.${filters.difficulty}` } : {}),
     ...(filters.category
       ? { 'categories.slug': `eq.${filters.category}` }
       : {}),
     ...(filters.search ? { name: `ilike.*${filters.search}*` } : {}),
+    ...(filters.updatedSince
+      ? { updated_at: `gt.${filters.updatedSince}` }
+      : {}),
     ...(exerciseIds ? { id: `in.(${exerciseIds.join(',')})` } : {}),
     order: 'name.asc',
     limit: String(filters.limit),
