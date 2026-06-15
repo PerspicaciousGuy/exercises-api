@@ -1,7 +1,7 @@
 import { parseSupabaseScriptEnv } from '../config/supabaseEnv.js';
 import { SupabaseRestClient } from '../supabase/restClient.js';
 
-const ENUM_VALUES = {
+export const CATALOG_ENUM_VALUES = {
   difficulties: ['beginner', 'intermediate', 'advanced'],
   movementPatterns: [
     'squat',
@@ -93,7 +93,7 @@ export function createReferenceRepository({ client }) {
         categories,
         exerciseFlags,
         jointRegions,
-        enums: ENUM_VALUES
+        enums: CATALOG_ENUM_VALUES
       };
     },
 
