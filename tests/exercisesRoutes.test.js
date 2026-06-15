@@ -30,7 +30,7 @@ describe('exercise routes', () => {
       getExerciseById: vi.fn(),
       getExerciseBySlug: vi.fn()
     };
-    const app = createApp({ exerciseRepository });
+    const app = createAppWithAuthBypass({ exerciseRepository });
 
     const response = await request(app)
       .get('/exercises')
@@ -40,7 +40,9 @@ describe('exercise routes', () => {
         category: 'strength',
         difficulty: 'beginner',
         equipment: 'bodyweight',
-        muscle: 'chest'
+        muscle: 'chest',
+        updated_since: '2026-06-15T10:00:00.000Z',
+        include_deprecated: 'true'
       })
       .expect(200);
 
@@ -51,7 +53,9 @@ describe('exercise routes', () => {
       difficulty: 'beginner',
       equipment: 'bodyweight',
       muscle: 'chest',
-      search: undefined
+      search: undefined,
+      updatedSince: '2026-06-15T10:00:00.000Z',
+      includeDeprecated: true
     });
     expect(response.body).toEqual({
       success: true,
@@ -78,7 +82,7 @@ describe('exercise routes', () => {
   });
 
   it('rejects invalid pagination values', async () => {
-    const app = createApp({
+    const app = createAppWithAuthBypass({
       exerciseRepository: createEmptyExerciseRepository()
     });
 
@@ -108,7 +112,7 @@ describe('exercise routes', () => {
         pagination: { limit: 20, offset: 0 }
       }))
     };
-    const app = createApp({ exerciseRepository });
+    const app = createAppWithAuthBypass({ exerciseRepository });
 
     const response = await request(app)
       .get('/exercises?fields=id,slug')
@@ -139,7 +143,7 @@ describe('exercise routes', () => {
         instructions: ['Start in a high plank.']
       }))
     };
-    const app = createApp({ exerciseRepository });
+    const app = createAppWithAuthBypass({ exerciseRepository });
 
     const response = await request(app)
       .get('/exercises/exercise-1')
@@ -159,6 +163,58 @@ describe('exercise routes', () => {
     });
   });
 
+  it('blocks premium exercise detail for free-tier API keys', async () => {
+    const exerciseRepository = {
+      ...createEmptyExerciseRepository(),
+      getExerciseById: vi.fn(async () => ({
+        id: 'exercise-1',
+        slug: 'premium-exercise',
+        name: 'Premium Exercise',
+        isPremium: true
+      }))
+    };
+    const app = createApp({
+      exerciseRepository,
+      apiKeyMiddleware: attachFreeApiConsumer
+    });
+
+    const response = await request(app)
+      .get('/exercises/exercise-1')
+      .set('x-api-key', 'exdb_free_key')
+      .expect(403);
+
+    expect(response.body).toEqual({
+      success: false,
+      error: {
+        code: 'PREMIUM_ACCESS_REQUIRED',
+        message: 'Premium content requires a pro or enterprise API tier'
+      }
+    });
+  });
+
+  it('allows premium exercise detail for pro-tier API keys', async () => {
+    const exerciseRepository = {
+      ...createEmptyExerciseRepository(),
+      getExerciseById: vi.fn(async () => ({
+        id: 'exercise-1',
+        slug: 'premium-exercise',
+        name: 'Premium Exercise',
+        isPremium: true
+      }))
+    };
+    const app = createApp({
+      exerciseRepository,
+      apiKeyMiddleware: attachProApiConsumer
+    });
+
+    const response = await request(app)
+      .get('/exercises/exercise-1')
+      .set('x-api-key', 'exdb_pro_key')
+      .expect(200);
+
+    expect(response.body.data.isPremium).toBe(true);
+  });
+
   it('returns an exercise by slug', async () => {
     const exerciseRepository = {
       ...createEmptyExerciseRepository(),
@@ -168,7 +224,7 @@ describe('exercise routes', () => {
         name: 'Push-up'
       }))
     };
-    const app = createApp({ exerciseRepository });
+    const app = createAppWithAuthBypass({ exerciseRepository });
 
     const response = await request(app)
       .get('/exercises/slug/push-up')
@@ -202,7 +258,7 @@ describe('exercise routes', () => {
         pagination: { limit: 5, offset: 0 }
       }))
     };
-    const app = createApp({ exerciseRepository });
+    const app = createAppWithAuthBypass({ exerciseRepository });
 
     const response = await request(app)
       .get('/exercises/search?q=press&limit=5')
@@ -231,7 +287,7 @@ describe('exercise routes', () => {
   });
 
   it('rejects a search request without a query', async () => {
-    const app = createApp({
+    const app = createAppWithAuthBypass({
       exerciseRepository: createEmptyExerciseRepository()
     });
 
@@ -257,7 +313,7 @@ describe('exercise routes', () => {
         }))
       )
     };
-    const app = createApp({ exerciseRepository });
+    const app = createAppWithAuthBypass({ exerciseRepository });
 
     const response = await request(app)
       .get('/exercises/bulk?ids=exercise-1,exercise-2')
@@ -285,7 +341,7 @@ describe('exercise routes', () => {
   });
 
   it('rejects bulk requests without ids', async () => {
-    const app = createApp({
+    const app = createAppWithAuthBypass({
       exerciseRepository: createEmptyExerciseRepository()
     });
 
@@ -312,7 +368,7 @@ describe('exercise routes', () => {
         }
       ])
     };
-    const app = createApp({ exerciseRepository });
+    const app = createAppWithAuthBypass({ exerciseRepository });
 
     const response = await request(app)
       .get('/exercises/exercise-1/variations')
@@ -346,7 +402,7 @@ describe('exercise routes', () => {
         }
       ])
     };
-    const app = createApp({ exerciseRepository });
+    const app = createAppWithAuthBypass({ exerciseRepository });
 
     await request(app).get('/exercises/exercise-1/progressions').expect(200);
 
@@ -368,7 +424,7 @@ describe('exercise routes', () => {
         }
       ])
     };
-    const app = createApp({ exerciseRepository });
+    const app = createAppWithAuthBypass({ exerciseRepository });
 
     await request(app).get('/exercises/exercise-1/regressions').expect(200);
 
@@ -390,7 +446,7 @@ describe('exercise routes', () => {
         }
       ])
     };
-    const app = createApp({ exerciseRepository });
+    const app = createAppWithAuthBypass({ exerciseRepository });
 
     const response = await request(app)
       .get('/exercises/exercise-1/related')
@@ -425,7 +481,7 @@ describe('exercise routes', () => {
   });
 
   it('returns not found for a missing exercise', async () => {
-    const app = createApp({
+    const app = createAppWithAuthBypass({
       exerciseRepository: createEmptyExerciseRepository()
     });
 
@@ -458,4 +514,31 @@ function createEmptyExerciseRepository() {
     getExerciseBySlug: vi.fn(async () => null),
     listExerciseRelations: vi.fn(async () => [])
   };
+}
+
+function createAppWithAuthBypass(options) {
+  return createApp({
+    ...options,
+    apiKeyMiddleware: allowApiKey
+  });
+}
+
+function allowApiKey(_request, _response, next) {
+  next();
+}
+
+function attachFreeApiConsumer(request, _response, next) {
+  request.apiConsumer = {
+    user: { id: 'user-1', tier: 'free' },
+    apiKey: { id: 'key-1' }
+  };
+  next();
+}
+
+function attachProApiConsumer(request, _response, next) {
+  request.apiConsumer = {
+    user: { id: 'user-1', tier: 'pro' },
+    apiKey: { id: 'key-1' }
+  };
+  next();
 }

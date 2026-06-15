@@ -33,18 +33,21 @@ describe('createExerciseRepository', () => {
       offset: 0,
       category: 'strength',
       difficulty: 'beginner',
-      search: 'push'
+      search: 'push',
+      updatedSince: '2026-06-15T10:00:00.000Z',
+      includeDeprecated: true
     });
 
     expect(client.select).toHaveBeenCalledWith('exercises', {
       columns:
         'id,slug,name,status,difficulty,movement_pattern,tags,updated_at,categories(slug,name)',
       filters: {
-        status: 'eq.active',
+        status: 'in.(active,deprecated)',
         deleted_at: 'is.null',
         difficulty: 'eq.beginner',
         'categories.slug': 'eq.strength',
         name: 'ilike.*push*',
+        updated_at: 'gt.2026-06-15T10:00:00.000Z',
         order: 'name.asc',
         limit: '10',
         offset: '0'

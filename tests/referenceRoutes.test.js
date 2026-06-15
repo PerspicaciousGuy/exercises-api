@@ -6,7 +6,7 @@ import { createApp } from '../src/app.js';
 describe('reference routes', () => {
   it('returns metadata with references and enum values', async () => {
     const referenceRepository = createReferenceRepository();
-    const app = createApp({ referenceRepository });
+    const app = createAppWithAuthBypass({ referenceRepository });
 
     const response = await request(app).get('/metadata').expect(200);
 
@@ -39,7 +39,7 @@ describe('reference routes', () => {
 
   it('returns muscles', async () => {
     const referenceRepository = createReferenceRepository();
-    const app = createApp({ referenceRepository });
+    const app = createAppWithAuthBypass({ referenceRepository });
 
     const response = await request(app).get('/muscles').expect(200);
 
@@ -52,7 +52,7 @@ describe('reference routes', () => {
 
   it('returns equipment', async () => {
     const referenceRepository = createReferenceRepository();
-    const app = createApp({ referenceRepository });
+    const app = createAppWithAuthBypass({ referenceRepository });
 
     const response = await request(app).get('/equipment').expect(200);
 
@@ -65,7 +65,7 @@ describe('reference routes', () => {
 
   it('returns categories', async () => {
     const referenceRepository = createReferenceRepository();
-    const app = createApp({ referenceRepository });
+    const app = createAppWithAuthBypass({ referenceRepository });
 
     const response = await request(app).get('/categories').expect(200);
 
@@ -78,7 +78,7 @@ describe('reference routes', () => {
 
   it('returns exercise flags', async () => {
     const referenceRepository = createReferenceRepository();
-    const app = createApp({ referenceRepository });
+    const app = createAppWithAuthBypass({ referenceRepository });
 
     const response = await request(app).get('/exercise-flags').expect(200);
 
@@ -91,7 +91,7 @@ describe('reference routes', () => {
 
   it('returns joint regions', async () => {
     const referenceRepository = createReferenceRepository();
-    const app = createApp({ referenceRepository });
+    const app = createAppWithAuthBypass({ referenceRepository });
 
     const response = await request(app).get('/joint-regions').expect(200);
 
@@ -136,4 +136,15 @@ function createReferenceRepository() {
       { slug: 'shoulder', name: 'Shoulder' }
     ])
   };
+}
+
+function createAppWithAuthBypass(options) {
+  return createApp({
+    ...options,
+    apiKeyMiddleware: allowApiKey
+  });
+}
+
+function allowApiKey(_request, _response, next) {
+  next();
 }

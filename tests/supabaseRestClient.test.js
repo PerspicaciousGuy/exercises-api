@@ -48,6 +48,36 @@ describe('SupabaseRestClient', () => {
       'Supabase REST request failed with status 400: bad request'
     );
   });
+
+  it('sends patch updates through the REST API', async () => {
+    const fetchImpl = vi.fn(async () => jsonResponse([{ id: 'key-1' }]));
+    const client = new SupabaseRestClient({
+      supabaseUrl: 'https://example.supabase.co',
+      serviceRoleKey: 'service-role-key',
+      fetchImpl
+    });
+
+    const rows = await client.update(
+      'api_keys',
+      { is_active: false },
+      {
+        filters: { id: 'eq.key-1' },
+        select: 'id'
+      }
+    );
+
+    expect(rows).toEqual([{ id: 'key-1' }]);
+    expect(fetchImpl).toHaveBeenCalledWith(
+      'https://example.supabase.co/rest/v1/api_keys?id=eq.key-1&select=id',
+      expect.objectContaining({
+        method: 'PATCH',
+        headers: expect.objectContaining({
+          Prefer: 'return=representation'
+        }),
+        body: JSON.stringify({ is_active: false })
+      })
+    );
+  });
 });
 
 function jsonResponse(body, overrides = {}) {
