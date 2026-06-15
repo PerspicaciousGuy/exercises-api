@@ -1,0 +1,79 @@
+[
+  {
+    "name": "Chest",
+    "slug": "chest",
+    "region": "upper_body",
+    "muscleGroup": "push",
+    "displayOrder": 10
+  },
+  {
+    "name": "Back",
+    "slug": "back",
+    "region": "upper_body",
+    "muscleGroup": "pull",
+    "displayOrder": 20
+  },
+  {
+    "name": "Shoulders",
+    "slug": "shoulders",
+    "region": "upper_body",
+    "muscleGroup": "push",
+    "displayOrder": 30
+  },
+  {
+    "name": "Biceps",
+    "slug": "biceps",
+    "region": "upper_body",
+    "muscleGroup": "pull",
+    "displayOrder": 40
+  },
+  {
+    "name": "Triceps",
+    "slug": "triceps",
+    "region": "upper_body",
+    "muscleGroup": "push",
+    "displayOrder": 50
+  },
+  {
+    "name": "Quadriceps",
+    "slug": "quadriceps",
+    "region": "lower_body",
+    "muscleGroup": "knee_dominant",
+    "displayOrder": 60
+  },
+  {
+    "name": "Hamstrings",
+    "slug": "hamstrings",
+    "region": "lower_body",
+    "muscleGroup": "hinge",
+    "displayOrder": 70
+  },
+  {
+    "name": "Glutes",
+    "slug": "glutes",
+    "region": "lower_body",
+    "muscleGroup": "hip_dominant",
+    "displayOrder": 80
+  },
+  {
+    "name": "Calves",
+    "slug": "calves",
+    "region": "lower_body",
+    "muscleGroup": "ankle",
+    "displayOrder": 90
+  },
+  {
+    "name": "Abs",
+    "slug": "abs",
+    "region": "core",
+    "muscleGroup": "anterior_core",
+    "displayOrder": 100
+  },
+  {
+    "name": "Lower Back",
+    "slug": "lower-back",
+    "region": "core",
+    "muscleGroup": "posterior_core",
+    "displayOrder": 110
+  }
+]

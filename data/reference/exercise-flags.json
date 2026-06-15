@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Beginner Friendly",
+    "slug": "beginner-friendly",
+    "description": "Suitable for most beginners with basic instruction.",
+    "displayOrder": 10
+  },
+  {
+    "name": "Home Friendly",
+    "slug": "home-friendly",
+    "description": "Can be performed in most home training environments.",
+    "displayOrder": 20
+  },
+  {
+    "name": "Unilateral",
+    "slug": "unilateral",
+    "description": "Loads one side of the body at a time.",
+    "displayOrder": 30
+  },
+  {
+    "name": "Compound",
+    "slug": "compound",
+    "description": "Uses multiple joints and major muscle groups.",
+    "displayOrder": 40
+  },
+  {
+    "name": "Isolation",
+    "slug": "isolation",
+    "description": "Emphasizes one primary joint or muscle group.",
+    "displayOrder": 50
+  },
+  {
+    "name": "Warmup",
+    "slug": "warmup",
+    "description": "Useful in warmup or preparation blocks.",
+    "displayOrder": 60
+  },
+  {
+    "name": "Low Impact",
+    "slug": "low-impact",
+    "description": "Lower joint impact than jumping or running alternatives.",
+    "displayOrder": 70
+  }
+]

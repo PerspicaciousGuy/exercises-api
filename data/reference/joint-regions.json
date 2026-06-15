@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Shoulder",
+    "slug": "shoulder",
+    "regionGroup": "upper_body",
+    "displayOrder": 10
+  },
+  {
+    "name": "Elbow",
+    "slug": "elbow",
+    "regionGroup": "upper_body",
+    "displayOrder": 20
+  },
+  {
+    "name": "Wrist",
+    "slug": "wrist",
+    "regionGroup": "upper_body",
+    "displayOrder": 30
+  },
+  {
+    "name": "Hip",
+    "slug": "hip",
+    "regionGroup": "lower_body",
+    "displayOrder": 40
+  },
+  {
+    "name": "Knee",
+    "slug": "knee",
+    "regionGroup": "lower_body",
+    "displayOrder": 50
+  },
+  {
+    "name": "Ankle",
+    "slug": "ankle",
+    "regionGroup": "lower_body",
+    "displayOrder": 60
+  },
+  {
+    "name": "Spine",
+    "slug": "spine",
+    "regionGroup": "core",
+    "displayOrder": 70
+  }
+]
