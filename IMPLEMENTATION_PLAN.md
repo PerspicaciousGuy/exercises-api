@@ -109,20 +109,22 @@ Exit criteria:
 
 **Goal:** Expose high-quality read endpoints for app developers.
 
-- [ ] Build route/controller/service boundaries for exercises.
-- [ ] Implement `GET /health`.
-- [ ] Implement `GET /exercises` with pagination, filters, sorting, and sparse field selection.
-- [ ] Implement `GET /exercises/:id`.
-- [ ] Implement `GET /exercises/slug/:slug`.
-- [ ] Implement `GET /exercises/search` with alias/tag-aware search.
-- [ ] Implement `GET /exercises/bulk?ids=...`.
-- [ ] Implement `GET /exercises/:id/related`.
-- [ ] Implement `GET /exercises/:id/variations`.
-- [ ] Implement `GET /exercises/:id/progressions`.
-- [ ] Implement `GET /exercises/:id/regressions`.
-- [ ] Implement reference endpoints for muscles, equipment, categories, movement patterns, flags, and metadata.
-- [ ] Add consistent response envelopes and error envelopes.
-- [ ] Add unit and integration tests for every endpoint.
+- [x] Build full route/controller/service boundaries for exercises.
+- [x] Implement `GET /health`.
+- [x] Implement `GET /exercises` with pagination, filters, sorting, and sparse field selection.
+- [x] Implement `GET /exercises/:id`.
+- [x] Implement `GET /exercises/slug/:slug`.
+- [x] Implement `GET /exercises/search` with alias/tag-aware search.
+- [x] Implement `GET /exercises/bulk?ids=...`.
+- [x] Implement `GET /exercises/:id/related`.
+- [x] Implement `GET /exercises/:id/variations`.
+- [x] Implement `GET /exercises/:id/progressions`.
+- [x] Implement `GET /exercises/:id/regressions`.
+- [x] Implement reference endpoints for muscles, equipment, categories, movement patterns, flags, and metadata.
+- [x] Add consistent response envelopes and error envelopes.
+- [x] Add unit and integration tests for every endpoint.
+
+Phase 3 public read endpoints are implemented with exercise services, Supabase REST repositories, route validation, search, bulk fetch, relation endpoints, reference metadata endpoints, OpenAPI entries, and automated tests. API-key enforcement remains pending for Phase 5.
 
 Exit criteria:
 

@@ -54,6 +54,39 @@ Expected response:
 }
 ```
 
+List exercises:
+
+```bash
+curl "http://localhost:3000/exercises?limit=10&category=strength"
+```
+
+Fetch one exercise:
+
+```bash
+curl http://localhost:3000/exercises/slug/push-up
+```
+
+Search exercises by name, alias, or exact tag:
+
+```bash
+curl "http://localhost:3000/exercises/search?q=press&limit=10"
+```
+
+Fetch multiple exercise records:
+
+```bash
+curl "http://localhost:3000/exercises/bulk?ids=exercise-id-1,exercise-id-2"
+```
+
+Fetch reference metadata:
+
+```bash
+curl http://localhost:3000/metadata
+curl http://localhost:3000/muscles
+curl http://localhost:3000/equipment
+curl http://localhost:3000/categories
+```
+
 ## Scripts
 
 - `npm run dev` - start the API with nodemon
@@ -99,8 +132,17 @@ src/
   middleware/
     errorHandler.js
     notFound.js
+  repositories/
+    exerciseMappers.js
+    exerciseRepository.js
+    referenceRepository.js
   routes/
+    exercises.js
     health.js
+    references.js
+  services/
+    exerciseService.js
+    referenceService.js
   supabase/
     restClient.js
   validation/
@@ -121,4 +163,4 @@ docs/
 
 ## Current Status
 
-Phase 0 is the backend foundation. Phase 1 created and applied the hosted Supabase schema. Phase 2 adds validated fixture data and repeatable seed/import scripts.
+Phase 0 is the backend foundation. Phase 1 created and applied the hosted Supabase schema. Phase 2 adds validated fixture data and repeatable seed/import scripts. Phase 3 public catalog read endpoints are implemented with list, detail, search, bulk, relation, and reference metadata routes.
