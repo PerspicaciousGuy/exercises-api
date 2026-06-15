@@ -124,7 +124,7 @@ Exit criteria:
 - [x] Add consistent response envelopes and error envelopes.
 - [x] Add unit and integration tests for every endpoint.
 
-Phase 3 public read endpoints are implemented with exercise services, Supabase REST repositories, route validation, search, bulk fetch, relation endpoints, reference metadata endpoints, OpenAPI entries, and automated tests. API-key enforcement remains pending for Phase 5.
+Phase 3 public read endpoints are implemented with exercise services, Supabase REST repositories, route validation, search, bulk fetch, relation endpoints, reference metadata endpoints, OpenAPI entries, and automated tests. API-key enforcement was added in Phase 5.
 
 Exit criteria:
 
@@ -138,14 +138,16 @@ Exit criteria:
 
 **Goal:** Support fitness apps that cache public exercise data locally.
 
-- [ ] Implement `GET /sync/metadata` with catalog version, supported resources, enum values, and latest update timestamp.
-- [ ] Implement `GET /sync/exercises?updated_since=...` for incremental sync.
-- [ ] Include deprecated/deleted IDs or tombstones in sync responses.
-- [ ] Support pagination cursors for large sync batches.
-- [ ] Add `updated_since` support to `GET /exercises`.
-- [ ] Add `include_deprecated` for clients that need migration or cleanup data.
-- [ ] Add tests for first sync, incremental sync, no-op sync, and deleted/deprecated records.
-- [ ] Document client caching strategy in the getting-started guide.
+- [x] Implement `GET /sync/metadata` with catalog version, supported resources, enum values, and latest update timestamp.
+- [x] Implement `GET /sync/exercises?updated_since=...` for incremental sync.
+- [x] Include deprecated/deleted IDs or tombstones in sync responses.
+- [x] Support pagination cursors for large sync batches.
+- [x] Add `updated_since` support to `GET /exercises`.
+- [x] Add `include_deprecated` for clients that need migration or cleanup data.
+- [x] Add tests for first sync, incremental sync, no-op sync, and deleted/deprecated records.
+- [x] Document client caching strategy in the getting-started guide.
+
+Phase 4 sync endpoints are implemented through `exercise_change_events`, opaque cursor pagination, exercise tombstones for deleted/deprecated records, and README client caching guidance.
 
 Exit criteria:
 
@@ -158,14 +160,16 @@ Exit criteria:
 
 **Goal:** Protect the API while keeping developer onboarding simple.
 
-- [ ] Implement API key generation and secure hashing.
-- [ ] Implement API key middleware with active/expiry checks.
-- [ ] Implement tier-based daily usage limits.
-- [ ] Store daily usage counts and raw usage logs.
-- [ ] Add rate limit headers.
-- [ ] Add premium content gating if premium catalog rows are used.
-- [ ] Implement `POST /auth/register`, `POST /auth/login`, `GET /me`, `GET /me/keys`, `POST /me/keys`, `DELETE /me/keys/:id`, and `GET /me/usage`.
-- [ ] Add tests for valid keys, invalid keys, revoked keys, expired keys, and limit exhaustion.
+- [x] Implement API key generation and secure hashing.
+- [x] Implement API key middleware with active/expiry checks.
+- [x] Implement tier-based daily usage limits.
+- [x] Store daily usage counts and raw usage logs.
+- [x] Add rate limit headers.
+- [x] Add premium content gating if premium catalog rows are used.
+- [x] Implement `POST /auth/register`, `POST /auth/login`, `GET /me`, `GET /me/keys`, `POST /me/keys`, `DELETE /me/keys/:id`, and `GET /me/usage`.
+- [x] Add tests for valid keys, invalid keys, revoked keys, expired keys, and limit exhaustion.
+
+Phase 5 is implemented with custom developer accounts, one-time plaintext API key generation, hashed API key storage, scrypt password hashes, API key middleware, daily usage counters, raw usage logs, rate limit response headers, premium exercise gating, developer account/key/usage endpoints, OpenAPI updates, and automated tests. Billing is still deferred to Phase 6.
 
 Exit criteria:
 
