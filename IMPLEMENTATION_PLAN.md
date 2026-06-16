@@ -6,7 +6,7 @@
 
 **Architecture:** Version 1 is a public catalog only. Supabase/PostgreSQL is the source of truth, Express exposes a curated API layer, and clients use sync endpoints to cache exercise data locally. Private user-created exercises, food data, workout generation, and a full admin UI are postponed until the public catalog is stable.
 
-**Tech Stack:** Node.js, Express.js, PostgreSQL via Supabase, Supabase JS client plus raw SQL, Zod, Jest or Vitest, Supertest, OpenAPI, Stripe, Railway or Render.
+**Tech Stack:** Node.js, Express.js, PostgreSQL via Supabase, Supabase JS client plus raw SQL, Zod, Jest or Vitest, Supertest, OpenAPI, provider-neutral billing integration, Railway or Render.
 
 ---
 
@@ -178,13 +178,15 @@ Exit criteria:
 
 ---
 
-## Phase 6: Billing And Developer Account Flow
+## Phase 6: Provider-Neutral Billing And Developer Account Flow
 
 **Goal:** Turn the API into a credible paid SaaS-style project without expanding the product surface.
 
-- [ ] Add Stripe customer and subscription fields.
-- [ ] Implement checkout session creation.
-- [ ] Implement Stripe webhook handling.
+- [ ] Choose the first billing provider based on availability and project needs, likely Razorpay for India-first payments or Lemon Squeezy for global merchant-of-record style checkout.
+- [ ] Add provider-neutral billing customer and subscription fields.
+- [ ] Implement a provider abstraction for checkout creation, webhook verification, subscription activation, subscription cancellation, and tier changes.
+- [ ] Implement checkout session or hosted payment link creation for the selected provider.
+- [ ] Implement verified webhook handling for the selected provider.
 - [ ] Update tiers on subscription changes.
 - [ ] Downgrade users safely on canceled or failed subscriptions.
 - [ ] Add tests for webhook signature validation and tier updates.
