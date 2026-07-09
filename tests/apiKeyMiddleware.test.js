@@ -12,12 +12,16 @@ describe('api key middleware', () => {
 
     const response = await request(app).get('/exercises').expect(401);
 
+    expect(response.headers['content-type']).toContain(
+      'application/problem+json'
+    );
     expect(response.body).toEqual({
-      success: false,
-      error: {
-        code: 'API_KEY_REQUIRED',
-        message: 'API key is required'
-      }
+      type: 'https://exercisedb-api.dev/errors/api-key-required',
+      title: 'Api Key Required',
+      status: 401,
+      detail: 'API key is required',
+      instance: '/exercises',
+      code: 'API_KEY_REQUIRED'
     });
   });
 
@@ -61,12 +65,36 @@ describe('api key middleware', () => {
       .expect(429);
 
     expect(response.body).toEqual({
-      success: false,
-      error: {
-        code: 'RATE_LIMIT_EXCEEDED',
-        message: 'Daily request limit exceeded'
-      }
+      type: 'https://exercisedb-api.dev/errors/rate-limit-exceeded',
+      title: 'Rate Limit Exceeded',
+      status: 429,
+      detail: 'Daily request limit exceeded',
+      instance: '/exercises',
+      code: 'RATE_LIMIT_EXCEEDED'
     });
+  });
+
+  it('sets Retry-After on a rate-limited response', async () => {
+    const authService = createAuthService({
+      authenticateApiKey: vi.fn(async () => {
+        const error = new Error('Daily request limit exceeded');
+        error.statusCode = 429;
+        error.code = 'RATE_LIMIT_EXCEEDED';
+        error.retryAfterSeconds = 3600;
+        throw error;
+      })
+    });
+    const app = createApp({
+      authService,
+      exerciseRepository: createExerciseRepository()
+    });
+
+    const response = await request(app)
+      .get('/exercises')
+      .set('x-api-key', 'exdb_limited_key')
+      .expect(429);
+
+    expect(response.headers['retry-after']).toBe('3600');
   });
 });
 
