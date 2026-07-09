@@ -96,7 +96,8 @@ export function createAuthService({ authRepository, now = () => new Date() }) {
         throw new AppError({
           statusCode: 429,
           code: 'RATE_LIMIT_EXCEEDED',
-          message: 'Daily request limit exceeded'
+          message: 'Daily request limit exceeded',
+          retryAfterSeconds: getSecondsUntilUsageReset(now())
         });
       }
 
@@ -287,4 +288,8 @@ function getNextUsageReset(date) {
   const resetAt = new Date(date);
   resetAt.setUTCHours(24, 0, 0, 0);
   return resetAt;
+}
+
+function getSecondsUntilUsageReset(date) {
+  return Math.ceil((getNextUsageReset(date).getTime() - date.getTime()) / 1000);
 }
