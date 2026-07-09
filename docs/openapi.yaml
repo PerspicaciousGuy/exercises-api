@@ -528,3 +528,44 @@ components:
       type: apiKey
       in: header
       name: x-api-key
+  schemas:
+    ProblemDetail:
+      type: object
+      description: >-
+        RFC 9457 Problem Details. Returned by every error response with
+        content type application/problem+json.
+      required:
+        - type
+        - title
+        - status
+        - code
+      properties:
+        type:
+          type: string
+          format: uri
+          description: Stable URI identifying the error type. Does not resolve.
+          example: https://exercisedb-api.dev/errors/validation-error
+        title:
+          type: string
+          description: Short human-readable summary of the error type.
+          example: Validation Error
+        status:
+          type: integer
+          description: HTTP status code, matching the response status.
+          example: 400
+        detail:
+          type: string
+          description: >-
+            Explanation specific to this occurrence. Replaced with a generic
+            message for 5xx responses so internals are never exposed.
+          example: limit must be less than or equal to 100
+        instance:
+          type: string
+          description: URI of the request that produced the error.
+          example: /exercises?limit=500
+        code:
+          type: string
+          description: >-
+            Machine-readable error code. RFC 9457 extension member retained for
+            programmatic error handling.
+          example: VALIDATION_ERROR
