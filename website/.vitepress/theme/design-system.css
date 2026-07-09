@@ -1,0 +1,308 @@
+/**
+ * ExerciseDB API — Design System
+ *
+ * The single source of truth for every design value in this project.
+ *
+ * No color, font size, spacing value, radius, shadow, breakpoint, z-index, or
+ * animation duration may be written anywhere else. If a value is needed and
+ * does not exist here, add it here first, then reference the token.
+ *
+ * Structure:
+ *   1. Primitives      raw scales, theme-independent, never used directly
+ *   2. Semantic tokens meaning-bearing aliases that DO get used
+ *   3. Dark theme      semantic tokens re-pointed at different primitives
+ *   4. VitePress map   bridges our tokens onto the default theme
+ *
+ * Primitives are never referenced by a component. Components reference
+ * semantic tokens only, which is what lets the dark theme re-point them
+ * without touching a single component.
+ */
+
+:root {
+  /* ---------------------------------------------------------------------
+   * 1. PRIMITIVES — raw scales. Never reference these outside this file.
+   * ------------------------------------------------------------------ */
+
+  /* Brand. Teal-green: reads as vitality without the alarm of pure red or
+   * the genericism of SaaS indigo.
+   * Contrast on white: 600 = 4.75:1, 700 = 6.70:1, 800 = 8.95:1.
+   * 500 is only 3.17:1 — never use it for text or icons on a light surface.
+   * Steps 400 and lighter are for dark surfaces only. */
+  --ex-teal-50: #eefbf6;
+  --ex-teal-100: #d5f5e7;
+  --ex-teal-200: #aeead4;
+  --ex-teal-300: #79d8ba;
+  --ex-teal-400: #43be9b;
+  --ex-teal-500: #1fa382;
+  --ex-teal-600: #128269;
+  --ex-teal-700: #0f6856;
+  --ex-teal-800: #105345;
+  --ex-teal-900: #0e453a;
+  --ex-teal-950: #04271f;
+
+  /* Neutrals. Slightly warm so long-form prose does not read clinical. */
+  --ex-gray-50: #f8f9f8;
+  --ex-gray-100: #f1f2f1;
+  --ex-gray-200: #e4e6e5;
+  --ex-gray-300: #cdd1cf;
+  --ex-gray-400: #9ba39f;
+  /* Exists so dark-theme subtle text clears 4.5:1; gray-500 reaches only
+   * 4.11:1 on gray-950. */
+  --ex-gray-450: #87908c;
+  --ex-gray-500: #6f7874;
+  --ex-gray-600: #565e5b;
+  --ex-gray-700: #454b49;
+  --ex-gray-800: #2c3130;
+  --ex-gray-900: #1b1f1e;
+  --ex-gray-950: #101312;
+
+  --ex-white: #ffffff;
+  --ex-black: #000000;
+
+  /* Status. Used for callouts, HTTP status badges, and diff highlighting.
+   * Each hue carries two steps because no single value clears 4.5:1 against
+   * both a white and a near-black surface. Light themes take the darker
+   * step, dark themes the lighter one. */
+  --ex-green-600: #15803d; /* 5.02:1 on white */
+  --ex-green-500: #16a34a; /* 5.67:1 on gray-950 */
+  --ex-green-100: #dcfce7;
+  --ex-amber-700: #b45309; /* 5.02:1 on white */
+  --ex-amber-500: #d97706; /* 5.86:1 on gray-950 */
+  --ex-amber-100: #fef3c7;
+  --ex-red-500: #dc2626; /* 4.83:1 on white */
+  --ex-red-400: #f87171; /* 6.75:1 on gray-950 */
+  --ex-red-100: #fee2e2;
+  --ex-blue-500: #2563eb; /* 5.17:1 on white */
+  --ex-blue-400: #60a5fa; /* 7.35:1 on gray-950 */
+  --ex-blue-100: #dbeafe;
+
+  /* ---------------------------------------------------------------------
+   * 2. SEMANTIC TOKENS — reference these.
+   * ------------------------------------------------------------------ */
+
+  /* Brand. On a light surface, interaction states darken. A lighter hover
+   * would drop contrast below 4.5:1 for link text. */
+  --ex-color-brand: var(--ex-teal-600);
+  --ex-color-brand-hover: var(--ex-teal-700);
+  --ex-color-brand-active: var(--ex-teal-800);
+  --ex-color-brand-subtle: var(--ex-teal-50);
+  --ex-color-brand-border: var(--ex-teal-200);
+  --ex-color-on-brand: var(--ex-white);
+
+  /* Surfaces */
+  --ex-color-surface: var(--ex-white);
+  --ex-color-surface-raised: var(--ex-gray-50);
+  --ex-color-surface-sunken: var(--ex-gray-100);
+  --ex-color-surface-inverse: var(--ex-gray-900);
+
+  /* Text. `-muted` is the lightest value still passing 4.5:1 on surface. */
+  --ex-color-text: var(--ex-gray-900);
+  --ex-color-text-muted: var(--ex-gray-600);
+  --ex-color-text-subtle: var(--ex-gray-500);
+  --ex-color-text-inverse: var(--ex-gray-50);
+
+  /* Borders */
+  --ex-color-border: var(--ex-gray-200);
+  --ex-color-border-strong: var(--ex-gray-300);
+
+  /* Status */
+  --ex-color-success: var(--ex-green-600);
+  --ex-color-success-subtle: var(--ex-green-100);
+  --ex-color-warning: var(--ex-amber-700);
+  --ex-color-warning-subtle: var(--ex-amber-100);
+  --ex-color-danger: var(--ex-red-500);
+  --ex-color-danger-subtle: var(--ex-red-100);
+  --ex-color-info: var(--ex-blue-500);
+  --ex-color-info-subtle: var(--ex-blue-100);
+
+  /* ---------------------------------------------------------------------
+   * Typography
+   * ------------------------------------------------------------------ */
+
+  --ex-font-sans:
+    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --ex-font-mono:
+    ui-monospace, 'JetBrains Mono', 'SFMono-Regular', 'Menlo', 'Consolas',
+    monospace;
+
+  /* Modular scale, ratio 1.2, 16px base. */
+  --ex-text-xs: 0.75rem;
+  --ex-text-sm: 0.875rem;
+  --ex-text-base: 1rem;
+  --ex-text-lg: 1.125rem;
+  --ex-text-xl: 1.375rem;
+  --ex-text-2xl: 1.625rem;
+  --ex-text-3xl: 2rem;
+  --ex-text-4xl: 2.5rem;
+
+  --ex-weight-regular: 400;
+  --ex-weight-medium: 500;
+  --ex-weight-semibold: 600;
+  --ex-weight-bold: 700;
+
+  --ex-leading-tight: 1.2;
+  --ex-leading-snug: 1.4;
+  --ex-leading-normal: 1.6;
+  --ex-leading-relaxed: 1.75;
+
+  --ex-tracking-tight: -0.02em;
+  --ex-tracking-normal: 0;
+  --ex-tracking-wide: 0.02em;
+
+  /* ---------------------------------------------------------------------
+   * Spacing — 4px base unit.
+   * ------------------------------------------------------------------ */
+
+  --ex-space-0: 0;
+  --ex-space-1: 0.25rem;
+  --ex-space-2: 0.5rem;
+  --ex-space-3: 0.75rem;
+  --ex-space-4: 1rem;
+  --ex-space-5: 1.5rem;
+  --ex-space-6: 2rem;
+  --ex-space-7: 3rem;
+  --ex-space-8: 4rem;
+  --ex-space-9: 6rem;
+
+  /* ---------------------------------------------------------------------
+   * Radius, shadow, motion, layering
+   * ------------------------------------------------------------------ */
+
+  --ex-radius-sm: 4px;
+  --ex-radius-md: 8px;
+  --ex-radius-lg: 12px;
+  --ex-radius-full: 9999px;
+
+  --ex-shadow-sm: 0 1px 2px rgb(16 19 18 / 6%);
+  --ex-shadow-md: 0 2px 8px rgb(16 19 18 / 8%);
+  --ex-shadow-lg: 0 8px 24px rgb(16 19 18 / 12%);
+
+  --ex-duration-fast: 100ms;
+  --ex-duration-base: 200ms;
+  --ex-duration-slow: 400ms;
+
+  --ex-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ex-ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  --ex-z-base: 0;
+  --ex-z-dropdown: 100;
+  --ex-z-sticky: 200;
+  --ex-z-overlay: 300;
+  --ex-z-modal: 400;
+  --ex-z-toast: 500;
+
+  /* Breakpoints. Declared for documentation; CSS custom properties cannot be
+   * used inside @media queries, so media rules restate these values. Any
+   * change here must be mirrored in the @media rules that consume them. */
+  --ex-breakpoint-sm: 640px;
+  --ex-breakpoint-md: 768px;
+  --ex-breakpoint-lg: 1024px;
+  --ex-breakpoint-xl: 1280px;
+}
+
+/* -----------------------------------------------------------------------
+ * 3. DARK THEME
+ *
+ * Only semantic tokens are re-pointed. Primitives are unchanged, and no
+ * component needs to know a dark theme exists. VitePress toggles `.dark`
+ * on the <html> element.
+ * -------------------------------------------------------------------- */
+
+.dark {
+  /* Direction inverts against a dark surface: interaction states lighten. */
+  --ex-color-brand: var(--ex-teal-400);
+  --ex-color-brand-hover: var(--ex-teal-300);
+  --ex-color-brand-active: var(--ex-teal-200);
+  --ex-color-brand-subtle: var(--ex-teal-950);
+  --ex-color-brand-border: var(--ex-teal-800);
+  --ex-color-on-brand: var(--ex-gray-950);
+
+  --ex-color-surface: var(--ex-gray-950);
+  --ex-color-surface-raised: var(--ex-gray-900);
+  --ex-color-surface-sunken: var(--ex-black);
+  --ex-color-surface-inverse: var(--ex-gray-50);
+
+  --ex-color-text: var(--ex-gray-100);
+  --ex-color-text-muted: var(--ex-gray-400);
+  --ex-color-text-subtle: var(--ex-gray-450);
+  --ex-color-text-inverse: var(--ex-gray-900);
+
+  --ex-color-border: var(--ex-gray-800);
+  --ex-color-border-strong: var(--ex-gray-700);
+
+  /* Status hues lighten in dark mode to hold contrast against a dark
+   * surface; the `-subtle` fills become dark tints rather than pale ones. */
+  --ex-color-success: var(--ex-green-500);
+  --ex-color-warning: var(--ex-amber-500);
+  --ex-color-danger: var(--ex-red-400);
+  --ex-color-info: var(--ex-blue-400);
+
+  --ex-color-success-subtle: #052e16;
+  --ex-color-warning-subtle: #3a2506;
+  --ex-color-danger-subtle: #3f1414;
+  --ex-color-info-subtle: #0d1f4a;
+
+  --ex-shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
+  --ex-shadow-md: 0 2px 8px rgb(0 0 0 / 48%);
+  --ex-shadow-lg: 0 8px 24px rgb(0 0 0 / 56%);
+}
+
+/* -----------------------------------------------------------------------
+ * 4. VITEPRESS BRIDGE
+ *
+ * Maps our tokens onto VitePress's own custom properties so the default
+ * theme inherits the design system rather than fighting it. This is the
+ * only place a `--vp-*` name may appear.
+ * -------------------------------------------------------------------- */
+
+:root {
+  --vp-c-brand-1: var(--ex-color-brand);
+  --vp-c-brand-2: var(--ex-color-brand-hover);
+  --vp-c-brand-3: var(--ex-color-brand-active);
+  --vp-c-brand-soft: var(--ex-color-brand-subtle);
+
+  --vp-c-bg: var(--ex-color-surface);
+  --vp-c-bg-alt: var(--ex-color-surface-raised);
+  --vp-c-bg-soft: var(--ex-color-surface-raised);
+
+  --vp-c-text-1: var(--ex-color-text);
+  --vp-c-text-2: var(--ex-color-text-muted);
+  --vp-c-text-3: var(--ex-color-text-subtle);
+
+  --vp-c-divider: var(--ex-color-border);
+  --vp-c-border: var(--ex-color-border);
+  --vp-c-gutter: var(--ex-color-border);
+
+  --vp-c-tip-1: var(--ex-color-info);
+  --vp-c-tip-soft: var(--ex-color-info-subtle);
+  --vp-c-warning-1: var(--ex-color-warning);
+  --vp-c-warning-soft: var(--ex-color-warning-subtle);
+  --vp-c-danger-1: var(--ex-color-danger);
+  --vp-c-danger-soft: var(--ex-color-danger-subtle);
+
+  --vp-font-family-base: var(--ex-font-sans);
+  --vp-font-family-mono: var(--ex-font-mono);
+
+  --vp-button-brand-bg: var(--ex-color-brand);
+  --vp-button-brand-hover-bg: var(--ex-color-brand-hover);
+  --vp-button-brand-active-bg: var(--ex-color-brand-active);
+  --vp-button-brand-text: var(--ex-color-on-brand);
+  --vp-button-brand-border: transparent;
+
+  --vp-shadow-1: var(--ex-shadow-sm);
+  --vp-shadow-2: var(--ex-shadow-md);
+  --vp-shadow-3: var(--ex-shadow-lg);
+}
+
+/* Respect a reader's reduced-motion preference across the whole site. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
