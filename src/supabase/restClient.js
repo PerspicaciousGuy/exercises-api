@@ -14,7 +14,16 @@ export class SupabaseRestClient {
     return this.request(url, { method: 'GET' });
   }
 
-  async upsert(table, rows, { onConflict, select = '*' } = {}) {
+  /**
+   * `ignoreDuplicates` returns an empty array when the row already exists
+   * instead of merging it, which lets callers detect a conflict without a
+   * read-then-write race.
+   */
+  async upsert(
+    table,
+    rows,
+    { onConflict, select = '*', ignoreDuplicates = false } = {}
+  ) {
     if (rows.length === 0) {
       return [];
     }
@@ -24,10 +33,14 @@ export class SupabaseRestClient {
       select
     });
 
+    const resolution = ignoreDuplicates
+      ? 'ignore-duplicates'
+      : 'merge-duplicates';
+
     return this.request(url, {
       method: 'POST',
       body: JSON.stringify(rows),
-      prefer: 'resolution=merge-duplicates,return=representation'
+      prefer: `resolution=${resolution},return=representation`
     });
   }
 
