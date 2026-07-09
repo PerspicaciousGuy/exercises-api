@@ -106,11 +106,12 @@ describe('sync routes', () => {
       .expect(400);
 
     expect(response.body).toEqual({
-      success: false,
-      error: {
-        code: 'VALIDATION_ERROR',
-        message: 'updated_since invalid datetime'
-      }
+      type: 'https://exercisedb-api.dev/errors/validation-error',
+      title: 'Validation Error',
+      status: 400,
+      detail: 'updated_since invalid datetime',
+      instance: '/sync/exercises?updated_since=not-a-date',
+      code: 'VALIDATION_ERROR'
     });
   });
 });
