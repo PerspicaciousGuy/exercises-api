@@ -89,11 +89,12 @@ describe('exercise routes', () => {
     const response = await request(app).get('/exercises?limit=500').expect(400);
 
     expect(response.body).toEqual({
-      success: false,
-      error: {
-        code: 'VALIDATION_ERROR',
-        message: 'limit must be less than or equal to 100'
-      }
+      type: 'https://exercisedb-api.dev/errors/validation-error',
+      title: 'Validation Error',
+      status: 400,
+      detail: 'limit must be less than or equal to 100',
+      instance: '/exercises?limit=500',
+      code: 'VALIDATION_ERROR'
     });
   });
 
@@ -184,11 +185,12 @@ describe('exercise routes', () => {
       .expect(403);
 
     expect(response.body).toEqual({
-      success: false,
-      error: {
-        code: 'PREMIUM_ACCESS_REQUIRED',
-        message: 'Premium content requires a pro or enterprise API tier'
-      }
+      type: 'https://exercisedb-api.dev/errors/premium-access-required',
+      title: 'Premium Access Required',
+      status: 403,
+      detail: 'Premium content requires a pro or enterprise API tier',
+      instance: '/exercises/exercise-1',
+      code: 'PREMIUM_ACCESS_REQUIRED'
     });
   });
 
@@ -294,11 +296,12 @@ describe('exercise routes', () => {
     const response = await request(app).get('/exercises/search').expect(400);
 
     expect(response.body).toEqual({
-      success: false,
-      error: {
-        code: 'VALIDATION_ERROR',
-        message: 'q is required'
-      }
+      type: 'https://exercisedb-api.dev/errors/validation-error',
+      title: 'Validation Error',
+      status: 400,
+      detail: 'q is required',
+      instance: '/exercises/search',
+      code: 'VALIDATION_ERROR'
     });
   });
 
@@ -348,11 +351,12 @@ describe('exercise routes', () => {
     const response = await request(app).get('/exercises/bulk').expect(400);
 
     expect(response.body).toEqual({
-      success: false,
-      error: {
-        code: 'VALIDATION_ERROR',
-        message: 'ids is required'
-      }
+      type: 'https://exercisedb-api.dev/errors/validation-error',
+      title: 'Validation Error',
+      status: 400,
+      detail: 'ids is required',
+      instance: '/exercises/bulk',
+      code: 'VALIDATION_ERROR'
     });
   });
 
@@ -490,11 +494,12 @@ describe('exercise routes', () => {
       .expect(404);
 
     expect(response.body).toEqual({
-      success: false,
-      error: {
-        code: 'EXERCISE_NOT_FOUND',
-        message: 'Exercise was not found'
-      }
+      type: 'https://exercisedb-api.dev/errors/exercise-not-found',
+      title: 'Exercise Not Found',
+      status: 404,
+      detail: 'Exercise was not found',
+      instance: '/exercises/unknown-exercise',
+      code: 'EXERCISE_NOT_FOUND'
     });
   });
 });
