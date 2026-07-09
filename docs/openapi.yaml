@@ -2,225 +2,256 @@ openapi: 3.0.3
 info:
   title: ExerciseDB API
   version: 0.1.0
-  description: Public exercise catalog API for fitness app developers.
+  description: >
+    A public exercise catalog API for fitness app developers.
+
+
+    Every endpoint returns a `{ success, data }` envelope. Errors are
+    [RFC 9457 Problem Details](https://www.rfc-editor.org/rfc/rfc9457) served as
+    `application/problem+json` — branch on the `code` member, which is stable.
+
+
+    Authenticate with an API key in the `x-api-key` header, or as
+    `Authorization: Bearer <key>`. Keys are issued once at registration and are
+    never shown again.
+
+
+    Quotas are per API key and reset at midnight UTC. Every response carries
+    `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
 servers:
   - url: http://localhost:3000
     description: Local development
+
 security:
   - ApiKeyAuth: []
+  - BearerAuth: []
+
+tags:
+  - name: Health
+    description: Liveness checks. No authentication required.
+  - name: Auth
+    description: >
+      Developer accounts and API keys. Registration and login are public;
+      everything under `/me` requires a key.
+  - name: Exercises
+    description: >
+      The public catalog. Summaries carry the fields needed to render a list;
+      details carry everything, including coaching cues and programming data.
+  - name: References
+    description: >
+      Lookup tables and enum values. Fetch once, cache aggressively — these
+      change rarely.
+  - name: Sync
+    description: >
+      Incremental sync for clients that cache the catalog locally. Returns only
+      what changed, plus tombstones for records that were deleted or deprecated.
+  - name: Billing
+    description: Subscription checkout. Tier changes arrive by webhook.
+  - name: Webhooks
+    description: >
+      Called by the billing provider, not by you. Authenticated with an HMAC
+      signature rather than an API key.
+
 paths:
   /health:
     get:
       summary: Check API health
       operationId: getHealth
-      tags:
-        - Health
+      tags: [Health]
       security: []
       responses:
         '200':
-          description: API is running
+          description: The API is running.
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - success
-                  - data
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    type: object
-                    required:
-                      - status
-                      - service
-                      - version
-                      - environment
-                    properties:
-                      status:
-                        type: string
-                        example: ok
-                      service:
-                        type: string
-                        example: exercisedb-api
-                      version:
-                        type: string
-                        example: 0.1.0
-                      environment:
-                        type: string
-                        example: development
+                $ref: '#/components/schemas/HealthResponse'
+
   /auth/register:
     post:
       summary: Register a developer account and issue the first API key
+      description: >
+        The plaintext key in `data.apiKey.key` is returned exactly once. The
+        server stores only a SHA-256 hash and cannot show it to you again.
       operationId: registerDeveloper
-      tags:
-        - Auth
+      tags: [Auth]
       security: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - email
-                - password
-              properties:
-                email:
-                  type: string
-                  format: email
-                  example: dev@example.com
-                password:
-                  type: string
-                  minLength: 8
-                  example: change-this-password
-                name:
-                  type: string
-                  example: Example Developer
+              $ref: '#/components/schemas/RegisterRequest'
       responses:
         '201':
-          description: Developer account and one-time plaintext API key
+          description: Account created, with a one-time plaintext API key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSessionResponse'
         '400':
-          description: Invalid registration body
+          $ref: '#/components/responses/BadRequest'
         '409':
-          description: Email is already registered
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /auth/login:
     post:
       summary: Log in and issue a new API key
+      description: >
+        Each successful login issues a **new** API key. Existing keys remain
+        valid until revoked.
       operationId: loginDeveloper
-      tags:
-        - Auth
+      tags: [Auth]
       security: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - email
-                - password
-              properties:
-                email:
-                  type: string
-                  format: email
-                  example: dev@example.com
-                password:
-                  type: string
-                  example: change-this-password
+              $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Developer account and one-time plaintext API key
+          description: Authenticated, with a one-time plaintext API key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSessionResponse'
         '400':
-          description: Invalid login body
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Invalid credentials
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /me:
     get:
       summary: Get the current developer account
       operationId: getCurrentDeveloper
-      tags:
-        - Auth
+      tags: [Auth]
       responses:
         '200':
-          description: Current developer account and tier
+          description: The account the API key belongs to.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeveloperAccountResponse'
         '401':
-          description: Missing or invalid API key
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /me/keys:
     get:
       summary: List API keys for the current developer account
+      description: Metadata only. Plaintext key values are never returned here.
       operationId: listDeveloperApiKeys
-      tags:
-        - Auth
+      tags: [Auth]
       responses:
         '200':
-          description: API key metadata without plaintext key values
+          description: API key metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyListResponse'
         '401':
-          description: Missing or invalid API key
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
       summary: Create a new API key
       operationId: createDeveloperApiKey
-      tags:
-        - Auth
+      tags: [Auth]
       requestBody:
         required: false
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                label:
-                  type: string
-                  maxLength: 100
-                  example: Mobile app
-                expiresAt:
-                  type: string
-                  format: date-time
-                  example: 2027-06-15T10:00:00.000Z
+              $ref: '#/components/schemas/CreateApiKeyRequest'
       responses:
         '201':
-          description: API key metadata and one-time plaintext key
+          description: The new key, including its one-time plaintext value.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssuedApiKeyResponse'
         '400':
-          description: Invalid key creation body
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid API key
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /me/keys/{id}:
     delete:
       summary: Revoke an API key
       operationId: revokeDeveloperApiKey
-      tags:
-        - Auth
+      tags: [Auth]
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/ApiKeyId'
       responses:
         '200':
-          description: Revoked API key metadata
+          description: The revoked key's metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyResponse'
         '401':
-          description: Missing or invalid API key
+          $ref: '#/components/responses/Unauthorized'
         '404':
-          description: API key was not found for the current developer
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /me/usage:
     get:
-      summary: Get usage stats for the current developer account
+      summary: Get daily usage for the current developer account
       operationId: getDeveloperUsage
-      tags:
-        - Auth
+      tags: [Auth]
       responses:
         '200':
-          description: Tier limit and recent daily usage rows
+          description: One row per day, most recent first.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsageResponse'
         '401':
-          description: Missing or invalid API key
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /exercises:
     get:
       summary: List public exercises
+      description: >
+        Returns summaries, not full details. Free-tier keys never see premium
+        exercises; they are filtered out rather than erroring.
       operationId: listExercises
-      tags:
-        - Exercises
+      tags: [Exercises]
       parameters:
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 20
-        - name: offset
-          in: query
-          schema:
-            type: integer
-            minimum: 0
-            default: 0
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
         - name: category
           in: query
-          schema:
-            type: string
-            example: strength
+          description: Category slug.
+          schema: { type: string, example: strength }
         - name: difficulty
           in: query
           schema:
@@ -228,312 +259,1275 @@ paths:
             enum: [beginner, intermediate, advanced]
         - name: muscle
           in: query
-          schema:
-            type: string
-            example: chest
+          description: Muscle slug.
+          schema: { type: string, example: chest }
         - name: equipment
           in: query
-          schema:
-            type: string
-            example: bodyweight
+          description: Equipment slug.
+          schema: { type: string, example: bodyweight }
         - name: search
           in: query
-          schema:
-            type: string
-            example: push
-        - name: updated_since
-          in: query
-          schema:
-            type: string
-            format: date-time
-            example: 2026-06-15T10:00:00.000Z
-        - name: include_deprecated
-          in: query
-          schema:
-            type: boolean
-            default: false
+          description: Free-text match against name, aliases, and tags.
+          schema: { type: string, example: push }
+        - $ref: '#/components/parameters/UpdatedSince'
+        - $ref: '#/components/parameters/IncludeDeprecated'
         - name: fields
           in: query
+          description: >
+            Comma-separated allowlist of fields to return. Unknown field names
+            are ignored rather than rejected.
           schema:
             type: string
-            example: id,slug,name
+            example: 'id,slug,name'
       responses:
         '200':
-          description: Exercise summaries
+          description: A page of exercise summaries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseListResponse'
         '400':
-          description: Invalid query parameters
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid API key
-  /exercises/{id}:
-    get:
-      summary: Get an exercise by id
-      operationId: getExerciseById
-      tags:
-        - Exercises
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Exercise detail
-        '403':
-          description: Premium content requires a pro or enterprise API tier
-        '404':
-          description: Exercise not found
-  /exercises/{id}/related:
-    get:
-      summary: Get grouped related exercises for an exercise
-      operationId: getRelatedExercises
-      tags:
-        - Exercises
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Grouped variations, progressions, and regressions
-        '404':
-          description: Exercise not found
-  /exercises/{id}/variations:
-    get:
-      summary: Get exercise variations
-      operationId: getExerciseVariations
-      tags:
-        - Exercises
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Variation exercise summaries
-        '404':
-          description: Exercise not found
-  /exercises/{id}/progressions:
-    get:
-      summary: Get exercise progressions
-      operationId: getExerciseProgressions
-      tags:
-        - Exercises
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Progression exercise summaries
-        '404':
-          description: Exercise not found
-  /exercises/{id}/regressions:
-    get:
-      summary: Get exercise regressions
-      operationId: getExerciseRegressions
-      tags:
-        - Exercises
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Regression exercise summaries
-        '404':
-          description: Exercise not found
-  /exercises/slug/{slug}:
-    get:
-      summary: Get an exercise by slug
-      operationId: getExerciseBySlug
-      tags:
-        - Exercises
-      parameters:
-        - name: slug
-          in: path
-          required: true
-          schema:
-            type: string
-            example: push-up
-      responses:
-        '200':
-          description: Exercise detail
-        '403':
-          description: Premium content requires a pro or enterprise API tier
-        '404':
-          description: Exercise not found
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /exercises/search:
     get:
-      summary: Search public exercises by name, alias, or exact tag
+      summary: Search exercises by name, alias, or exact tag
       operationId: searchExercises
-      tags:
-        - Exercises
+      tags: [Exercises]
       parameters:
         - name: q
           in: query
           required: true
-          schema:
-            type: string
-            example: press
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 20
-        - name: offset
-          in: query
-          schema:
-            type: integer
-            minimum: 0
-            default: 0
+          schema: { type: string, minLength: 1, example: press }
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
       responses:
         '200':
-          description: Matching exercise summaries
+          description: Matching exercise summaries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseListResponse'
         '400':
-          description: Invalid query parameters
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /exercises/bulk:
     get:
-      summary: Fetch multiple exercises by id
+      summary: Fetch up to 50 exercises by id
       operationId: getExercisesBulk
-      tags:
-        - Exercises
+      tags: [Exercises]
       parameters:
         - name: ids
           in: query
           required: true
+          description: Comma-separated exercise ids. Maximum 50.
           schema:
             type: string
-            example: exercise-id-1,exercise-id-2
+            example: 8c1e5a10-0000-4000-8000-000000000001,8c1e5a10-0000-4000-8000-000000000002
       responses:
         '200':
-          description: Exercise detail records
+          description: Full exercise details, premium rows filtered by tier.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseDetailArrayResponse'
         '400':
-          description: Missing or invalid ids
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /exercises/slug/{slug}:
+    get:
+      summary: Get an exercise by slug
+      operationId: getExerciseBySlug
+      tags: [Exercises]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string, example: barbell-back-squat }
+      responses:
+        '200':
+          description: Full exercise detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /exercises/{id}/related:
+    get:
+      summary: Get variations, progressions, and regressions together
+      operationId: getRelatedExercises
+      tags: [Exercises]
+      parameters:
+        - $ref: '#/components/parameters/ExerciseId'
+      responses:
+        '200':
+          description: The three relation groups, each a list of summaries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelatedExercisesResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /exercises/{id}/variations:
+    get:
+      summary: Get exercise variations
+      operationId: getExerciseVariations
+      tags: [Exercises]
+      parameters:
+        - $ref: '#/components/parameters/ExerciseId'
+      responses:
+        '200':
+          description: Variation summaries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseSummaryArrayResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /exercises/{id}/progressions:
+    get:
+      summary: Get exercise progressions
+      description: Harder movements that build on this one.
+      operationId: getExerciseProgressions
+      tags: [Exercises]
+      parameters:
+        - $ref: '#/components/parameters/ExerciseId'
+      responses:
+        '200':
+          description: Progression summaries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseSummaryArrayResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /exercises/{id}/regressions:
+    get:
+      summary: Get exercise regressions
+      description: Easier movements that lead up to this one.
+      operationId: getExerciseRegressions
+      tags: [Exercises]
+      parameters:
+        - $ref: '#/components/parameters/ExerciseId'
+      responses:
+        '200':
+          description: Regression summaries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseSummaryArrayResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /exercises/{id}:
+    get:
+      summary: Get an exercise by id
+      operationId: getExerciseById
+      tags: [Exercises]
+      parameters:
+        - $ref: '#/components/parameters/ExerciseId'
+      responses:
+        '200':
+          description: Full exercise detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /metadata:
     get:
-      summary: Get catalog reference metadata and enum values
+      summary: Get every reference table in one request
       operationId: getMetadata
-      tags:
-        - References
+      tags: [References]
       responses:
         '200':
-          description: Reference tables and enum values
+          description: Muscles, equipment, categories, flags, and joint regions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogMetadataResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /muscles:
     get:
       summary: List muscles
       operationId: listMuscles
-      tags:
-        - References
+      tags: [References]
       responses:
         '200':
-          description: Muscle references
+          description: Muscle references.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MuscleListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /equipment:
     get:
       summary: List equipment
       operationId: listEquipment
-      tags:
-        - References
+      tags: [References]
       responses:
         '200':
-          description: Equipment references
+          description: Equipment references.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /categories:
     get:
       summary: List exercise categories
       operationId: listCategories
-      tags:
-        - References
+      tags: [References]
       responses:
         '200':
-          description: Category references
+          description: Category references.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /exercise-flags:
     get:
       summary: List exercise flags
       operationId: listExerciseFlags
-      tags:
-        - References
+      tags: [References]
       responses:
         '200':
-          description: Exercise flag references
+          description: Exercise flag references.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseFlagListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /joint-regions:
     get:
       summary: List joint regions
       operationId: listJointRegions
-      tags:
-        - References
+      tags: [References]
       responses:
         '200':
-          description: Joint region references
+          description: Joint region references.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JointRegionListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /sync/metadata:
     get:
-      summary: Get public catalog sync metadata
+      summary: Get catalog version and sync limits
+      description: >
+        Call this first. `catalogVersion` and `latestChangeAt` tell you whether
+        a sync is worth running at all.
       operationId: getSyncMetadata
-      tags:
-        - Sync
+      tags: [Sync]
       responses:
         '200':
-          description: Catalog version, latest timestamps, resources, and sync limits
+          description: Catalog version, latest timestamps, resources, and enums.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncMetadataResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /sync/exercises:
     get:
-      summary: Sync changed public exercises
+      summary: Sync exercises changed since a timestamp
+      description: >
+        Omit `updated_since` for a first full sync. Apply `data.tombstones` by
+        removing or flagging local records — they are not present in
+        `data.exercises`. Follow `pagination.nextCursor` until `hasMore` is
+        false.
       operationId: syncExercises
-      tags:
-        - Sync
+      tags: [Sync]
       parameters:
-        - name: updated_since
-          in: query
-          schema:
-            type: string
-            format: date-time
-            example: 2026-06-15T10:00:00.000Z
+        - $ref: '#/components/parameters/UpdatedSince'
         - name: limit
           in: query
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 100
+          schema: { type: integer, minimum: 1, maximum: 100, default: 100 }
         - name: cursor
           in: query
-          schema:
-            type: string
-            description: Opaque cursor returned by the previous sync page.
-        - name: include_deprecated
-          in: query
-          schema:
-            type: boolean
-            default: false
+          description: Opaque cursor from the previous page. Never construct one.
+          schema: { type: string }
+        - $ref: '#/components/parameters/IncludeDeprecated'
       responses:
         '200':
-          description: Changed exercise records, deleted/deprecated tombstones, and pagination cursor
+          description: Changed exercises, tombstones, and a cursor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncExercisesResponse'
         '400':
-          description: Invalid sync query parameters
+          $ref: '#/components/responses/BadRequest'
         '401':
-          description: Missing or invalid API key
+          $ref: '#/components/responses/Unauthorized'
         '429':
-          description: Daily usage limit exceeded
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /billing/checkout:
+    post:
+      summary: Create a checkout for a paid tier
+      description: >
+        Returns a hosted checkout URL. The `Location` header carries the same
+        value. Your account id travels with the checkout and returns on the
+        subscription webhook, which is how a payment is linked to an account.
+
+
+        The tier changes only when the webhook arrives — not when this call
+        returns.
+      operationId: createCheckout
+      tags: [Billing]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCheckoutRequest'
+      responses:
+        '201':
+          description: Checkout created.
+          headers:
+            Location:
+              description: The hosted checkout URL.
+              schema: { type: string, format: uri }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+
+  /webhooks/lemon-squeezy:
+    post:
+      summary: Receive a Lemon Squeezy subscription event
+      description: >
+        Called by Lemon Squeezy, not by API consumers. The raw request body is
+        verified against an HMAC-SHA256 signature in the `X-Signature` header;
+        no API key is accepted or required.
+
+
+        Deliveries are deduplicated on a hash of the raw body, so a retried
+        delivery is acknowledged without being applied twice. `active` and
+        `on_trial` grant the purchased tier; every other status downgrades the
+        account to `free` immediately.
+      operationId: receiveLemonSqueezyWebhook
+      tags: [Webhooks]
+      security: []
+      parameters:
+        - name: X-Signature
+          in: header
+          required: true
+          description: HMAC-SHA256 hex digest of the raw request body.
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LemonSqueezyWebhookEvent'
+      responses:
+        '200':
+          description: Delivery accepted. Acknowledged even when not applied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookAckResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
 components:
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
       in: header
       name: x-api-key
+      description: Your API key, prefixed `exdb_`.
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: 'The same API key, sent as `Authorization: Bearer exdb_…`.'
+
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+    Offset:
+      name: offset
+      in: query
+      schema: { type: integer, minimum: 0, default: 0 }
+    UpdatedSince:
+      name: updated_since
+      in: query
+      description: ISO 8601 timestamp. Only records changed after it are returned.
+      schema:
+        type: string
+        format: date-time
+        example: '2026-06-15T10:00:00.000Z'
+    IncludeDeprecated:
+      name: include_deprecated
+      in: query
+      description: Include deprecated records, for migration and cleanup flows.
+      schema: { type: boolean, default: false }
+    ExerciseId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ApiKeyId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+
+  responses:
+    BadRequest:
+      description: The request was malformed or failed validation.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+    Unauthorized:
+      description: The API key is missing, malformed, revoked, or expired.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+    Forbidden:
+      description: >
+        Authenticated, but not permitted. Premium exercises require a `pro` or
+        `enterprise` tier; inactive accounts cannot log in.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+    NotFound:
+      description: No such resource.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+    Conflict:
+      description: The request conflicts with existing state.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+    TooManyRequests:
+      description: The daily quota for this API key is exhausted.
+      headers:
+        Retry-After:
+          description: Seconds to wait before retrying.
+          schema: { type: integer }
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+    BadGateway:
+      description: An upstream dependency failed or timed out.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+    InternalServerError:
+      description: >
+        An unexpected error. `detail` is always a generic message; internals are
+        never exposed.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+
   schemas:
+    # ---------------------------------------------------------------------
+    # Envelope. Every success response composes this with a `data` member.
+    # ---------------------------------------------------------------------
+    SuccessEnvelope:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+
+    OffsetPagination:
+      type: object
+      required: [limit, offset]
+      properties:
+        limit: { type: integer, example: 20 }
+        offset: { type: integer, example: 0 }
+
+    CursorPagination:
+      type: object
+      required: [limit, hasMore]
+      properties:
+        limit: { type: integer, example: 100 }
+        nextCursor:
+          type: string
+          nullable: true
+          description: Pass back as `cursor`. Null when there are no more pages.
+          example: eyJvZmZzZXQiOjEwMH0
+        hasMore: { type: boolean, example: true }
+
+    # ---------------------------------------------------------------------
+    # Core catalog models
+    # ---------------------------------------------------------------------
+    ExerciseSummary:
+      type: object
+      description: The fields needed to render an exercise in a list.
+      required:
+        [id, slug, name, status, difficulty, movementPattern, tags, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        slug: { type: string, example: barbell-back-squat }
+        name: { type: string, example: Barbell Back Squat }
+        status:
+          type: string
+          enum: [draft, active, deprecated]
+        category:
+          type: string
+          nullable: true
+          description: Category slug.
+          example: strength
+        difficulty:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        movementPattern:
+          type: string
+          enum: [squat, hinge, push, pull, carry, rotation, gait]
+        tags:
+          type: array
+          items: { type: string }
+          example: [compound, lower-body]
+        updatedAt: { type: string, format: date-time }
+
+    Exercise:
+      description: A full exercise record, including coaching and programming data.
+      allOf:
+        - $ref: '#/components/schemas/ExerciseSummary'
+        - type: object
+          required:
+            [
+              description,
+              instructions,
+              tips,
+              contraindications,
+              mechanics,
+              jointRegions,
+              flags,
+              programming,
+              isPremium,
+              catalogVersion
+            ]
+          properties:
+            description: { type: string }
+            instructions:
+              type: array
+              items: { type: string }
+              description: Ordered steps.
+            tips:
+              type: array
+              items: { type: string }
+            breathingCues:
+              type: string
+              nullable: true
+            contraindications:
+              type: array
+              items: { type: string }
+            forceType:
+              type: string
+              nullable: true
+              enum: [push, pull, static, compound]
+            mechanics:
+              type: string
+              enum: [compound, isolation]
+            position:
+              type: string
+              nullable: true
+              enum: [standing, seated, lying, kneeling, other]
+            planeOfMotion:
+              type: string
+              nullable: true
+              enum: [sagittal, frontal, transverse, multi_planar]
+            jointRegions:
+              type: array
+              items: { type: string }
+            laterality:
+              type: string
+              nullable: true
+              enum: [bilateral, unilateral, alternating, single_side]
+            loadType:
+              type: string
+              nullable: true
+              enum:
+                [
+                  bodyweight,
+                  free_weight,
+                  machine,
+                  cable,
+                  band,
+                  cardio_machine,
+                  assisted,
+                  other
+                ]
+            skillType:
+              type: string
+              nullable: true
+              enum:
+                [strength, power, endurance, mobility, balance, coordination]
+            flags:
+              type: array
+              items: { type: string }
+            programming:
+              type: object
+              additionalProperties: true
+              description: Free-form programming guidance, such as set and rep ranges.
+            isPremium: { type: boolean }
+            catalogVersion: { type: integer, minimum: 1 }
+
+    RelatedExercises:
+      type: object
+      required: [variations, progressions, regressions]
+      properties:
+        variations:
+          type: array
+          items: { $ref: '#/components/schemas/ExerciseSummary' }
+        progressions:
+          type: array
+          items: { $ref: '#/components/schemas/ExerciseSummary' }
+        regressions:
+          type: array
+          items: { $ref: '#/components/schemas/ExerciseSummary' }
+
+    # ---------------------------------------------------------------------
+    # Reference models
+    # ---------------------------------------------------------------------
+    Muscle:
+      type: object
+      required: [id, slug, name]
+      properties:
+        id: { type: integer }
+        slug: { type: string, example: pectoralis-major }
+        name: { type: string, example: Pectoralis Major }
+        region: { type: string, nullable: true, example: upper-body }
+        muscleGroup: { type: string, nullable: true, example: chest }
+        parentMuscleId: { type: integer, nullable: true }
+        displayOrder: { type: integer, nullable: true }
+        updatedAt: { type: string, format: date-time }
+
+    Equipment:
+      type: object
+      required: [id, slug, name]
+      properties:
+        id: { type: integer }
+        slug: { type: string, example: barbell }
+        name: { type: string, example: Barbell }
+        equipmentGroup: { type: string, nullable: true, example: free-weights }
+        displayOrder: { type: integer, nullable: true }
+        updatedAt: { type: string, format: date-time }
+
+    Category:
+      type: object
+      required: [id, slug, name]
+      properties:
+        id: { type: integer }
+        slug: { type: string, example: strength }
+        name: { type: string, example: Strength }
+        category:
+          type: string
+          nullable: true
+          enum: [strength, cardio, flexibility, plyometrics, mobility]
+        description: { type: string, nullable: true }
+        displayOrder: { type: integer, nullable: true }
+        updatedAt: { type: string, format: date-time }
+
+    ExerciseFlag:
+      type: object
+      required: [id, slug, name]
+      properties:
+        id: { type: integer }
+        slug: { type: string, example: knee-dominant }
+        name: { type: string, example: Knee Dominant }
+        description: { type: string, nullable: true }
+        displayOrder: { type: integer, nullable: true }
+        updatedAt: { type: string, format: date-time }
+
+    JointRegion:
+      type: object
+      required: [id, slug, name]
+      properties:
+        id: { type: integer }
+        slug: { type: string, example: knee }
+        name: { type: string, example: Knee }
+        regionGroup: { type: string, nullable: true, example: lower-body }
+        displayOrder: { type: integer, nullable: true }
+        updatedAt: { type: string, format: date-time }
+
+    CatalogMetadata:
+      type: object
+      required: [muscles, equipment, categories, exerciseFlags, jointRegions]
+      properties:
+        muscles:
+          type: array
+          items: { $ref: '#/components/schemas/Muscle' }
+        equipment:
+          type: array
+          items: { $ref: '#/components/schemas/Equipment' }
+        categories:
+          type: array
+          items: { $ref: '#/components/schemas/Category' }
+        exerciseFlags:
+          type: array
+          items: { $ref: '#/components/schemas/ExerciseFlag' }
+        jointRegions:
+          type: array
+          items: { $ref: '#/components/schemas/JointRegion' }
+
+    # ---------------------------------------------------------------------
+    # Sync models
+    # ---------------------------------------------------------------------
+    SyncMetadata:
+      type: object
+      required: [catalogVersion, resources, endpoints, enums, pageSizeMax]
+      properties:
+        catalogVersion: { type: integer, example: 3 }
+        latestExerciseUpdatedAt:
+          type: string
+          format: date-time
+          nullable: true
+        latestChangeAt:
+          type: string
+          format: date-time
+          nullable: true
+        resources:
+          type: array
+          items: { type: string }
+          example: [metadata, exercises]
+        endpoints:
+          type: object
+          additionalProperties: { type: string }
+        enums:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+        pageSizeMax: { type: integer, example: 100 }
+
+    Tombstone:
+      type: object
+      description: >
+        A record that is no longer available. Remove or flag it locally; it will
+        not appear in `exercises`.
+      required: [exerciseId, changeType, changedAt, catalogVersion]
+      properties:
+        exerciseId: { type: string, format: uuid }
+        changeType:
+          type: string
+          enum: [deprecated, deleted]
+        changedAt: { type: string, format: date-time }
+        catalogVersion: { type: integer }
+
+    SyncExercisesPage:
+      type: object
+      required: [exercises, tombstones]
+      properties:
+        exercises:
+          type: array
+          items: { $ref: '#/components/schemas/Exercise' }
+        tombstones:
+          type: array
+          items: { $ref: '#/components/schemas/Tombstone' }
+
+    # ---------------------------------------------------------------------
+    # Account models
+    # ---------------------------------------------------------------------
+    DeveloperAccount:
+      type: object
+      required: [id, email, tier, isAdmin, isActive, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        name: { type: string, nullable: true }
+        tier:
+          type: string
+          enum: [free, basic, pro, enterprise]
+        isAdmin: { type: boolean }
+        isActive: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    ApiKeyMetadata:
+      type: object
+      required: [id, isActive, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        label: { type: string, nullable: true, example: Mobile app }
+        isActive: { type: boolean }
+        lastUsedAt: { type: string, format: date-time, nullable: true }
+        expiresAt: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+
+    IssuedApiKey:
+      description: An API key together with its plaintext value, returned exactly once.
+      allOf:
+        - $ref: '#/components/schemas/ApiKeyMetadata'
+        - type: object
+          required: [key]
+          properties:
+            key:
+              type: string
+              description: Store this now. It cannot be retrieved again.
+              example: exdb_XEtT1oQ3n8yv2Kd6pR9wLz0aB4cF7hJmN1sT5uV8xYz
+
+    AuthSession:
+      type: object
+      required: [user, apiKey]
+      properties:
+        user: { $ref: '#/components/schemas/DeveloperAccount' }
+        apiKey: { $ref: '#/components/schemas/IssuedApiKey' }
+
+    UsageDay:
+      type: object
+      required: [date, requestCount, limit, remaining]
+      properties:
+        date: { type: string, format: date, example: '2026-07-09' }
+        requestCount: { type: integer, example: 143 }
+        limit: { type: integer, example: 1000 }
+        remaining: { type: integer, example: 857 }
+
+    # ---------------------------------------------------------------------
+    # Billing models
+    # ---------------------------------------------------------------------
+    Checkout:
+      type: object
+      required: [tier, checkoutUrl]
+      properties:
+        tier:
+          type: string
+          enum: [basic, pro, enterprise]
+        checkoutUrl: { type: string, format: uri }
+
+    WebhookAck:
+      type: object
+      required: [duplicate, applied]
+      properties:
+        duplicate:
+          type: boolean
+          description: True when this exact delivery was already stored.
+        applied:
+          type: boolean
+          description: >
+            True when the delivery changed an account's tier. False for
+            duplicates, payment events, and events with no linked account.
+
+    LemonSqueezyWebhookEvent:
+      type: object
+      description: Only the members this API reads are described.
+      required: [meta, data]
+      properties:
+        meta:
+          type: object
+          required: [event_name]
+          properties:
+            event_name: { type: string, example: subscription_created }
+            custom_data:
+              type: object
+              properties:
+                user_id: { type: string, format: uuid }
+        data:
+          type: object
+          required: [id, attributes]
+          properties:
+            id: { type: string, example: '1234567' }
+            attributes:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    [
+                      on_trial,
+                      active,
+                      paused,
+                      past_due,
+                      unpaid,
+                      cancelled,
+                      expired
+                    ]
+                variant_id: { type: string }
+                customer_id: { type: string }
+                renews_at: { type: string, format: date-time, nullable: true }
+                ends_at: { type: string, format: date-time, nullable: true }
+
+    # ---------------------------------------------------------------------
+    # Request bodies
+    # ---------------------------------------------------------------------
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email, example: alice@example.com }
+        password: { type: string, minLength: 8, example: a-long-passphrase }
+        name: { type: string, example: Alice }
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email, example: alice@example.com }
+        password: { type: string, example: a-long-passphrase }
+
+    CreateApiKeyRequest:
+      type: object
+      properties:
+        label: { type: string, maxLength: 100, example: Mobile app }
+        expiresAt:
+          {
+            type: string,
+            format: date-time,
+            example: '2027-06-15T10:00:00.000Z'
+          }
+
+    CreateCheckoutRequest:
+      type: object
+      required: [tier]
+      properties:
+        tier:
+          type: string
+          enum: [basic, pro, enterprise]
+
+    # ---------------------------------------------------------------------
+    # Response bodies — envelope composed with a `data` member
+    # ---------------------------------------------------------------------
+    HealthResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data:
+              type: object
+              required: [status, service, version, environment]
+              properties:
+                status: { type: string, example: ok }
+                service: { type: string, example: exercisedb-api }
+                version: { type: string, example: 0.1.0 }
+                environment: { type: string, example: development }
+
+    AuthSessionResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data: { $ref: '#/components/schemas/AuthSession' }
+
+    DeveloperAccountResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data: { $ref: '#/components/schemas/DeveloperAccount' }
+
+    ApiKeyResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data: { $ref: '#/components/schemas/ApiKeyMetadata' }
+
+    ApiKeyListResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data:
+              type: array
+              items: { $ref: '#/components/schemas/ApiKeyMetadata' }
+
+    IssuedApiKeyResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data: { $ref: '#/components/schemas/IssuedApiKey' }
+
+    UsageResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data:
+              type: array
+              items: { $ref: '#/components/schemas/UsageDay' }
+
+    ExerciseListResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data, pagination]
+          properties:
+            data:
+              type: array
+              items: { $ref: '#/components/schemas/ExerciseSummary' }
+            pagination: { $ref: '#/components/schemas/OffsetPagination' }
+
+    ExerciseResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data: { $ref: '#/components/schemas/Exercise' }
+
+    ExerciseDetailArrayResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data:
+              type: array
+              items: { $ref: '#/components/schemas/Exercise' }
+
+    ExerciseSummaryArrayResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data:
+              type: array
+              items: { $ref: '#/components/schemas/ExerciseSummary' }
+
+    RelatedExercisesResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data: { $ref: '#/components/schemas/RelatedExercises' }
+
+    CatalogMetadataResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data: { $ref: '#/components/schemas/CatalogMetadata' }
+
+    MuscleListResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data:
+              type: array
+              items: { $ref: '#/components/schemas/Muscle' }
+
+    EquipmentListResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data:
+              type: array
+              items: { $ref: '#/components/schemas/Equipment' }
+
+    CategoryListResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data:
+              type: array
+              items: { $ref: '#/components/schemas/Category' }
+
+    ExerciseFlagListResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data:
+              type: array
+              items: { $ref: '#/components/schemas/ExerciseFlag' }
+
+    JointRegionListResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data:
+              type: array
+              items: { $ref: '#/components/schemas/JointRegion' }
+
+    SyncMetadataResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data: { $ref: '#/components/schemas/SyncMetadata' }
+
+    SyncExercisesResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data, pagination]
+          properties:
+            data: { $ref: '#/components/schemas/SyncExercisesPage' }
+            pagination: { $ref: '#/components/schemas/CursorPagination' }
+
+    CheckoutResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data: { $ref: '#/components/schemas/Checkout' }
+
+    WebhookAckResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data: { $ref: '#/components/schemas/WebhookAck' }
+
+    # ---------------------------------------------------------------------
+    # Errors
+    # ---------------------------------------------------------------------
     ProblemDetail:
       type: object
       description: >-
-        RFC 9457 Problem Details. Returned by every error response with
-        content type application/problem+json.
+        RFC 9457 Problem Details. Returned by every error response with content
+        type `application/problem+json`.
       required:
         - type
         - title

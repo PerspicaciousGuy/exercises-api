@@ -92,6 +92,9 @@ and belong in their own task.
 - **`X-RateLimit-Reset` format.** Emitted as an ISO 8601 string;
   `rest-api-rules.md` specifies a Unix timestamp. Changing it is a breaking
   change to a success-response header.
-- **Per-endpoint error documentation.** `docs/openapi.yaml` defines the
-  `ProblemDetail` schema but does not yet reference it from each endpoint's 4xx
-  and 5xx responses. Scheduled for Phase 7.
+- **`docs/openapi.yaml` exceeds the 500-line hard limit** (1,529 lines). It is
+  not split. An OpenAPI document is one artifact that tooling loads as a unit;
+  splitting it means external `$ref`s plus a bundling step before Scalar can
+  read it, trading a line count for real build complexity. Response bodies are
+  defined once as composed schemas in `components` and referenced by path, so
+  the file is repetitive by structure rather than by duplication.
