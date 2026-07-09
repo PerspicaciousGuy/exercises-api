@@ -19,6 +19,7 @@ export default [
     }
   },
   {
-    ignores: ['coverage/', 'node_modules/']
+    // The docs site is a separate Vite/Vue project with its own toolchain.
+    ignores: ['coverage/', 'node_modules/', 'website/']
   }
 ];

@@ -2,3 +2,8 @@ node_modules/
 coverage/
 AGENTS.md
 PLAN.md
+agents-guidelines/
+website/node_modules/
+website/.vitepress/dist/
+website/.vitepress/cache/
+website/public/openapi.yaml
