@@ -182,15 +182,19 @@ Exit criteria:
 
 **Goal:** Turn the API into a credible paid SaaS-style project without expanding the product surface.
 
-- [ ] Choose the first billing provider based on availability and project needs, likely Razorpay for India-first payments or Lemon Squeezy for global merchant-of-record style checkout.
-- [ ] Add provider-neutral billing customer and subscription fields.
-- [ ] Implement a provider abstraction for checkout creation, webhook verification, subscription activation, subscription cancellation, and tier changes.
-- [ ] Implement checkout session or hosted payment link creation for the selected provider.
-- [ ] Implement verified webhook handling for the selected provider.
-- [ ] Update tiers on subscription changes.
-- [ ] Downgrade users safely on canceled or failed subscriptions.
-- [ ] Add tests for webhook signature validation and tier updates.
-- [ ] Document local webhook testing.
+- [x] Choose the first billing provider based on availability and project needs, likely Razorpay for India-first payments or Lemon Squeezy for global merchant-of-record style checkout.
+- [x] Add provider-neutral billing customer and subscription fields.
+- [x] Implement a provider abstraction for checkout creation, webhook verification, subscription activation, subscription cancellation, and tier changes.
+- [x] Implement checkout session or hosted payment link creation for the selected provider.
+- [x] Implement verified webhook handling for the selected provider.
+- [x] Update tiers on subscription changes.
+- [x] Downgrade users safely on canceled or failed subscriptions.
+- [x] Add tests for webhook signature validation and tier updates.
+- [x] Document local webhook testing.
+
+Lemon Squeezy was selected. Billing is provider-neutral at the database and service layer: `api_users` carries `billing_provider`, `billing_customer_id`, `billing_subscription_id`, `subscription_status`, and period timestamps, and `billingService` depends only on a provider interface (`verifySignature`, `parseWebhookEvent`, `tierForVariantId`, `createCheckout`). Cancellation, expiry, pause, and payment failure all downgrade to `free` immediately.
+
+Webhook idempotency uses `sha256(raw body)` stored in `billing_webhook_events`, because Lemon Squeezy sends neither a unique event id nor a timestamp header. That also means the timestamp-based replay window in `agents-guidelines/backend/api/webhook-rules.md` cannot be implemented for this provider.
 
 Exit criteria:
 
