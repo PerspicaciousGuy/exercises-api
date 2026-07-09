@@ -12,7 +12,7 @@ Phase 6 provider-neutral billing is implemented with Lemon Squeezy as the first 
 
 Local lint and tests pass (116 tests, 25 files). `npm run format:check` fails on pre-existing unformatted `agents-guidelines/**` files — see Known Issues.
 
-**Migration `012_add_billing_fields.sql` has NOT been applied to hosted Supabase.** Billing endpoints will fail against the hosted database until it is.
+Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and verified: six billing columns on `api_users`, both new enums, and `billing_webhook_events` with RLS enabled and a service-role policy. The security advisor reports no new findings.
 
 ## Last Action
 
@@ -26,13 +26,13 @@ Task 3 built Phase 6 billing. Migration `012` adds `billing_provider`, `billing_
 
 All three tasks were verified against real HTTP, not only the test suite. For billing specifically: a genuinely HMAC-signed purchase upgraded the account to `pro`, a byte-identical redelivery was deduplicated without a second tier change, a forged signature returned a `problem+json` 401, and a cancellation dropped the account to `free`.
 
+Migration `012` was then applied to hosted Supabase through the Supabase MCP server, and `billingRepository` was exercised against the live database rather than a stub. This confirmed the one assumption that unit tests could not reach: PostgREST's `Prefer: resolution=ignore-duplicates` returns an empty array on conflict, which is what makes `recordWebhookEvent` return `null` for a duplicate delivery. Without that behaviour the idempotency guard would silently fail open. The verification row was deleted afterwards; `billing_webhook_events` is empty.
+
 ## In Progress
 
 Nothing currently in progress.
 
 ## Pending
-
-Apply migration `012_add_billing_fields.sql` to hosted Supabase before using any billing endpoint against it.
 
 Create a Lemon Squeezy store, three subscription variants (basic, pro, enterprise), and a webhook subscribed to the `subscription_*` events, then populate the six `LEMON_SQUEEZY_*` values in `.env`. Rotate the API key that was pasted into a chat transcript before any production deployment.
 
@@ -40,7 +40,6 @@ Phase 7 developer experience docs.
 
 ## Known Issues
 
-- Migration `012` has not been applied to hosted Supabase. Nothing billing-related works against the hosted database until it is.
 - `api_users.stripe_customer_id` (migration 007) is now dead. It predates the provider-neutral decision and is superseded by `billing_customer_id`. Dropping a column is destructive and was not done. Decide whether to drop it in a later migration.
 - No migration in this project has a corresponding `down`. `agents-guidelines/backend/api/api-data-layer-rules.md` requires every `up` to be reversible. Migration `012` follows the existing convention rather than introducing a one-off. Worth fixing project-wide as its own task.
 - Lemon Squeezy sends no event id and no timestamp header, so the timestamp-based replay window required by `agents-guidelines/backend/api/webhook-rules.md` is not implementable. Idempotency on `sha256(raw body)` is the substitute. A genuinely distinct event with a byte-identical body would be treated as a duplicate; in practice `updated_at` differs.
