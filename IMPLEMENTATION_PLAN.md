@@ -207,14 +207,19 @@ Exit criteria:
 
 **Goal:** Make the project easy to understand from GitHub and easy to consume as an API.
 
-- [ ] Complete OpenAPI spec for every endpoint.
-- [ ] Add request/response examples.
-- [ ] Add getting-started guide with first API call.
+The published documentation site lives in `website/`, a VitePress project with its own `package.json`. It reads `docs/openapi.yaml` directly — the spec is never duplicated. The API's dependency tree is untouched by the docs toolchain.
+
+- [x] Scaffold the documentation site with a design system, home page, and API reference rendered from the OpenAPI spec.
+- [x] Add getting-started guide with first API call.
+- [x] Complete OpenAPI spec for every endpoint, including billing and webhooks.
+- [x] Reference `ProblemDetail` from every 4xx and 5xx response in `docs/openapi.yaml`.
+- [x] Add request/response examples to the spec.
 - [ ] Add sync integration guide for mobile apps.
 - [ ] Add example code for JavaScript, Python, Swift, Flutter/Dart, and Kotlin.
 - [ ] Add Postman collection.
 - [ ] Add deployment guide for Railway or Render.
 - [ ] Add architecture notes explaining public catalog V1 and postponed private custom exercises.
+- [ ] Deploy the site and point a domain at it.
 
 Exit criteria:
 
