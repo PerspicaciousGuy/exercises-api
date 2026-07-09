@@ -1,14 +1,27 @@
-export function errorHandler(error, _request, response, _next) {
+import {
+  buildProblemDetails,
+  sendProblemDetails
+} from '../errors/problemDetails.js';
+
+const DEFAULT_STATUS_CODE = 500;
+const DEFAULT_ERROR_CODE = 'INTERNAL_SERVER_ERROR';
+
+export function errorHandler(error, request, response, _next) {
   const statusCode = Number.isInteger(error.statusCode)
     ? error.statusCode
-    : 500;
+    : DEFAULT_STATUS_CODE;
 
-  response.status(statusCode).json({
-    success: false,
-    error: {
-      code: error.code ?? 'INTERNAL_SERVER_ERROR',
-      message:
-        statusCode >= 500 ? 'An unexpected error occurred' : error.message
-    }
-  });
+  if (Number.isInteger(error.retryAfterSeconds)) {
+    response.set('Retry-After', String(error.retryAfterSeconds));
+  }
+
+  sendProblemDetails(
+    response,
+    buildProblemDetails({
+      statusCode,
+      code: error.code ?? DEFAULT_ERROR_CODE,
+      message: error.message,
+      instance: request.originalUrl
+    })
+  );
 }
