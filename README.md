@@ -156,6 +156,80 @@ Recommended flow:
 
 Use `include_deprecated=true` only when the client needs deprecated exercise records for migration or cleanup UI.
 
+## Billing
+
+Paid tiers are sold through Lemon Squeezy. The catalog and sync endpoints boot
+without billing credentials — only `POST /billing/checkout` and the webhook
+endpoint require them.
+
+### Configuration
+
+Set these in `.env` (see `.env.example`). Every value comes from your Lemon
+Squeezy dashboard; the variant ids are the subscription products that map to
+each tier.
+
+```
+LEMON_SQUEEZY_API_KEY=
+LEMON_SQUEEZY_STORE_ID=
+LEMON_SQUEEZY_WEBHOOK_SECRET=
+LEMON_SQUEEZY_VARIANT_ID_BASIC=
+LEMON_SQUEEZY_VARIANT_ID_PRO=
+LEMON_SQUEEZY_VARIANT_ID_ENTERPRISE=
+```
+
+### Buying a tier
+
+```bash
+curl -X POST http://localhost:3000/billing/checkout \
+  -H "x-api-key: $EXERCISEDB_API_KEY" \
+  -H "content-type: application/json" \
+  -d '{"tier":"pro"}'
+```
+
+Responds `201` with a `Location` header and a `checkoutUrl`. The developer's
+account id travels to Lemon Squeezy as `checkout_data.custom.user_id` and comes
+back on every subscription webhook, which is how a payment is linked to an
+account.
+
+### Subscription lifecycle
+
+`active` and `on_trial` grant the tier matching the purchased variant. Every
+other status — `cancelled`, `expired`, `paused`, `past_due`, `unpaid` — drops
+the account to `free` **immediately**, not at period end.
+
+### Testing webhooks locally
+
+Lemon Squeezy must reach your machine, so expose the local port first:
+
+```bash
+npx localtunnel --port 3000
+# or: ngrok http 3000
+```
+
+In the Lemon Squeezy dashboard, add a webhook pointing at
+`https://<your-tunnel>/webhooks/lemon-squeezy`, set the signing secret to match
+`LEMON_SQUEEZY_WEBHOOK_SECRET`, and subscribe to the `subscription_*` events.
+Put the store in test mode and pay with card `4242 4242 4242 4242`.
+
+To exercise the endpoint without Lemon Squeezy, sign a body yourself:
+
+```bash
+BODY='{"meta":{"event_name":"subscription_created","custom_data":{"user_id":"<uuid>"}},"data":{"id":"sub_1","attributes":{"status":"active","variant_id":"<pro variant id>","customer_id":1,"renews_at":null,"ends_at":null}}}'
+SIG=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "$LEMON_SQUEEZY_WEBHOOK_SECRET" -hex | sed 's/.* //')
+
+curl -X POST http://localhost:3000/webhooks/lemon-squeezy \
+  -H "content-type: application/json" \
+  -H "x-signature: $SIG" \
+  -d "$BODY"
+```
+
+The signature is an HMAC-SHA256 hex digest of the exact raw bytes, so the body
+must not be reformatted between signing and sending.
+
+Deliveries are deduplicated on `sha256(body)`. Lemon Squeezy sends no event id
+and no timestamp header, so a byte-identical redelivery is the only reliable
+duplicate signal — and a timestamp-based replay window is not possible.
+
 ## Scripts
 
 - `npm run dev` - start the API with nodemon
