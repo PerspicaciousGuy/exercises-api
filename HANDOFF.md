@@ -16,7 +16,15 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Wired the real domain, `harshitbishnoi.dev`, through every place that hardcoded `localhost`. **No source file under `src/` changed** — the domain layout was chosen to make that true.
+Switched the RFC 9457 error `type` base URI from `https://exercisedb-api.dev/errors` — a domain nobody owns — to `https://docs.harshitbishnoi.dev/errors`. Twelve references across seven files: the constant in `src/constants/service.js`, seven exact-match test assertions, and four documented examples.
+
+This was free now and permanently expensive later. `type` is part of the error contract, so changing it after a single developer integrates would require a `/v2`, exactly the reasoning that governed adopting RFC 9457 in the first place. The URIs now point at a site that exists, so a page per error code can be published there later; RFC 9457 does not require them to resolve, but nothing stops them.
+
+Verified against a running server rather than the constant: `GET /exercises` with no key returns `type: https://docs.harshitbishnoi.dev/errors/api-key-required` with a `requestId`. `SERVICE_NAME` remains `exercisedb-api` — it is a service name, not a domain, and appears in the `service` log field and the health payload.
+
+Two documented error examples were stale in a second way: both predated `requestId` and no longer matched what the API returns. Both now include it, and the line in `getting-started.md` claiming the `type` URI "does not resolve to a page" was removed, since it now points at one. The Postman collection was regenerated because the spec changed.
+
+Before that, wired the real domain, `harshitbishnoi.dev`, through every place that hardcoded `localhost`. **No source file under `src/` changed** — the domain layout was chosen to make that true.
 
 Target layout: `api.harshitbishnoi.dev` (Render Web Service), `app.harshitbishnoi.dev` (dashboard), `docs.harshitbishnoi.dev` (docs). All three share one registrable domain, which is what lets the `SameSite=Lax` session cookie flow between the dashboard and the API. `.dev` is on the HSTS preload list, so browsers refuse plain HTTP on it and the `Secure` cookie flag always has a channel.
 

@@ -1647,7 +1647,7 @@ components:
           type: string
           format: uri
           description: Stable URI identifying the error type. Does not resolve.
-          example: https://exercisedb-api.dev/errors/validation-error
+          example: https://docs.harshitbishnoi.dev/errors/validation-error
         title:
           type: string
           description: Short human-readable summary of the error type.
