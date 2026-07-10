@@ -16,7 +16,7 @@ describe('api key middleware', () => {
       'application/problem+json'
     );
     expect(response.body).toEqual({
-      type: 'https://exercisedb-api.dev/errors/api-key-required',
+      type: 'https://docs.harshitbishnoi.dev/errors/api-key-required',
       title: 'Api Key Required',
       status: 401,
       detail: 'API key is required',
@@ -66,7 +66,7 @@ describe('api key middleware', () => {
       .expect(429);
 
     expect(response.body).toEqual({
-      type: 'https://exercisedb-api.dev/errors/rate-limit-exceeded',
+      type: 'https://docs.harshitbishnoi.dev/errors/rate-limit-exceeded',
       title: 'Rate Limit Exceeded',
       status: 429,
       detail: 'Daily request limit exceeded',
