@@ -15,7 +15,7 @@ import java.net.http.HttpResponse
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-private const val BASE_URL = "http://localhost:3000"
+private const val BASE_URL = "https://api.harshitbishnoi.dev"
 private const val PAGE_SIZE = 100
 
 /** Errors are RFC 9457 problem+json. `code` is stable; `detail` is prose. */
