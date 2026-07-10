@@ -27,6 +27,9 @@ info:
     url: https://opensource.org/licenses/MIT
 
 servers:
+  # First entry is the default in Scalar's "Test Request" console.
+  - url: https://api.harshitbishnoi.dev
+    description: Production
   - url: http://localhost:3000
     description: Local development
 

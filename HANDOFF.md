@@ -16,7 +16,19 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Finished the writable parts of Phase 7: the deployment guide, the architecture notes, and the container artifacts. The remaining plan item — actually deploying and pointing a domain at it — is blocked on the owner, not on code.
+Wired the real domain, `harshitbishnoi.dev`, through every place that hardcoded `localhost`. **No source file under `src/` changed** — the domain layout was chosen to make that true.
+
+Target layout: `api.harshitbishnoi.dev` (Render Web Service), `app.harshitbishnoi.dev` (dashboard), `docs.harshitbishnoi.dev` (docs). All three share one registrable domain, which is what lets the `SameSite=Lax` session cookie flow between the dashboard and the API. `.dev` is on the HSTS preload list, so browsers refuse plain HTTP on it and the `Secure` cookie flag always has a channel.
+
+`docs/openapi.yaml` gained a production `servers` entry, listed first so Scalar's "Test Request" console defaults to it. `docs/deployment.md` was rewritten Render-first with the real hostnames. `.env.example` documents the production `DASHBOARD_ORIGINS`. The Postman collection's `baseUrl` default moved to production in `scripts/generate-postman.js` and the collection was regenerated. The curl examples in `getting-started.md` and `sync-guide.md`, and the default `BASE_URL` in all five example clients, now point at production; the `EXERCISEDB_BASE_URL` override still wins, verified by running the JavaScript client against a local server.
+
+A blanket find-and-replace clobbered the one sentence that legitimately mentions localhost — "Running locally? Swap it for `http://localhost:3000`" became a tautology. Caught and fixed; that line is now the only `localhost` reference left in the public docs, deliberately.
+
+Two housekeeping fixes fell out. `examples/python/__pycache__/` had been created by `py_compile` during verification and was untracked but uncommitted-and-unignored; it is deleted and `__pycache__/` plus `*.pyc` are now in `.gitignore`. And `dashboard/` had **no `.gitignore` at all**, so `node_modules/` and `dist/` were headed for the repository; it now has one mirroring `website/`'s.
+
+170 tests pass, lint clean, spec valid, docs build.
+
+Before that, finished the writable parts of Phase 7: the deployment guide, the architecture notes, and the container artifacts. The remaining plan item — actually deploying and pointing a domain at it — is blocked on the owner, not on code.
 
 **`docs/deployment.md`.** Covers the three separately-deployed components, the environment matrix, migrations having no `down`, Railway and Render specifics, and a post-deploy checklist (production `servers` entry in the spec, Lemon Squeezy webhook registration, API key rotation, one real `SIGTERM` check on the host).
 
