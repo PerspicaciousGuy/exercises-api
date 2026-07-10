@@ -5,7 +5,13 @@ coverage/
 !.env.example
 npm-debug.log*
 
+# Byte-code left behind by running the Python example.
+# website/ and dashboard/ ignore their own build output.
+__pycache__/
+*.pyc
+
 # my custom ignores
 AGENTS.md
 PLAN.md
 IMPLEMENTATION_PLAN.md
+agent-guidelines/
