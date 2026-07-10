@@ -1,4 +1,5 @@
 import { AppError } from '../errors/AppError.js';
+import { logger } from '../logging/logger.js';
 
 const API_KEY_HEADER = 'x-api-key';
 const AUTHORIZATION_HEADER = 'authorization';
@@ -15,14 +16,25 @@ export function createApiKeyMiddleware({ authService }) {
       request.apiConsumer = consumer;
       setRateLimitHeaders(response, consumer.rateLimit);
       response.once('finish', () => {
-        void authService.logUsage({
-          userId: consumer.user.id,
-          apiKeyId: consumer.apiKey.id,
-          endpoint: request.originalUrl,
-          method: request.method,
-          statusCode: response.statusCode,
-          responseTimeMs: Date.now() - startedAt
-        });
+        // Fire-and-forget: the response has already been sent. An unhandled
+        // rejection here would crash the process, so a failed usage write is
+        // logged and swallowed. Quota enforcement does not depend on it —
+        // that already happened in authenticateApiKey.
+        authService
+          .logUsage({
+            userId: consumer.user.id,
+            apiKeyId: consumer.apiKey.id,
+            endpoint: request.originalUrl,
+            method: request.method,
+            statusCode: response.statusCode,
+            responseTimeMs: Date.now() - startedAt
+          })
+          .catch((error) => {
+            logger.error(
+              { err: error, userId: consumer.user.id },
+              'failed to record api usage'
+            );
+          });
       });
       next();
     } catch (error) {

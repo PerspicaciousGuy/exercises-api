@@ -77,6 +77,55 @@ code alongside the standard `type` / `title` / `status` / `detail` members.
 which was the only moment it was free. After a single developer integrates, the
 same change costs a `/v2`.
 
+### Structured logging with Pino
+
+`backend/node-rules.md` mandates Pino. `src/logging/logger.js` configures it:
+JSON everywhere, `pino-pretty` in development only, `silent` under
+`NODE_ENV=test`, level from `LOG_LEVEL`.
+
+Credentials are redacted at the logger rather than at each call site, because a
+call site can be forgotten: `password`, `apiKey`, `key`, `token`, `tokenHash`,
+their nested forms, and the `authorization`, `cookie`, `x-api-key`, and
+`x-signature` headers.
+
+### Request correlation IDs
+
+`backend/api/api-general-rules.md` requires a request ID in every error response
+and every log line, generated at the boundary when the client sends none.
+
+`requestLogger` mints a UUID or sanitises an inbound `X-Request-Id`, echoes it,
+and stores it in an `AsyncLocalStorage`. `logger`'s `mixin` reads that store, so
+every line inside a request carries `requestId` without any caller passing it,
+and `buildProblemDetails` adds the same value to every error body.
+
+This is what makes a 5xx diagnosable. Its `detail` is deliberately generic so
+internals never leak; the `requestId` is the compensating affordance, saying
+nothing to an attacker while pointing an operator at the one log line with the
+stack trace.
+
+### Retries are gated on the HTTP method, not only on the failure
+
+`SupabaseRestClient.request` retries transient failures with exponential backoff
+and full jitter, up to three attempts.
+
+What is retryable depends on the method. A network error on a `GET` is safe to
+replay. A network error on a `POST` is **not**: the request may have reached
+Postgres and committed before the socket died, so replaying it could insert the
+row twice. Non-idempotent methods therefore retry on `429` alone, which PostgREST
+refuses before doing any work.
+
+The retry log records the table but redacts the query string, because PostgREST
+puts filters there and a filter can carry an email address or a session token
+hash.
+
+### Graceful shutdown
+
+`server.js` handles `SIGTERM` and `SIGINT` by closing the listener — refusing new
+connections while in-flight requests finish — with a 10-second backstop before a
+forced exit. The backstop is `unref`'d so it never keeps the process alive on its
+own, and it sits below the ~30 seconds Railway and Render allow between `SIGTERM`
+and `SIGKILL`.
+
 ---
 
 ## Deferred, not rejected
@@ -84,11 +133,10 @@ same change costs a `/v2`.
 These guideline requirements are unmet. They are additive, break no contract,
 and belong in their own task.
 
-- **Structured logging.** `backend/node-rules.md` mandates Pino and forbids
-  `console.log`. There is currently no logger.
-- **Request correlation IDs.** `backend/api/api-general-rules.md` requires a
-  request ID in every error response and every log line. There is no request-ID
-  middleware, so `problemDetails` emits no correlation ID yet.
+- **`console.*` in `scripts/`.** `backend/node-rules.md` forbids `console.log` in
+  production code. The files under `scripts/` are one-shot CLI tools whose
+  console output _is_ their interface; routing it through Pino would turn
+  human-readable progress into JSON. `src/` and `server.js` contain none.
 - **`X-RateLimit-Reset` format.** Emitted as an ISO 8601 string;
   `rest-api-rules.md` specifies a Unix timestamp. Changing it is a breaking
   change to a success-response header.

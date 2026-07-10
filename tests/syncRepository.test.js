@@ -43,6 +43,29 @@ describe('createSyncRepository', () => {
     });
   });
 
+  it('reads the latest change timestamp', async () => {
+    const client = {
+      select: vi.fn(async () => [{ changed_at: '2026-06-15T10:30:00.000Z' }])
+    };
+    const repository = createSyncRepository({ client });
+
+    await expect(repository.getLatestChangeAt()).resolves.toBe(
+      '2026-06-15T10:30:00.000Z'
+    );
+    expect(client.select).toHaveBeenCalledWith('exercise_change_events', {
+      columns: 'changed_at',
+      filters: { order: 'changed_at.desc', limit: '1' }
+    });
+  });
+
+  it('returns null when the catalog has no change events', async () => {
+    const repository = createSyncRepository({
+      client: { select: vi.fn(async () => []) }
+    });
+
+    await expect(repository.getLatestChangeAt()).resolves.toBeNull();
+  });
+
   it('lists exercise change events after an update timestamp', async () => {
     const client = {
       select: vi.fn(async () => [

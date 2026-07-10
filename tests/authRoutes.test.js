@@ -16,7 +16,11 @@ describe('auth routes', () => {
         }
       }))
     };
-    const app = createApp({ authService, apiKeyMiddleware: allowApiKey });
+    const app = createApp({
+      authService,
+      sessionService: createSessionServiceStub(),
+      apiKeyMiddleware: allowApiKey
+    });
 
     const response = await request(app)
       .post('/auth/register')
@@ -46,22 +50,18 @@ describe('auth routes', () => {
     });
   });
 
-  it('logs in a developer and returns a fresh one-time API key', async () => {
-    const authService = {
-      login: vi.fn(async () => ({
-        user: createUser(),
-        apiKey: {
-          id: 'key-2',
-          label: 'Login',
-          key: 'exdb_login_key',
-          expiresAt: null
-        }
-      }))
-    };
-    const app = createApp({ authService, apiKeyMiddleware: allowApiKey });
+  it('logs in a developer and sets an httpOnly session cookie', async () => {
+    const authService = { login: vi.fn(async () => ({ user: createUser() })) };
+    const sessionService = createSessionServiceStub();
+    const app = createApp({
+      authService,
+      sessionService,
+      apiKeyMiddleware: allowApiKey
+    });
 
     const response = await request(app)
       .post('/auth/login')
+      .set('user-agent', 'Mozilla/5.0 (test)')
       .send({
         email: 'dev@example.com',
         password: 'strong-password'
@@ -72,7 +72,47 @@ describe('auth routes', () => {
       email: 'dev@example.com',
       password: 'strong-password'
     });
-    expect(response.body.data.apiKey.key).toBe('exdb_login_key');
+    expect(sessionService.createSession).toHaveBeenCalledWith({
+      userId: 'user-1',
+      userAgent: 'Mozilla/5.0 (test)'
+    });
+
+    const cookie = response.headers['set-cookie'][0];
+    expect(cookie).toContain('exdb_session=session-token');
+    expect(cookie).toContain('HttpOnly');
+    expect(cookie).toContain('SameSite=Lax');
+  });
+
+  it('no longer issues an API key on login', async () => {
+    const app = createApp({
+      authService: { login: vi.fn(async () => ({ user: createUser() })) },
+      sessionService: createSessionServiceStub(),
+      apiKeyMiddleware: allowApiKey
+    });
+
+    const response = await request(app)
+      .post('/auth/login')
+      .send({ email: 'dev@example.com', password: 'strong-password' })
+      .expect(200);
+
+    expect(response.body.data.apiKey).toBeUndefined();
+  });
+
+  it('revokes the session and clears the cookie on logout', async () => {
+    const sessionService = createSessionServiceStub();
+    const app = createApp({
+      authService: {},
+      sessionService,
+      apiKeyMiddleware: allowApiKey
+    });
+
+    const response = await request(app)
+      .post('/auth/logout')
+      .set('cookie', 'exdb_session=session-token')
+      .expect(200);
+
+    expect(sessionService.revokeSession).toHaveBeenCalledWith('session-token');
+    expect(response.headers['set-cookie'][0]).toContain('exdb_session=;');
   });
 
   it('returns the current developer account', async () => {
@@ -200,6 +240,20 @@ function createUser() {
     isAdmin: false,
     isActive: true,
     createdAt: '2026-06-15T10:00:00.000Z'
+  };
+}
+
+function createSessionServiceStub() {
+  return {
+    createSession: vi.fn(async () => ({
+      token: 'session-token',
+      expiresAt: '2026-06-29T10:00:00.000Z'
+    })),
+    revokeSession: vi.fn(async () => undefined),
+    authenticateSession: vi.fn(async () => ({
+      user: createUser(),
+      session: { id: 'session-1' }
+    }))
   };
 }
 

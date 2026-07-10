@@ -1,0 +1,8 @@
+/*
+ * The design system is the single source of truth for every design value and
+ * lives in website/. It is imported here, never copied: a second copy would be
+ * a second source of truth, and the two would drift.
+ *
+ * Vite is configured with server.fs.allow = ['..'] so it may read this path.
+ */
+@import '../../../website/.vitepress/theme/design-system.css';

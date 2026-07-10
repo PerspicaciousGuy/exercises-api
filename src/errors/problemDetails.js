@@ -1,7 +1,8 @@
+import { SERVER_ERROR_THRESHOLD } from '../constants/logging.js';
 import { ERROR_TYPE_BASE_URL } from '../constants/service.js';
+import { getRequestId } from '../logging/requestContext.js';
 
 const PROBLEM_JSON_CONTENT_TYPE = 'application/problem+json';
-const SERVER_ERROR_THRESHOLD = 500;
 const GENERIC_SERVER_ERROR_DETAIL = 'An unexpected error occurred';
 
 /**
@@ -10,7 +11,8 @@ const GENERIC_SERVER_ERROR_DETAIL = 'An unexpected error occurred';
  * standard members.
  *
  * Server-error details are replaced with a generic message so internal failures
- * never leak to callers.
+ * never leak to callers. `requestId` is the compensation: it says nothing to an
+ * attacker but lets an operator find the one log line that explains the 500.
  */
 export function buildProblemDetails({ statusCode, code, message, instance }) {
   const problem = {
@@ -23,8 +25,13 @@ export function buildProblemDetails({ statusCode, code, message, instance }) {
         : message,
     code
   };
+  const requestId = getRequestId();
 
-  return instance ? { ...problem, instance } : problem;
+  return {
+    ...problem,
+    ...(instance ? { instance } : {}),
+    ...(requestId ? { requestId } : {})
+  };
 }
 
 export function sendProblemDetails(response, problem) {

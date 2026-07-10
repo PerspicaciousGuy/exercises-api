@@ -18,6 +18,10 @@ info:
 
     Quotas are per API key and reset at midnight UTC. Every response carries
     `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`.
+
+
+    Every response also carries `X-Request-Id`, repeated as `requestId` in any
+    error body. Send your own `X-Request-Id` to trace a call end to end.
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -77,6 +81,7 @@ paths:
       description: >
         The plaintext key in `data.apiKey.key` is returned exactly once. The
         server stores only a SHA-256 hash and cannot show it to you again.
+        A browser session cookie is set at the same time.
       operationId: registerDeveloper
       tags: [Auth]
       security: []
@@ -89,6 +94,10 @@ paths:
       responses:
         '201':
           description: Account created, with a one-time plaintext API key.
+          headers:
+            Set-Cookie:
+              description: '`exdb_session=…; HttpOnly; SameSite=Lax; Path=/`'
+              schema: { type: string }
           content:
             application/json:
               schema:
@@ -102,10 +111,11 @@ paths:
 
   /auth/login:
     post:
-      summary: Log in and issue a new API key
+      summary: Log in and start a browser session
       description: >
-        Each successful login issues a **new** API key. Existing keys remain
-        valid until revoked.
+        Sets an httpOnly `exdb_session` cookie. It issues **no** API key —
+        earlier versions minted one on every login, which accumulated live
+        credentials. Create keys explicitly with `POST /me/keys`.
       operationId: loginDeveloper
       tags: [Auth]
       security: []
@@ -117,11 +127,15 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Authenticated, with a one-time plaintext API key.
+          description: Authenticated. A session cookie is set.
+          headers:
+            Set-Cookie:
+              description: '`exdb_session=…; HttpOnly; SameSite=Lax; Path=/`'
+              schema: { type: string }
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthSessionResponse'
+                $ref: '#/components/schemas/LoginResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -131,10 +145,33 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /auth/logout:
+    post:
+      summary: End the current browser session
+      description: >
+        Revokes the session server-side and clears the cookie. A token captured
+        before logout stops working immediately. Safe to call when signed out.
+      operationId: logoutDeveloper
+      tags: [Auth]
+      security: []
+      responses:
+        '200':
+          description: The session is revoked and the cookie cleared.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /me:
     get:
       summary: Get the current developer account
       operationId: getCurrentDeveloper
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+        - SessionCookie: []
       tags: [Auth]
       responses:
         '200':
@@ -155,6 +192,10 @@ paths:
       summary: List API keys for the current developer account
       description: Metadata only. Plaintext key values are never returned here.
       operationId: listDeveloperApiKeys
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+        - SessionCookie: []
       tags: [Auth]
       responses:
         '200':
@@ -172,6 +213,10 @@ paths:
     post:
       summary: Create a new API key
       operationId: createDeveloperApiKey
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+        - SessionCookie: []
       tags: [Auth]
       requestBody:
         required: false
@@ -199,6 +244,10 @@ paths:
     delete:
       summary: Revoke an API key
       operationId: revokeDeveloperApiKey
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+        - SessionCookie: []
       tags: [Auth]
       parameters:
         - $ref: '#/components/parameters/ApiKeyId'
@@ -222,6 +271,10 @@ paths:
     get:
       summary: Get daily usage for the current developer account
       operationId: getDeveloperUsage
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+        - SessionCookie: []
       tags: [Auth]
       responses:
         '200':
@@ -639,10 +692,11 @@ paths:
     get:
       summary: Sync exercises changed since a timestamp
       description: >
-        Omit `updated_since` for a first full sync. Apply `data.tombstones` by
-        removing or flagging local records — they are not present in
-        `data.exercises`. Follow `pagination.nextCursor` until `hasMore` is
-        false.
+        Omit `updated_since` for a first full sync. Follow
+        `pagination.nextCursor` until `hasMore` is false, then commit
+        `data.latestChangeAt` and send it as `updated_since` next time.
+        `limit` bounds change events, not exercises, so a full page may return
+        fewer than `limit` records — never page on `exercises.length`.
       operationId: syncExercises
       tags: [Sync]
       parameters:
@@ -683,6 +737,10 @@ paths:
         The tier changes only when the webhook arrives — not when this call
         returns.
       operationId: createCheckout
+      security:
+        - ApiKeyAuth: []
+        - BearerAuth: []
+        - SessionCookie: []
       tags: [Billing]
       requestBody:
         required: true
@@ -763,6 +821,15 @@ components:
       type: http
       scheme: bearer
       description: 'The same API key, sent as `Authorization: Bearer exdb_…`.'
+    SessionCookie:
+      type: apiKey
+      in: cookie
+      name: exdb_session
+      description: >
+        Browser session set by `/auth/login` and `/auth/register`. httpOnly,
+        so JavaScript cannot read it. Used by the developer dashboard on
+        `/me/*` and `/billing/checkout`; it consumes no daily quota. Machine
+        callers should use an API key instead.
 
   parameters:
     Limit:
@@ -784,7 +851,10 @@ components:
     IncludeDeprecated:
       name: include_deprecated
       in: query
-      description: Include deprecated records, for migration and cleanup flows.
+      description: >
+        Include deprecated records, for migration and cleanup flows. On
+        `/sync/exercises` this also suppresses their `deprecated` tombstones:
+        the record is returned with `status: deprecated` instead.
       schema: { type: boolean, default: false }
     ExerciseId:
       name: id
@@ -1133,8 +1203,10 @@ components:
     Tombstone:
       type: object
       description: >
-        A record that is no longer available. Remove or flag it locally; it will
-        not appear in `exercises`.
+        A record that is not present in `exercises`. `deleted` means remove it
+        locally; `deprecated` means flag it. `deprecated` tombstones are emitted
+        only when `include_deprecated=false` — otherwise the record is returned
+        in `exercises` with `status: deprecated` instead.
       required: [exerciseId, changeType, changedAt, catalogVersion]
       properties:
         exerciseId: { type: string, format: uuid }
@@ -1146,7 +1218,7 @@ components:
 
     SyncExercisesPage:
       type: object
-      required: [exercises, tombstones]
+      required: [exercises, tombstones, latestChangeAt]
       properties:
         exercises:
           type: array
@@ -1154,6 +1226,16 @@ components:
         tombstones:
           type: array
           items: { $ref: '#/components/schemas/Tombstone' }
+        latestChangeAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: >
+            Newest change in the catalog when this sync began. Identical on
+            every page of one sync. Commit it after the final page and send it
+            back as `updated_since`. Null when the catalog has never recorded a
+            change.
+          example: '2026-07-02T09:14:00.000Z'
 
     # ---------------------------------------------------------------------
     # Account models
@@ -1337,6 +1419,30 @@ components:
           required: [data]
           properties:
             data: { $ref: '#/components/schemas/AuthSession' }
+
+    LoginResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data:
+              type: object
+              required: [user]
+              properties:
+                user: { $ref: '#/components/schemas/DeveloperAccount' }
+
+    LogoutResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data:
+              type: object
+              required: [loggedOut]
+              properties:
+                loggedOut: { type: boolean, example: true }
 
     DeveloperAccountResponse:
       allOf:
@@ -1563,3 +1669,11 @@ components:
             Machine-readable error code. RFC 9457 extension member retained for
             programmatic error handling.
           example: VALIDATION_ERROR
+        requestId:
+          type: string
+          description: >-
+            Correlation id for this request, also returned in the
+            `X-Request-Id` response header. Quote it when reporting a problem:
+            it is the only way to find the server log line behind a 5xx, whose
+            `detail` is deliberately generic.
+          example: 485fa7dd-03b1-44e1-ae56-6b88d13b652b

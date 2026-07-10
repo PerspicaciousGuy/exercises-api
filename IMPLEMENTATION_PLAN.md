@@ -214,12 +214,13 @@ The published documentation site lives in `website/`, a VitePress project with i
 - [x] Complete OpenAPI spec for every endpoint, including billing and webhooks.
 - [x] Reference `ProblemDetail` from every 4xx and 5xx response in `docs/openapi.yaml`.
 - [x] Add request/response examples to the spec.
-- [ ] Add sync integration guide for mobile apps.
-- [ ] Add example code for JavaScript, Python, Swift, Flutter/Dart, and Kotlin.
-- [ ] Add Postman collection.
-- [ ] Add deployment guide for Railway or Render.
-- [ ] Add architecture notes explaining public catalog V1 and postponed private custom exercises.
-- [ ] Deploy the site and point a domain at it.
+- [x] Add sync integration guide for mobile apps.
+- [x] Build the developer dashboard (`dashboard/`) with browser-session authentication.
+- [x] Add example code for JavaScript, Python, Swift, Flutter/Dart, and Kotlin.
+- [x] Add Postman collection.
+- [x] Add deployment guide for Railway or Render.
+- [x] Add architecture notes explaining public catalog V1 and postponed private custom exercises.
+- [ ] Deploy the site and point a domain at it. **Blocked on the owner:** requires a Railway/Render account, a purchased domain, and the Lemon Squeezy store. `docs/deployment.md` is the checklist. Buy the domain before deploying — the session cookie is `SameSite=Lax`, so the dashboard and the API must share a registrable domain or login silently fails.
 
 Exit criteria:
 

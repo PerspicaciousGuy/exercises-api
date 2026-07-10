@@ -51,6 +51,7 @@ describe('sync routes', () => {
             catalogVersion: 4
           }
         ],
+        latestChangeAt: '2026-06-15T11:00:00.000Z',
         pagination: {
           limit: 2,
           nextCursor: 'cursor-2',
@@ -83,7 +84,8 @@ describe('sync routes', () => {
             changedAt: '2026-06-15T11:00:00.000Z',
             catalogVersion: 4
           }
-        ]
+        ],
+        latestChangeAt: '2026-06-15T11:00:00.000Z'
       },
       pagination: {
         limit: 2,
@@ -111,6 +113,7 @@ describe('sync routes', () => {
       status: 400,
       detail: 'updated_since invalid datetime',
       instance: '/sync/exercises?updated_since=not-a-date',
+      requestId: expect.any(String),
       code: 'VALIDATION_ERROR'
     });
   });

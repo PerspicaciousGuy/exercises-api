@@ -1,7 +1,13 @@
 import { Router } from 'express';
 import { z } from 'zod';
 
+import { env } from '../config/env.js';
 import { AppError } from '../errors/AppError.js';
+import { getSessionToken } from '../middleware/sessionAuth.js';
+import {
+  buildSessionCookieOptions,
+  SESSION_COOKIE_NAME
+} from '../security/sessions.js';
 import { createAuthService } from '../services/authService.js';
 
 const registerSchema = z.object({
@@ -23,10 +29,24 @@ const createApiKeySchema = z.object({
 export function createAuthRouter({
   authRepository,
   authService,
-  apiKeyMiddleware
+  sessionService,
+  consumerMiddleware
 }) {
   const router = Router();
   const service = authService ?? createAuthService({ authRepository });
+
+  async function startSession(request, response, userId) {
+    const { token } = await sessionService.createSession({
+      userId,
+      userAgent: request.get('user-agent')
+    });
+
+    response.cookie(
+      SESSION_COOKIE_NAME,
+      token,
+      buildSessionCookieOptions({ nodeEnv: env.nodeEnv })
+    );
+  }
 
   router.post(
     '/auth/register',
@@ -34,6 +54,8 @@ export function createAuthRouter({
       const result = await service.register(
         parseBody(registerSchema, request.body)
       );
+
+      await startSession(request, response, result.user.id);
 
       response.status(201).json({
         success: true,
@@ -45,14 +67,31 @@ export function createAuthRouter({
   router.post(
     '/auth/login',
     asyncHandler(async (request, response) => {
+      const result = await service.login(parseBody(loginSchema, request.body));
+
+      await startSession(request, response, result.user.id);
+
       response.status(200).json({
         success: true,
-        data: await service.login(parseBody(loginSchema, request.body))
+        data: result
       });
     })
   );
 
-  router.use('/me', apiKeyMiddleware);
+  router.post(
+    '/auth/logout',
+    asyncHandler(async (request, response) => {
+      await sessionService.revokeSession(getSessionToken(request));
+
+      response.clearCookie(
+        SESSION_COOKIE_NAME,
+        buildSessionCookieOptions({ nodeEnv: env.nodeEnv })
+      );
+      response.status(200).json({ success: true, data: { loggedOut: true } });
+    })
+  );
+
+  router.use('/me', consumerMiddleware);
 
   router.get(
     '/me',

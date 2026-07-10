@@ -126,5 +126,5 @@ Read the [API reference](/api-reference) for every endpoint, parameter, and
 response shape.
 
 If you are building a mobile app, do not call the API on every screen. Sync the
-catalog into a local database once, then refresh only what changed using
-`GET /sync/exercises?updated_since=…`. A sync integration guide is coming.
+catalog into a local database once, then refresh only what changed. The
+[sync guide](/sync-guide) walks through the whole loop.

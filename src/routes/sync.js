@@ -39,7 +39,8 @@ export function createSyncRouter({ syncRepository, syncService }) {
         success: true,
         data: {
           exercises: syncResult.exercises,
-          tombstones: syncResult.tombstones
+          tombstones: syncResult.tombstones,
+          latestChangeAt: syncResult.latestChangeAt
         },
         pagination: syncResult.pagination
       });

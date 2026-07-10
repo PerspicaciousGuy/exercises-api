@@ -21,7 +21,8 @@ describe('Supabase migrations', () => {
       '009_create_rls_and_grants.sql',
       '010_harden_functions_and_indexes.sql',
       '011_revoke_public_helper_execution.sql',
-      '012_add_billing_fields.sql'
+      '012_add_billing_fields.sql',
+      '013_create_api_sessions.sql'
     ]);
   });
 

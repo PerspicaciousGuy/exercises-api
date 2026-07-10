@@ -146,15 +146,22 @@ Mobile and web clients should treat the API as a public catalog source of truth 
 
 Recommended flow:
 
-1. Call `GET /sync/metadata` to read the current catalog version and latest change timestamp.
-2. For a first sync, call `GET /sync/exercises?limit=100` until `pagination.hasMore` is false.
-3. Store returned `data.exercises` by `id`.
-4. Apply `data.tombstones` by removing or marking local records whose `changeType` is `deleted` or `deprecated`.
-5. Save the latest processed sync timestamp locally.
-6. For future syncs, call `GET /sync/exercises?updated_since=<saved timestamp>&limit=100`.
-7. If `pagination.nextCursor` is present, request the next page with `cursor=<nextCursor>` until no more pages remain.
+1. For a first sync, call `GET /sync/exercises?limit=100` until `pagination.hasMore` is false, following `pagination.nextCursor`.
+2. Store returned `data.exercises` by `id`.
+3. Apply `data.tombstones`: `changeType: "deleted"` means remove the local record, `"deprecated"` means flag it.
+4. After the final page, save `data.latestChangeAt` as your watermark, in the same local transaction as the records.
+5. For future syncs, call `GET /sync/exercises?updated_since=<watermark>&limit=100`.
 
-Use `include_deprecated=true` only when the client needs deprecated exercise records for migration or cleanup UI.
+`limit` bounds change events, not exercises, so a full page may return fewer than
+`limit` records. Page on `hasMore`, never on `exercises.length`.
+
+Every page of one sync reports the same `latestChangeAt`, captured before the
+first page was read, so a record written mid-sync arrives on the next run rather
+than being skipped.
+
+Use `include_deprecated=true` only when the client needs deprecated exercise records for migration or cleanup UI. Deprecated records are then returned in `data.exercises` with `status: "deprecated"` and are not tombstoned.
+
+The full walkthrough is in [the sync guide](website/sync-guide.md).
 
 ## Billing
 
@@ -229,6 +236,86 @@ must not be reformatted between signing and sending.
 Deliveries are deduplicated on `sha256(body)`. Lemon Squeezy sends no event id
 and no timestamp header, so a byte-identical redelivery is the only reliable
 duplicate signal — and a timestamp-based replay window is not possible.
+
+## Logging
+
+Structured JSON via Pino, pretty-printed in development, silent under
+`NODE_ENV=test`. Set `LOG_LEVEL` to one of `fatal`, `error`, `warn`, `info`,
+`debug`, `trace`, `silent`.
+
+Every request gets an `X-Request-Id`, echoed in the response header and repeated
+as `requestId` in any error body. Send your own to trace a call across services;
+it is sanitised before it reaches a log line or a header.
+
+A 5xx response tells the caller nothing (`"An unexpected error occurred"`) by
+design. The `requestId` is how you find the log line that has the stack trace:
+
+```bash
+grep '"requestId":"485fa7dd-..."' server.log
+```
+
+Credentials are redacted by the logger itself — passwords, keys, tokens, and the
+`authorization`, `cookie`, `x-api-key`, and `x-signature` headers — so a careless
+`logger.info(req.headers)` cannot leak one.
+
+## Deployment
+
+The API, the docs site, and the dashboard deploy separately and share no build.
+See [docs/deployment.md](docs/deployment.md) for Railway and Render, the
+environment variables, and the post-deploy checklist.
+
+A `Dockerfile` is committed for platforms that prefer it: Node 20, multi-stage,
+devDependencies dropped, non-root user, healthcheck on `/health`.
+
+> Start the API with `node server.js`, never `npm start` — npm does not forward
+> `SIGTERM`, so graceful shutdown never runs and deploys sever in-flight
+> requests.
+
+Architecture and the reasoning behind the design are in
+[website/architecture.md](website/architecture.md).
+
+## Resilience
+
+Database calls retry transient failures — connection resets, `5xx`, `429` — with
+exponential backoff and jitter, up to three attempts.
+
+Retries are gated on the HTTP method. A `GET` that dies mid-flight is replayed. A
+`POST` is not: it may have reached Postgres and committed before the socket
+died, and replaying it would insert the row twice. Non-idempotent requests retry
+only on `429`, which is refused before any work happens.
+
+On `SIGTERM` the server stops accepting connections, lets in-flight requests
+finish, and exits — with a 10-second backstop so a hung request cannot hold a
+deploy open forever.
+
+## Client Examples
+
+`examples/` holds a complete client in JavaScript, Python, Swift, Dart, and
+Kotlin. Each authenticates, handles an RFC 9457 error by its `code`, and runs the
+full sync loop. See [examples/README.md](examples/README.md).
+
+`postman/` holds a Postman collection generated from `docs/openapi.yaml`.
+Regenerate it after any spec change with `npm run postman:generate`; do not edit
+the JSON by hand.
+
+## Developer Dashboard
+
+`dashboard/` is a Vite + Vue app where developers manage their account, API
+keys, usage, and plan. See [dashboard/README.md](dashboard/README.md).
+
+It authenticates with a browser session, not an API key. `POST /auth/login` and
+`POST /auth/register` set an `httpOnly`, `SameSite=Lax` `exdb_session` cookie;
+`POST /auth/logout` revokes it server-side. `/me/*` and `/billing/checkout`
+accept either a session or an API key. Sessions consume no daily quota.
+
+An API key could not work here: the plaintext value is returned exactly once, so
+the page that lists keys could never hold one, and revoking your last key would
+lock you out. For the same reason `POST /auth/login` no longer issues an API key
+on every call, as it once did — create keys explicitly with `POST /me/keys`.
+
+Set `DASHBOARD_ORIGINS` to the origins allowed to send that cookie. Only `/auth`,
+`/me`, and `/billing` are restricted to them; the public catalog stays open to
+every origin.
 
 ## Scripts
 

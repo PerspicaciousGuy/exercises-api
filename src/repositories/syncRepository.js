@@ -21,6 +21,9 @@ export function createLazyDefaultSyncRepository() {
     getSyncMetadata() {
       return getRepository().getSyncMetadata();
     },
+    getLatestChangeAt() {
+      return getRepository().getLatestChangeAt();
+    },
     listExerciseChangeEvents(filters) {
       return getRepository().listExerciseChangeEvents(filters);
     },
@@ -66,6 +69,18 @@ export function createSyncRepository({ client }) {
         latestExerciseUpdatedAt: exerciseUpdateRows[0]?.updated_at ?? null,
         latestChangeAt: changeEventRows[0]?.changed_at ?? null
       };
+    },
+
+    async getLatestChangeAt() {
+      const rows = await client.select('exercise_change_events', {
+        columns: 'changed_at',
+        filters: {
+          order: 'changed_at.desc',
+          limit: '1'
+        }
+      });
+
+      return rows[0]?.changed_at ?? null;
     },
 
     async listExerciseChangeEvents({ updatedSince, limit, offset }) {

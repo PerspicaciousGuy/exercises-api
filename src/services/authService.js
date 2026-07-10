@@ -11,7 +11,6 @@ import {
 import { hashPassword, verifyPassword } from '../security/passwords.js';
 
 const DEFAULT_KEY_LABEL = 'Default';
-const LOGIN_KEY_LABEL = 'Login';
 
 export function createAuthService({ authRepository, now = () => new Date() }) {
   return {
@@ -59,14 +58,10 @@ export function createAuthService({ authRepository, now = () => new Date() }) {
         });
       }
 
-      return {
-        user: serializeUser(user),
-        apiKey: await createPlaintextApiKey({
-          authRepository,
-          userId: user.id,
-          label: LOGIN_KEY_LABEL
-        })
-      };
+      // Login issues no API key. It used to mint one on every call, which grew
+      // an unbounded pile of live credentials per account. A login establishes
+      // a session; keys are created explicitly through POST /me/keys.
+      return { user: serializeUser(user) };
     },
 
     async authenticateApiKey(apiKey) {

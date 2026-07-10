@@ -21,6 +21,7 @@ describe('api key middleware', () => {
       status: 401,
       detail: 'API key is required',
       instance: '/exercises',
+      requestId: expect.any(String),
       code: 'API_KEY_REQUIRED'
     });
   });
@@ -70,6 +71,7 @@ describe('api key middleware', () => {
       status: 429,
       detail: 'Daily request limit exceeded',
       instance: '/exercises',
+      requestId: expect.any(String),
       code: 'RATE_LIMIT_EXCEEDED'
     });
   });

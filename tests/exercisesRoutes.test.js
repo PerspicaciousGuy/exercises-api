@@ -94,6 +94,7 @@ describe('exercise routes', () => {
       status: 400,
       detail: 'limit must be less than or equal to 100',
       instance: '/exercises?limit=500',
+      requestId: expect.any(String),
       code: 'VALIDATION_ERROR'
     });
   });
@@ -190,6 +191,7 @@ describe('exercise routes', () => {
       status: 403,
       detail: 'Premium content requires a pro or enterprise API tier',
       instance: '/exercises/exercise-1',
+      requestId: expect.any(String),
       code: 'PREMIUM_ACCESS_REQUIRED'
     });
   });
@@ -301,6 +303,7 @@ describe('exercise routes', () => {
       status: 400,
       detail: 'q is required',
       instance: '/exercises/search',
+      requestId: expect.any(String),
       code: 'VALIDATION_ERROR'
     });
   });
@@ -356,6 +359,7 @@ describe('exercise routes', () => {
       status: 400,
       detail: 'ids is required',
       instance: '/exercises/bulk',
+      requestId: expect.any(String),
       code: 'VALIDATION_ERROR'
     });
   });
@@ -499,6 +503,7 @@ describe('exercise routes', () => {
       status: 404,
       detail: 'Exercise was not found',
       instance: '/exercises/unknown-exercise',
+      requestId: expect.any(String),
       code: 'EXERCISE_NOT_FOUND'
     });
   });
