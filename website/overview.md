@@ -109,17 +109,19 @@ served as `application/problem+json`:
 
 ```json
 {
-  "type": "https://exercisedb-api.dev/errors/premium-access-required",
+  "type": "https://docs.harshitbishnoi.dev/errors/premium-access-required",
   "title": "Premium Access Required",
   "status": 403,
   "detail": "Premium content requires a pro or enterprise API tier",
   "instance": "/exercises/8c1e5a10-0000-4000-8000-000000000001",
-  "code": "PREMIUM_ACCESS_REQUIRED"
+  "code": "PREMIUM_ACCESS_REQUIRED",
+  "requestId": "485fa7dd-03b1-44e1-ae56-6b88d13b652b"
 }
 ```
 
 Branch on `code`. It is stable and will not change. `detail` is written for
-humans and may be reworded at any time.
+humans and may be reworded at any time. `requestId` is echoed in the
+`X-Request-Id` header — quote it when reporting a problem.
 
 ## Next
 
