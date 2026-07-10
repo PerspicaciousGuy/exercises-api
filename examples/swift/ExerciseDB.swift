@@ -4,7 +4,7 @@
 
 import Foundation
 
-private let baseURL = "http://localhost:3000"
+private let baseURL = "https://api.harshitbishnoi.dev"
 private let pageSize = 100
 
 /// Errors are RFC 9457 problem+json. `code` is stable; `detail` is prose.
