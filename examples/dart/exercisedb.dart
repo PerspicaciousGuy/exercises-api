@@ -6,7 +6,7 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
-const String baseUrl = 'http://localhost:3000';
+const String baseUrl = 'https://api.harshitbishnoi.dev';
 const int pageSize = 100;
 
 /// Errors are RFC 9457 problem+json. `code` is stable; `detail` is prose.
