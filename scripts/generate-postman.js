@@ -12,7 +12,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 const SPEC_PATH = 'docs/openapi.yaml';
 const OUTPUT_PATH = 'postman/exercisedb-api.postman_collection.json';
 const CONVERTER = 'openapi-to-postmanv2';
-const DEFAULT_BASE_URL = 'http://localhost:3000';
+const DEFAULT_BASE_URL = 'https://api.harshitbishnoi.dev';
 
 const COLLECTION_VARIABLES = [
   { key: 'baseUrl', value: DEFAULT_BASE_URL, type: 'string' },
