@@ -5,7 +5,7 @@
       "description": "Liveness checks. No authentication required.",
       "item": [
         {
-          "id": "5d719684-5952-4638-ac60-86743acc2c67",
+          "id": "8035eb0e-bb55-4abf-b1d4-1ced9025a21e",
           "name": "Check API health",
           "request": {
             "name": "Check API health",
@@ -32,7 +32,7 @@
           },
           "response": [
             {
-              "id": "a2eed706-8307-4222-883a-a2f1794df2b6",
+              "id": "774aea94-e7d0-43c2-9e3f-3b0f4dc0940e",
               "name": "The API is running.",
               "originalRequest": {
                 "url": {
@@ -87,7 +87,7 @@
       "description": "Developer accounts and API keys. Registration and login are public; everything under `/me` requires a key.\n",
       "item": [
         {
-          "id": "8e11044d-4550-43ae-a05c-bbce30bcef46",
+          "id": "3335dd30-01ab-4fe0-a722-7174980aee63",
           "name": "Register a developer account and issue the first API key",
           "request": {
             "name": "Register a developer account and issue the first API key",
@@ -131,7 +131,7 @@
           },
           "response": [
             {
-              "id": "368dbdf9-146d-4008-b2fe-a01f1063fa17",
+              "id": "c615cc77-4035-4f4c-8657-34d1f1f7a2d3",
               "name": "Account created, with a one-time plaintext API key.",
               "originalRequest": {
                 "url": {
@@ -197,7 +197,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "b3905619-83a9-4934-8783-02d84040a13e",
+              "id": "5765b945-496c-471e-869e-91f97ad6438f",
               "name": "The request was malformed or failed validation.",
               "originalRequest": {
                 "url": {
@@ -254,7 +254,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "233845b5-e058-4559-a6d2-f2efa6f049d9",
+              "id": "1f06ccf3-81b4-4fb2-b212-70bf8a2e84de",
               "name": "The request conflicts with existing state.",
               "originalRequest": {
                 "url": {
@@ -311,7 +311,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "59508c72-038e-40e4-93cc-3eb0b00e4753",
+              "id": "e75f10af-677c-4b0e-8cc1-d04adeee4c3d",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -374,7 +374,7 @@
           }
         },
         {
-          "id": "f4abeca5-8026-4a87-8390-6a3632c1d967",
+          "id": "96e190af-f5ed-4f81-a0ea-fa9d6a75c440",
           "name": "Log in and start a browser session",
           "request": {
             "name": "Log in and start a browser session",
@@ -418,7 +418,7 @@
           },
           "response": [
             {
-              "id": "af03adc8-7e94-4892-9bd6-9c2f9e4989ee",
+              "id": "1a0b6f39-2eeb-43ce-a0ff-267ebd3df0e9",
               "name": "Authenticated. A session cookie is set.",
               "originalRequest": {
                 "url": {
@@ -479,12 +479,12 @@
                   "value": "<string>"
                 }
               ],
-              "body": "{\n  \"data\": {\n    \"user\": {\n      \"id\": \"<uuid>\",\n      \"email\": \"<email>\",\n      \"tier\": \"basic\",\n      \"isAdmin\": \"<boolean>\",\n      \"isActive\": \"<boolean>\",\n      \"createdAt\": \"<dateTime>\",\n      \"name\": \"<string>\"\n    }\n  },\n  \"success\": true\n}",
+              "body": "{\n  \"data\": {\n    \"user\": {\n      \"id\": \"<uuid>\",\n      \"email\": \"<email>\",\n      \"tier\": \"enterprise\",\n      \"isAdmin\": \"<boolean>\",\n      \"isActive\": \"<boolean>\",\n      \"createdAt\": \"<dateTime>\",\n      \"name\": \"<string>\"\n    }\n  },\n  \"success\": true\n}",
               "cookie": [],
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "204ac7b7-f32d-4434-ba12-b050638ced86",
+              "id": "b90d456e-fda5-4df9-acf8-51b410b45521",
               "name": "The request was malformed or failed validation.",
               "originalRequest": {
                 "url": {
@@ -541,7 +541,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "3685bbc7-c4d8-41f3-bb3d-8a2b27413e0b",
+              "id": "fccc5648-cf8f-4d46-8868-a51850243019",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -598,7 +598,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "3a08c739-78f6-4356-a63e-2d822c8c7ec8",
+              "id": "30db3727-4114-44d5-8d35-e8608c4c9991",
               "name": "Authenticated, but not permitted. Premium exercises require a `pro` or `enterprise` tier; inactive accounts cannot log in.",
               "originalRequest": {
                 "url": {
@@ -655,7 +655,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "b8938dc6-4bae-49e5-b436-51297f317e71",
+              "id": "be3dcb2b-a7e1-4101-a7c6-d7c41f59ec90",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -718,7 +718,7 @@
           }
         },
         {
-          "id": "f60077ce-f375-4a6f-99a0-780ad797af39",
+          "id": "9d3a11b1-e187-413d-aaa5-0ddffab94e49",
           "name": "End the current browser session",
           "request": {
             "name": "End the current browser session",
@@ -749,7 +749,7 @@
           },
           "response": [
             {
-              "id": "02a2c169-8d6b-4607-a6ea-81b2db375914",
+              "id": "7211242e-b566-49c9-8273-d5947b9c5e8c",
               "name": "The session is revoked and the cookie cleared.",
               "originalRequest": {
                 "url": {
@@ -793,7 +793,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "2cb19668-d7f2-4716-9bc9-cddbe6f245d2",
+              "id": "3174bf00-4f7a-498e-aab6-ee1fe7700db7",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -843,7 +843,7 @@
           }
         },
         {
-          "id": "56e5c9ba-3656-412c-80a7-2dc4bcb97355",
+          "id": "bd70d331-ad47-40bc-ae6e-3ce858de033c",
           "name": "Get the current developer account",
           "request": {
             "name": "Get the current developer account",
@@ -886,7 +886,7 @@
           },
           "response": [
             {
-              "id": "244fb175-9001-4075-a3a8-5cd0be9c0d69",
+              "id": "ba9d1fc7-3cf6-4bab-8ccd-5f36f95ebffd",
               "name": "The account the API key belongs to.",
               "originalRequest": {
                 "url": {
@@ -924,12 +924,12 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"data\": {\n    \"id\": \"<uuid>\",\n    \"email\": \"<email>\",\n    \"tier\": \"basic\",\n    \"isAdmin\": \"<boolean>\",\n    \"isActive\": \"<boolean>\",\n    \"createdAt\": \"<dateTime>\",\n    \"name\": \"<string>\"\n  },\n  \"success\": true\n}",
+              "body": "{\n  \"data\": {\n    \"id\": \"<uuid>\",\n    \"email\": \"<email>\",\n    \"tier\": \"enterprise\",\n    \"isAdmin\": \"<boolean>\",\n    \"isActive\": \"<boolean>\",\n    \"createdAt\": \"<dateTime>\",\n    \"name\": \"<string>\"\n  },\n  \"success\": true\n}",
               "cookie": [],
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "e11cc9d0-2023-496f-8a8d-051ed0149d48",
+              "id": "587aef16-b9b9-4a1f-aedb-47e1a03515c0",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -972,7 +972,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "8dd7c14a-476c-4de4-b050-863dd5397a7f",
+              "id": "8ecf0202-a9ed-4902-8fdb-654e03bad92e",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -1024,7 +1024,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "e4db6778-f7f5-4f62-96cd-1a048e638704",
+              "id": "dd4c7787-91cb-46bf-b18b-b3ba5ff58de7",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -1073,7 +1073,7 @@
           }
         },
         {
-          "id": "55007194-5725-4d11-b823-cb5ff4a69fdc",
+          "id": "b324a121-17f6-4b4f-b3be-d3a5dd9640f3",
           "name": "List API keys for the current developer account",
           "request": {
             "name": "List API keys for the current developer account",
@@ -1120,7 +1120,7 @@
           },
           "response": [
             {
-              "id": "9b8b9bca-75e7-4edf-a6af-16cebecdf6ce",
+              "id": "06a47e48-25c8-45f9-a96c-7c652a5ff7fb",
               "name": "API key metadata.",
               "originalRequest": {
                 "url": {
@@ -1164,7 +1164,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "474e1922-b9be-45c1-97e4-87e9a6c65765",
+              "id": "4b52532d-87be-4067-9228-757078abadf8",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -1208,7 +1208,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "83df920d-b18c-475a-8b8d-fafe3496ceee",
+              "id": "e29e97aa-4f31-4e0d-93b5-fa2493c51db1",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -1261,7 +1261,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "8b600d52-7803-4dda-aedc-f055d250dea5",
+              "id": "1bd44afd-f4ae-4405-9b4f-b63ddcda28ea",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -1311,7 +1311,7 @@
           }
         },
         {
-          "id": "4fb738bf-2701-4f3d-aa64-8d959fb1ed1e",
+          "id": "c20d2947-e49c-4e7a-890b-600843bcb4b3",
           "name": "Create a new API key",
           "request": {
             "name": "Create a new API key",
@@ -1368,7 +1368,7 @@
           },
           "response": [
             {
-              "id": "cbc28a45-99f7-4bd0-93d1-2524799c8566",
+              "id": "523932ff-9cf9-413e-a966-14ab58bdee75",
               "name": "The new key, including its one-time plaintext value.",
               "originalRequest": {
                 "url": {
@@ -1425,7 +1425,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "34dde83a-50af-4682-8608-f18a613910b9",
+              "id": "2a9cca65-5ced-4010-9de2-b0640701d699",
               "name": "The request was malformed or failed validation.",
               "originalRequest": {
                 "url": {
@@ -1482,7 +1482,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "8c976e2e-0e4e-4a9f-97ec-7a6414e6ea8d",
+              "id": "7464302e-a1b3-4bf9-8a41-7eedd99820f9",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -1539,7 +1539,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "768f9cbc-175e-4ee6-9925-955cad1e59ca",
+              "id": "dc64ce4e-7d8c-4bce-a896-df75dc9de96d",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -1605,7 +1605,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "443f935b-d239-4602-a78e-ac01b69d2200",
+              "id": "055c88b2-93a4-4888-824c-926aa91c1b5e",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -1668,7 +1668,7 @@
           }
         },
         {
-          "id": "e25c2322-a3c3-4c98-9cf9-166c26c482f6",
+          "id": "76b81cdb-c957-4a80-a9cb-8b120b69ec09",
           "name": "Revoke an API key",
           "request": {
             "name": "Revoke an API key",
@@ -1724,7 +1724,7 @@
           },
           "response": [
             {
-              "id": "4bd535a0-ca90-41a1-b64c-b48d87b6ae84",
+              "id": "7a676397-06e2-4e58-bd25-00c985236afc",
               "name": "The revoked key's metadata.",
               "originalRequest": {
                 "url": {
@@ -1780,7 +1780,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "4bc8c7dc-33ff-4b47-8620-35392b1e5305",
+              "id": "87663ce5-4a9d-44bd-97ac-fdf9a1f0de91",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -1836,7 +1836,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "bd235cd1-3173-4a14-9a78-21f19d237553",
+              "id": "bd4fb0b9-094c-4927-9381-6c04da62a27a",
               "name": "No such resource.",
               "originalRequest": {
                 "url": {
@@ -1892,7 +1892,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "0e744055-cd39-4a2c-b8df-2ded69a858d4",
+              "id": "78627000-9394-4e7b-80a5-e8a32d7561b1",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -1957,7 +1957,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "3ec64e0f-d3da-4164-88c5-89744fbd866f",
+              "id": "df046d74-3f92-46ae-81ce-cfd5961e64f8",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -2019,7 +2019,7 @@
           }
         },
         {
-          "id": "6e53f4ca-b04e-4ce0-9764-008a7c4936ad",
+          "id": "69476e24-a43c-4b61-8e8b-5829442822ae",
           "name": "Get daily usage for the current developer account",
           "request": {
             "name": "Get daily usage for the current developer account",
@@ -2063,7 +2063,7 @@
           },
           "response": [
             {
-              "id": "09987b53-39c6-4223-ae78-7ea725983ad5",
+              "id": "a0303c10-d5cf-4f83-8578-992cc4c9abf8",
               "name": "One row per day, most recent first.",
               "originalRequest": {
                 "url": {
@@ -2107,7 +2107,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "b7f972f5-7313-412a-8dcf-f1f47e276cb3",
+              "id": "14a1a860-0e81-493a-bceb-2ce3750abe96",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -2151,7 +2151,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "2470f938-2239-4687-8c43-99c4e4983e4f",
+              "id": "d850a209-b7bd-4a8f-929c-970d5fb6e4f2",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -2204,7 +2204,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "0fec8554-ddae-4292-8562-350b5f729b58",
+              "id": "84bdb828-f0ff-433c-b449-be8fb64a647a",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -2260,7 +2260,7 @@
       "description": "The public catalog. Summaries carry the fields needed to render a list; details carry everything, including coaching cues and programming data.\n",
       "item": [
         {
-          "id": "79acd354-c5ab-4faa-bb6c-c714d459f15a",
+          "id": "3491574c-20a0-4d9b-b058-b7cd7e6b0363",
           "name": "List public exercises",
           "request": {
             "name": "List public exercises",
@@ -2381,7 +2381,7 @@
           },
           "response": [
             {
-              "id": "10407275-8e8d-43ff-bf91-796cbe2190d4",
+              "id": "8aa5e0e8-c450-48dd-82a8-4af189b4aaca",
               "name": "A page of exercise summaries.",
               "originalRequest": {
                 "url": {
@@ -2510,12 +2510,12 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"data\": [\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"deprecated\",\n      \"difficulty\": \"advanced\",\n      \"movementPattern\": \"push\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    },\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"active\",\n      \"difficulty\": \"advanced\",\n      \"movementPattern\": \"pull\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    }\n  ],\n  \"pagination\": {\n    \"limit\": \"<integer>\",\n    \"offset\": \"<integer>\"\n  },\n  \"success\": true\n}",
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"draft\",\n      \"difficulty\": \"beginner\",\n      \"movementPattern\": \"pull\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    },\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"draft\",\n      \"difficulty\": \"intermediate\",\n      \"movementPattern\": \"rotation\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    }\n  ],\n  \"pagination\": {\n    \"limit\": \"<integer>\",\n    \"offset\": \"<integer>\"\n  },\n  \"success\": true\n}",
               "cookie": [],
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "97b3b139-00ec-4399-b5e2-e8ad914cd464",
+              "id": "69a4e629-c1e3-48e3-a5e3-7d028eb10b46",
               "name": "The request was malformed or failed validation.",
               "originalRequest": {
                 "url": {
@@ -2649,7 +2649,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "a6141cf6-0ca8-4940-bb22-958a9f1d6110",
+              "id": "ffeb5b10-3e16-4c8d-8b6a-e14d90443743",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -2783,7 +2783,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "1184a2b3-4233-4b20-9476-45ac98198361",
+              "id": "e6934480-4ff0-4379-81d9-8bbbee91a5c5",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -2926,7 +2926,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "1fe1a5c5-1894-4456-a8fc-0e39ff200285",
+              "id": "66923f1d-650d-4f9f-8ac6-f83b83b8ac82",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -3066,7 +3066,7 @@
           }
         },
         {
-          "id": "90831b02-9525-4573-a68d-05dae4577c8b",
+          "id": "328f5fa0-d7ab-45c6-94cb-fea79a3a6310",
           "name": "Search exercises by name, alias, or exact tag",
           "request": {
             "name": "Search exercises by name, alias, or exact tag",
@@ -3122,7 +3122,7 @@
           },
           "response": [
             {
-              "id": "09e13631-aa51-4401-94e1-0ee47e206672",
+              "id": "051ea987-311b-45b2-b435-4016b204f0de",
               "name": "Matching exercise summaries.",
               "originalRequest": {
                 "url": {
@@ -3189,12 +3189,12 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"data\": [\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"deprecated\",\n      \"difficulty\": \"advanced\",\n      \"movementPattern\": \"push\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    },\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"active\",\n      \"difficulty\": \"advanced\",\n      \"movementPattern\": \"pull\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    }\n  ],\n  \"pagination\": {\n    \"limit\": \"<integer>\",\n    \"offset\": \"<integer>\"\n  },\n  \"success\": true\n}",
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"draft\",\n      \"difficulty\": \"beginner\",\n      \"movementPattern\": \"pull\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    },\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"draft\",\n      \"difficulty\": \"intermediate\",\n      \"movementPattern\": \"rotation\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    }\n  ],\n  \"pagination\": {\n    \"limit\": \"<integer>\",\n    \"offset\": \"<integer>\"\n  },\n  \"success\": true\n}",
               "cookie": [],
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "72c7c6bf-1706-418d-abfb-18b3077baf00",
+              "id": "35f19ba4-2b3c-41d6-af84-136c73bed25e",
               "name": "The request was malformed or failed validation.",
               "originalRequest": {
                 "url": {
@@ -3266,7 +3266,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "eaaa7297-f49b-4dfa-a243-0ae406c3b4d0",
+              "id": "10ccbd99-5f0b-4fff-9f72-d5cad6816f86",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -3338,7 +3338,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "7fda29c6-2555-476b-bd25-dc1ce0503876",
+              "id": "39074654-d4c2-428f-8518-c006f5ee0a91",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -3419,7 +3419,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "136e9e70-4900-4f6e-998b-1b57e6ab5a92",
+              "id": "013a8d03-a008-4388-b998-b088220bcdff",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -3497,7 +3497,7 @@
           }
         },
         {
-          "id": "5f72d49d-bdef-41e9-90bb-39f098c20e29",
+          "id": "bb465722-7834-43d6-a9ee-c2741c12c57c",
           "name": "Fetch up to 50 exercises by id",
           "request": {
             "name": "Fetch up to 50 exercises by id",
@@ -3535,7 +3535,7 @@
           },
           "response": [
             {
-              "id": "f7509ce4-41e3-40b6-a680-8ef10e265776",
+              "id": "943c42a0-228f-484f-8243-21d796403297",
               "name": "Full exercise details, premium rows filtered by tier.",
               "originalRequest": {
                 "url": {
@@ -3584,12 +3584,12 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"data\": [\n    {\n      \"catalogVersion\": \"<integer>\",\n      \"contraindications\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"description\": \"<string>\",\n      \"difficulty\": \"intermediate\",\n      \"flags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"id\": \"<uuid>\",\n      \"instructions\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"isPremium\": \"<boolean>\",\n      \"jointRegions\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"mechanics\": \"compound\",\n      \"movementPattern\": \"gait\",\n      \"name\": \"<string>\",\n      \"programming\": {\n        \"key_0\": true,\n        \"key_1\": \"string\"\n      },\n      \"slug\": \"<string>\",\n      \"status\": \"draft\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"tips\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\",\n      \"breathingCues\": \"<string>\",\n      \"forceType\": \"pull\",\n      \"position\": \"other\",\n      \"planeOfMotion\": \"multi_planar\",\n      \"laterality\": \"single_side\",\n      \"loadType\": \"other\",\n      \"skillType\": \"balance\"\n    },\n    {\n      \"catalogVersion\": \"<integer>\",\n      \"contraindications\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"description\": \"<string>\",\n      \"difficulty\": \"advanced\",\n      \"flags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"id\": \"<uuid>\",\n      \"instructions\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"isPremium\": \"<boolean>\",\n      \"jointRegions\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"mechanics\": \"isolation\",\n      \"movementPattern\": \"carry\",\n      \"name\": \"<string>\",\n      \"programming\": {\n        \"key_0\": \"string\"\n      },\n      \"slug\": \"<string>\",\n      \"status\": \"active\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"tips\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\",\n      \"breathingCues\": \"<string>\",\n      \"forceType\": \"pull\",\n      \"position\": \"seated\",\n      \"planeOfMotion\": \"multi_planar\",\n      \"laterality\": \"unilateral\",\n      \"loadType\": \"band\",\n      \"skillType\": \"power\"\n    }\n  ],\n  \"success\": true\n}",
+              "body": "{\n  \"data\": [\n    {\n      \"catalogVersion\": \"<integer>\",\n      \"contraindications\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"description\": \"<string>\",\n      \"difficulty\": \"beginner\",\n      \"flags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"id\": \"<uuid>\",\n      \"instructions\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"isPremium\": \"<boolean>\",\n      \"jointRegions\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"mechanics\": \"isolation\",\n      \"movementPattern\": \"rotation\",\n      \"name\": \"<string>\",\n      \"programming\": {\n        \"key_0\": true,\n        \"key_1\": true\n      },\n      \"slug\": \"<string>\",\n      \"status\": \"draft\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"tips\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\",\n      \"breathingCues\": \"<string>\",\n      \"forceType\": \"compound\",\n      \"position\": \"seated\",\n      \"planeOfMotion\": \"multi_planar\",\n      \"laterality\": \"bilateral\",\n      \"loadType\": \"assisted\",\n      \"skillType\": \"endurance\"\n    },\n    {\n      \"catalogVersion\": \"<integer>\",\n      \"contraindications\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"description\": \"<string>\",\n      \"difficulty\": \"intermediate\",\n      \"flags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"id\": \"<uuid>\",\n      \"instructions\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"isPremium\": \"<boolean>\",\n      \"jointRegions\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"mechanics\": \"isolation\",\n      \"movementPattern\": \"squat\",\n      \"name\": \"<string>\",\n      \"programming\": {\n        \"key_0\": true\n      },\n      \"slug\": \"<string>\",\n      \"status\": \"active\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"tips\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\",\n      \"breathingCues\": \"<string>\",\n      \"forceType\": \"push\",\n      \"position\": \"kneeling\",\n      \"planeOfMotion\": \"multi_planar\",\n      \"laterality\": \"unilateral\",\n      \"loadType\": \"other\",\n      \"skillType\": \"coordination\"\n    }\n  ],\n  \"success\": true\n}",
               "cookie": [],
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "efa4861a-275d-4cc8-a588-db673fe6fc1b",
+              "id": "dd8b95b3-f11b-44bd-a484-4b80eef86d99",
               "name": "The request was malformed or failed validation.",
               "originalRequest": {
                 "url": {
@@ -3643,7 +3643,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "41b70083-f6ac-41f1-8bcd-9e4e1f3a881a",
+              "id": "88bc3a7b-251a-495b-ae90-04ec076c8763",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -3697,7 +3697,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "7d22cf08-29be-4003-97ac-a318daac7892",
+              "id": "320bc478-b174-4da2-b787-fd30562cf55d",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -3760,7 +3760,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "74a746cd-be01-4254-9c96-1ad4549b0246",
+              "id": "d89f03a4-af44-425d-a4fc-a1a334bace93",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -3820,7 +3820,7 @@
           }
         },
         {
-          "id": "81c3adb4-4dff-4608-800d-87e0721f3d92",
+          "id": "1dc3b5b3-e634-43c3-bf1b-d0f1fed3bf34",
           "name": "Get an exercise by slug",
           "request": {
             "name": "Get an exercise by slug",
@@ -3860,7 +3860,7 @@
           },
           "response": [
             {
-              "id": "e65b86e4-1174-4672-95eb-cc8ab350c991",
+              "id": "8505ded3-3c9b-47ae-af94-c6e86d2bf027",
               "name": "Full exercise detail.",
               "originalRequest": {
                 "url": {
@@ -3911,12 +3911,12 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"data\": {\n    \"catalogVersion\": \"<integer>\",\n    \"contraindications\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"description\": \"<string>\",\n    \"difficulty\": \"intermediate\",\n    \"flags\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"id\": \"<uuid>\",\n    \"instructions\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"isPremium\": \"<boolean>\",\n    \"jointRegions\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"mechanics\": \"isolation\",\n    \"movementPattern\": \"push\",\n    \"name\": \"<string>\",\n    \"programming\": {\n      \"key_0\": \"string\"\n    },\n    \"slug\": \"<string>\",\n    \"status\": \"draft\",\n    \"tags\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"tips\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"updatedAt\": \"<dateTime>\",\n    \"category\": \"<string>\",\n    \"breathingCues\": \"<string>\",\n    \"forceType\": \"static\",\n    \"position\": \"lying\",\n    \"planeOfMotion\": \"sagittal\",\n    \"laterality\": \"alternating\",\n    \"loadType\": \"assisted\",\n    \"skillType\": \"mobility\"\n  },\n  \"success\": true\n}",
+              "body": "{\n  \"data\": {\n    \"catalogVersion\": \"<integer>\",\n    \"contraindications\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"description\": \"<string>\",\n    \"difficulty\": \"intermediate\",\n    \"flags\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"id\": \"<uuid>\",\n    \"instructions\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"isPremium\": \"<boolean>\",\n    \"jointRegions\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"mechanics\": \"isolation\",\n    \"movementPattern\": \"gait\",\n    \"name\": \"<string>\",\n    \"programming\": {\n      \"key_0\": \"string\"\n    },\n    \"slug\": \"<string>\",\n    \"status\": \"draft\",\n    \"tags\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"tips\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"updatedAt\": \"<dateTime>\",\n    \"category\": \"<string>\",\n    \"breathingCues\": \"<string>\",\n    \"forceType\": \"compound\",\n    \"position\": \"standing\",\n    \"planeOfMotion\": \"frontal\",\n    \"laterality\": \"unilateral\",\n    \"loadType\": \"machine\",\n    \"skillType\": \"coordination\"\n  },\n  \"success\": true\n}",
               "cookie": [],
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "6b1048bd-60d5-4f38-aa40-ba0b85383192",
+              "id": "de5d4d61-7f6c-4cfd-9232-e7cf5d9dca56",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -3972,7 +3972,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "2162abe2-2a36-4bd8-82b2-36e9da532201",
+              "id": "0aca510c-802c-449b-a685-bddc4c4ea9b5",
               "name": "Authenticated, but not permitted. Premium exercises require a `pro` or `enterprise` tier; inactive accounts cannot log in.",
               "originalRequest": {
                 "url": {
@@ -4028,7 +4028,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "ffd39127-166a-4ee7-860e-27252841e754",
+              "id": "a5478353-fed0-4d78-9595-68bcf0dc3ecb",
               "name": "No such resource.",
               "originalRequest": {
                 "url": {
@@ -4084,7 +4084,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "abf1456a-b611-4d00-8c78-3af42679fe19",
+              "id": "bcf75b76-11d4-4966-968b-62d09ed0af3b",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -4149,7 +4149,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "ccf73e1f-412c-4d80-a07f-2d4b532071c4",
+              "id": "327a4cfd-34ef-46a4-8bd5-b41bc163f0fb",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -4211,7 +4211,7 @@
           }
         },
         {
-          "id": "cd9d2296-24ba-4799-959d-e553adf66b0a",
+          "id": "18fbb847-1168-4bb2-9856-f694656f079d",
           "name": "Get variations, progressions, and regressions together",
           "request": {
             "name": "Get variations, progressions, and regressions together",
@@ -4251,7 +4251,7 @@
           },
           "response": [
             {
-              "id": "d12850e5-5153-4adf-88e9-5342ea4551e2",
+              "id": "2748d28c-c0b4-48bb-b033-fc004eee0310",
               "name": "The three relation groups, each a list of summaries.",
               "originalRequest": {
                 "url": {
@@ -4302,12 +4302,12 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"data\": {\n    \"variations\": [\n      {\n        \"id\": \"<uuid>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"status\": \"draft\",\n        \"difficulty\": \"advanced\",\n        \"movementPattern\": \"hinge\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"updatedAt\": \"<dateTime>\",\n        \"category\": \"<string>\"\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"status\": \"deprecated\",\n        \"difficulty\": \"advanced\",\n        \"movementPattern\": \"pull\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"updatedAt\": \"<dateTime>\",\n        \"category\": \"<string>\"\n      }\n    ],\n    \"progressions\": [\n      {\n        \"id\": \"<uuid>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"status\": \"active\",\n        \"difficulty\": \"beginner\",\n        \"movementPattern\": \"pull\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"updatedAt\": \"<dateTime>\",\n        \"category\": \"<string>\"\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"status\": \"active\",\n        \"difficulty\": \"beginner\",\n        \"movementPattern\": \"hinge\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"updatedAt\": \"<dateTime>\",\n        \"category\": \"<string>\"\n      }\n    ],\n    \"regressions\": [\n      {\n        \"id\": \"<uuid>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"status\": \"deprecated\",\n        \"difficulty\": \"beginner\",\n        \"movementPattern\": \"hinge\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"updatedAt\": \"<dateTime>\",\n        \"category\": \"<string>\"\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"status\": \"deprecated\",\n        \"difficulty\": \"advanced\",\n        \"movementPattern\": \"push\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"updatedAt\": \"<dateTime>\",\n        \"category\": \"<string>\"\n      }\n    ]\n  },\n  \"success\": true\n}",
+              "body": "{\n  \"data\": {\n    \"variations\": [\n      {\n        \"id\": \"<uuid>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"status\": \"deprecated\",\n        \"difficulty\": \"intermediate\",\n        \"movementPattern\": \"squat\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"updatedAt\": \"<dateTime>\",\n        \"category\": \"<string>\"\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"status\": \"draft\",\n        \"difficulty\": \"beginner\",\n        \"movementPattern\": \"carry\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"updatedAt\": \"<dateTime>\",\n        \"category\": \"<string>\"\n      }\n    ],\n    \"progressions\": [\n      {\n        \"id\": \"<uuid>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"status\": \"active\",\n        \"difficulty\": \"beginner\",\n        \"movementPattern\": \"carry\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"updatedAt\": \"<dateTime>\",\n        \"category\": \"<string>\"\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"status\": \"active\",\n        \"difficulty\": \"beginner\",\n        \"movementPattern\": \"pull\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"updatedAt\": \"<dateTime>\",\n        \"category\": \"<string>\"\n      }\n    ],\n    \"regressions\": [\n      {\n        \"id\": \"<uuid>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"status\": \"active\",\n        \"difficulty\": \"beginner\",\n        \"movementPattern\": \"gait\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"updatedAt\": \"<dateTime>\",\n        \"category\": \"<string>\"\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"status\": \"deprecated\",\n        \"difficulty\": \"beginner\",\n        \"movementPattern\": \"push\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"updatedAt\": \"<dateTime>\",\n        \"category\": \"<string>\"\n      }\n    ]\n  },\n  \"success\": true\n}",
               "cookie": [],
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "79c28537-aae1-4f7a-9f83-b9a0f5e5f66c",
+              "id": "20779089-660b-4287-b7f2-6fecc1313720",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -4363,7 +4363,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "ac4c06a9-e03b-4519-b1ea-ee5eda9c3e54",
+              "id": "65ef9801-b6f5-4866-8898-3e3aeb2af715",
               "name": "No such resource.",
               "originalRequest": {
                 "url": {
@@ -4419,7 +4419,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "5c1acfa6-be90-43d5-babb-63644e139b13",
+              "id": "03c9d22e-0dd8-4476-853b-e98076016379",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -4484,7 +4484,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "9da5c1d1-40b9-4a77-9d66-38b58e30c61f",
+              "id": "de947b24-7bf1-4e71-a733-e9465bde86a0",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -4546,7 +4546,7 @@
           }
         },
         {
-          "id": "dd615dc2-0c2d-409a-82d8-d863b9ecaf9e",
+          "id": "d4112002-1449-4643-99f0-7aeb8cffe8ce",
           "name": "Get exercise variations",
           "request": {
             "name": "Get exercise variations",
@@ -4586,7 +4586,7 @@
           },
           "response": [
             {
-              "id": "e08e8ac5-e68c-43f4-b8dd-5b6489a627e2",
+              "id": "996d57b0-3155-4cda-adfc-eead64f9d75b",
               "name": "Variation summaries.",
               "originalRequest": {
                 "url": {
@@ -4637,12 +4637,12 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"data\": [\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"deprecated\",\n      \"difficulty\": \"beginner\",\n      \"movementPattern\": \"squat\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    },\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"draft\",\n      \"difficulty\": \"beginner\",\n      \"movementPattern\": \"rotation\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    }\n  ],\n  \"success\": true\n}",
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"active\",\n      \"difficulty\": \"advanced\",\n      \"movementPattern\": \"push\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    },\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"draft\",\n      \"difficulty\": \"advanced\",\n      \"movementPattern\": \"rotation\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    }\n  ],\n  \"success\": true\n}",
               "cookie": [],
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "1b0e61ab-dba2-4114-89ed-a973ef8f9dc5",
+              "id": "81d18a69-1efd-4e0b-b1ca-8b3a0770fda1",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -4698,7 +4698,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "9a3d79c0-5a5b-4611-ab47-ad03e49e1ecd",
+              "id": "deeaf496-ca71-40da-8861-4a30e8a60a1a",
               "name": "No such resource.",
               "originalRequest": {
                 "url": {
@@ -4754,7 +4754,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "33ed1c31-ef16-494f-9d46-81ca416b35af",
+              "id": "941907d2-fe26-4a14-a633-3622e5c1d70e",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -4819,7 +4819,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "a0e9d7af-0473-473b-9cd5-a1338f37a562",
+              "id": "c7475263-e825-48ec-a0a4-e8048e042539",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -4881,7 +4881,7 @@
           }
         },
         {
-          "id": "73c96fd1-432f-4939-b977-07c2e22c0c4c",
+          "id": "1657a08b-3eb9-4878-812a-6f2440f56458",
           "name": "Get exercise progressions",
           "request": {
             "name": "Get exercise progressions",
@@ -4924,7 +4924,7 @@
           },
           "response": [
             {
-              "id": "b7f06bfa-15c2-4bcc-b68c-23eb5f31bf35",
+              "id": "9c27b114-a827-48ef-ad0d-7426a654d407",
               "name": "Progression summaries.",
               "originalRequest": {
                 "url": {
@@ -4975,12 +4975,12 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"data\": [\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"deprecated\",\n      \"difficulty\": \"beginner\",\n      \"movementPattern\": \"squat\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    },\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"draft\",\n      \"difficulty\": \"beginner\",\n      \"movementPattern\": \"rotation\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    }\n  ],\n  \"success\": true\n}",
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"active\",\n      \"difficulty\": \"advanced\",\n      \"movementPattern\": \"push\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    },\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"draft\",\n      \"difficulty\": \"advanced\",\n      \"movementPattern\": \"rotation\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    }\n  ],\n  \"success\": true\n}",
               "cookie": [],
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "e5ef9a63-94ff-448d-b168-672a0f9633ed",
+              "id": "00ba8f78-227f-4943-88f1-7b7e919ad936",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -5036,7 +5036,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "a915897b-fc54-4556-bf2d-e740c372db74",
+              "id": "d04d8532-4f01-48bf-a279-3d7aedabbd5e",
               "name": "No such resource.",
               "originalRequest": {
                 "url": {
@@ -5092,7 +5092,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "94dec4fe-bb4f-4cc0-8012-4a314f579c3f",
+              "id": "842f8d02-388d-4b10-b709-1137f50d5f2f",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -5157,7 +5157,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "4df19d30-eddc-4ce4-944e-02d77a3518bb",
+              "id": "4c781060-e96d-4aad-a436-c237cfaf33cf",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -5219,7 +5219,7 @@
           }
         },
         {
-          "id": "1bd1772c-0386-46de-85b2-8bfb7f4c91f2",
+          "id": "e89a5960-c037-489b-adcb-0df9ffd2b0b8",
           "name": "Get exercise regressions",
           "request": {
             "name": "Get exercise regressions",
@@ -5262,7 +5262,7 @@
           },
           "response": [
             {
-              "id": "e230f540-a282-4928-866a-a9f31aee12a1",
+              "id": "29700788-9bc7-4db9-ab7e-6b2a7e766e2f",
               "name": "Regression summaries.",
               "originalRequest": {
                 "url": {
@@ -5313,12 +5313,12 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"data\": [\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"deprecated\",\n      \"difficulty\": \"beginner\",\n      \"movementPattern\": \"squat\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    },\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"draft\",\n      \"difficulty\": \"beginner\",\n      \"movementPattern\": \"rotation\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    }\n  ],\n  \"success\": true\n}",
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"active\",\n      \"difficulty\": \"advanced\",\n      \"movementPattern\": \"push\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    },\n    {\n      \"id\": \"<uuid>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"status\": \"draft\",\n      \"difficulty\": \"advanced\",\n      \"movementPattern\": \"rotation\",\n      \"tags\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"updatedAt\": \"<dateTime>\",\n      \"category\": \"<string>\"\n    }\n  ],\n  \"success\": true\n}",
               "cookie": [],
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "253b5d69-b090-468a-a6b0-119a954c8aaa",
+              "id": "8873a647-0cc4-40d9-a7d7-276af433ff8e",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -5374,7 +5374,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "6fcd6ac9-d0d1-4a18-bb3f-66680c625d8b",
+              "id": "c984af27-fd60-4da1-b046-364c24f2f961",
               "name": "No such resource.",
               "originalRequest": {
                 "url": {
@@ -5430,7 +5430,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "ba213be9-cca6-4d2e-934d-2f769445aa10",
+              "id": "44aa77f7-1f50-470f-b694-5e10170ec9ca",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -5495,7 +5495,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "1d682fb4-d972-49dc-a494-9ebe8979a4db",
+              "id": "f8ffd26f-ff07-455e-b8df-48e8831b80c7",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -5557,7 +5557,7 @@
           }
         },
         {
-          "id": "001d257f-7b0f-4a47-9e14-8190e7df28a1",
+          "id": "ab704819-d950-403b-b735-dacc7051dcf5",
           "name": "Get an exercise by id",
           "request": {
             "name": "Get an exercise by id",
@@ -5596,7 +5596,7 @@
           },
           "response": [
             {
-              "id": "12c6de17-79fd-4a6f-94f6-b2c9fc464b3f",
+              "id": "2656d993-1f7b-4cf5-adee-e5f2e400df9b",
               "name": "Full exercise detail.",
               "originalRequest": {
                 "url": {
@@ -5646,12 +5646,12 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"data\": {\n    \"catalogVersion\": \"<integer>\",\n    \"contraindications\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"description\": \"<string>\",\n    \"difficulty\": \"intermediate\",\n    \"flags\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"id\": \"<uuid>\",\n    \"instructions\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"isPremium\": \"<boolean>\",\n    \"jointRegions\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"mechanics\": \"isolation\",\n    \"movementPattern\": \"push\",\n    \"name\": \"<string>\",\n    \"programming\": {\n      \"key_0\": \"string\"\n    },\n    \"slug\": \"<string>\",\n    \"status\": \"draft\",\n    \"tags\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"tips\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"updatedAt\": \"<dateTime>\",\n    \"category\": \"<string>\",\n    \"breathingCues\": \"<string>\",\n    \"forceType\": \"static\",\n    \"position\": \"lying\",\n    \"planeOfMotion\": \"sagittal\",\n    \"laterality\": \"alternating\",\n    \"loadType\": \"assisted\",\n    \"skillType\": \"mobility\"\n  },\n  \"success\": true\n}",
+              "body": "{\n  \"data\": {\n    \"catalogVersion\": \"<integer>\",\n    \"contraindications\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"description\": \"<string>\",\n    \"difficulty\": \"intermediate\",\n    \"flags\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"id\": \"<uuid>\",\n    \"instructions\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"isPremium\": \"<boolean>\",\n    \"jointRegions\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"mechanics\": \"isolation\",\n    \"movementPattern\": \"gait\",\n    \"name\": \"<string>\",\n    \"programming\": {\n      \"key_0\": \"string\"\n    },\n    \"slug\": \"<string>\",\n    \"status\": \"draft\",\n    \"tags\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"tips\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"updatedAt\": \"<dateTime>\",\n    \"category\": \"<string>\",\n    \"breathingCues\": \"<string>\",\n    \"forceType\": \"compound\",\n    \"position\": \"standing\",\n    \"planeOfMotion\": \"frontal\",\n    \"laterality\": \"unilateral\",\n    \"loadType\": \"machine\",\n    \"skillType\": \"coordination\"\n  },\n  \"success\": true\n}",
               "cookie": [],
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "e6f1ba87-fc46-4ae2-841f-f09a8fc0f22e",
+              "id": "34fea05e-605a-4583-8157-1ebd449b7a04",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -5706,7 +5706,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "3ad59683-2cb1-46da-a1ba-66703aa61c9e",
+              "id": "c7095698-c22c-4eb9-9ffb-f9d456202591",
               "name": "Authenticated, but not permitted. Premium exercises require a `pro` or `enterprise` tier; inactive accounts cannot log in.",
               "originalRequest": {
                 "url": {
@@ -5761,7 +5761,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "3b86eb70-2e69-4b3b-b772-0a6e55f10bf1",
+              "id": "612c3d45-67c8-439b-904c-a4f7a4a74c6a",
               "name": "No such resource.",
               "originalRequest": {
                 "url": {
@@ -5816,7 +5816,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "d6cb6b2d-bd1d-4350-b01e-ef9026575aad",
+              "id": "3dda7b55-000f-4434-a3dc-3464c35e59dd",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -5880,7 +5880,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "422bc8e2-52e8-4de7-a5a6-84b59d9c6a4d",
+              "id": "978b4b58-51f1-4e07-b0a1-c426c2b7a4ba",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -5947,7 +5947,7 @@
       "description": "Lookup tables and enum values. Fetch once, cache aggressively — these change rarely.\n",
       "item": [
         {
-          "id": "77eecde5-9366-4272-8974-c117a679608c",
+          "id": "d95f625d-330c-4d92-96ef-d3016cedac33",
           "name": "Get every reference table in one request",
           "request": {
             "name": "Get every reference table in one request",
@@ -5974,7 +5974,7 @@
           },
           "response": [
             {
-              "id": "3ad07bd9-cff2-4232-92cb-974e53056896",
+              "id": "73fc3f4d-3fa3-47d4-adad-b5f7d2f7bc72",
               "name": "Muscles, equipment, categories, flags, and joint regions.",
               "originalRequest": {
                 "url": {
@@ -6012,12 +6012,12 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"data\": {\n    \"muscles\": [\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"region\": \"<string>\",\n        \"muscleGroup\": \"<string>\",\n        \"parentMuscleId\": \"<integer>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      },\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"region\": \"<string>\",\n        \"muscleGroup\": \"<string>\",\n        \"parentMuscleId\": \"<integer>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      }\n    ],\n    \"equipment\": [\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"equipmentGroup\": \"<string>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      },\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"equipmentGroup\": \"<string>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      }\n    ],\n    \"categories\": [\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"category\": \"mobility\",\n        \"description\": \"<string>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      },\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"category\": \"flexibility\",\n        \"description\": \"<string>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      }\n    ],\n    \"exerciseFlags\": [\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"description\": \"<string>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      },\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"description\": \"<string>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      }\n    ],\n    \"jointRegions\": [\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"regionGroup\": \"<string>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      },\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"regionGroup\": \"<string>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      }\n    ]\n  },\n  \"success\": true\n}",
+              "body": "{\n  \"data\": {\n    \"muscles\": [\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"region\": \"<string>\",\n        \"muscleGroup\": \"<string>\",\n        \"parentMuscleId\": \"<integer>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      },\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"region\": \"<string>\",\n        \"muscleGroup\": \"<string>\",\n        \"parentMuscleId\": \"<integer>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      }\n    ],\n    \"equipment\": [\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"equipmentGroup\": \"<string>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      },\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"equipmentGroup\": \"<string>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      }\n    ],\n    \"categories\": [\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"category\": \"strength\",\n        \"description\": \"<string>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      },\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"category\": \"mobility\",\n        \"description\": \"<string>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      }\n    ],\n    \"exerciseFlags\": [\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"description\": \"<string>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      },\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"description\": \"<string>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      }\n    ],\n    \"jointRegions\": [\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"regionGroup\": \"<string>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      },\n      {\n        \"id\": \"<integer>\",\n        \"slug\": \"<string>\",\n        \"name\": \"<string>\",\n        \"regionGroup\": \"<string>\",\n        \"displayOrder\": \"<integer>\",\n        \"updatedAt\": \"<dateTime>\"\n      }\n    ]\n  },\n  \"success\": true\n}",
               "cookie": [],
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "f224929d-e27a-4129-857c-ac48698cd852",
+              "id": "86691279-475c-4479-91ac-9403909093a7",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -6060,7 +6060,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "949c40c2-0fa5-4626-801c-560651e44835",
+              "id": "0c8016d8-557b-4395-b454-9057f04c3116",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -6112,7 +6112,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "a74561f8-5b0e-4d8c-9b31-118bd357f787",
+              "id": "ffe4d26e-254e-4afe-b604-8de7c94ef244",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -6161,7 +6161,7 @@
           }
         },
         {
-          "id": "747790dc-05f5-4e46-9930-563b9b9c70a7",
+          "id": "0b732076-b6bd-4f28-85d4-bb8759085ff8",
           "name": "List muscles",
           "request": {
             "name": "List muscles",
@@ -6188,7 +6188,7 @@
           },
           "response": [
             {
-              "id": "1beae853-eb42-4bcf-b06a-bed101dba55a",
+              "id": "ef39b8ba-41b0-4104-9b67-1ca7e4fedfc1",
               "name": "Muscle references.",
               "originalRequest": {
                 "url": {
@@ -6231,7 +6231,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "cf3a1388-3bbc-4eda-a401-6fa5b1e1c09d",
+              "id": "40923913-7da6-4012-8b68-5fa407649141",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -6274,7 +6274,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "d4d7ff72-678b-4e27-8cfb-f3fb158491b0",
+              "id": "9da0c1c5-4414-45d9-8103-41233bc6ab26",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -6326,7 +6326,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "840ea606-6d15-4f72-83f0-eaac008e50e9",
+              "id": "f1e87767-8f45-477a-9e6a-26946ef0b148",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -6375,7 +6375,7 @@
           }
         },
         {
-          "id": "0d901cd6-fb5c-432f-a238-875e5f898fcb",
+          "id": "c97766bb-ddef-4b24-a97f-16d9ccb8d591",
           "name": "List equipment",
           "request": {
             "name": "List equipment",
@@ -6402,7 +6402,7 @@
           },
           "response": [
             {
-              "id": "54617bf0-2ad7-4d92-8219-0ef8e275506a",
+              "id": "9d7ef6b4-4875-407c-ba16-a43b85429b3d",
               "name": "Equipment references.",
               "originalRequest": {
                 "url": {
@@ -6445,7 +6445,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "8a70517c-5037-4f66-aff2-5cc20da21ccb",
+              "id": "fc763de5-67b5-4700-b255-dba2ba81eed4",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -6488,7 +6488,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "7a0d24d2-5d5a-43e0-8224-171e3fe8dc2d",
+              "id": "0c52970a-c6e1-497e-b367-7b725dc62c09",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -6540,7 +6540,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "530cbd13-ec23-43f5-90ae-36df0f46bf77",
+              "id": "c422adf3-0560-4ce7-9ab9-c8ff8769d012",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -6589,7 +6589,7 @@
           }
         },
         {
-          "id": "492f2d94-9083-4938-95e6-1d956edd33c2",
+          "id": "15640465-d914-4827-acf7-93ef49e02b2f",
           "name": "List exercise categories",
           "request": {
             "name": "List exercise categories",
@@ -6616,7 +6616,7 @@
           },
           "response": [
             {
-              "id": "ef6f4109-3b1a-43f7-aef9-f204df0c68a9",
+              "id": "9c2252e1-3f9e-4bb1-bff4-33622b11deff",
               "name": "Category references.",
               "originalRequest": {
                 "url": {
@@ -6654,12 +6654,12 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"data\": [\n    {\n      \"id\": \"<integer>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"category\": \"mobility\",\n      \"description\": \"<string>\",\n      \"displayOrder\": \"<integer>\",\n      \"updatedAt\": \"<dateTime>\"\n    },\n    {\n      \"id\": \"<integer>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"category\": \"plyometrics\",\n      \"description\": \"<string>\",\n      \"displayOrder\": \"<integer>\",\n      \"updatedAt\": \"<dateTime>\"\n    }\n  ],\n  \"success\": true\n}",
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"<integer>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"category\": \"plyometrics\",\n      \"description\": \"<string>\",\n      \"displayOrder\": \"<integer>\",\n      \"updatedAt\": \"<dateTime>\"\n    },\n    {\n      \"id\": \"<integer>\",\n      \"slug\": \"<string>\",\n      \"name\": \"<string>\",\n      \"category\": \"plyometrics\",\n      \"description\": \"<string>\",\n      \"displayOrder\": \"<integer>\",\n      \"updatedAt\": \"<dateTime>\"\n    }\n  ],\n  \"success\": true\n}",
               "cookie": [],
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "034033a0-9e73-4b14-bf83-0736230b93bc",
+              "id": "804f0456-e117-434f-a18b-8fca28960906",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -6702,7 +6702,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "f5342bc8-adad-408e-9325-3eb14c854449",
+              "id": "1ef4ec43-1204-4877-80aa-8467cd611771",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -6754,7 +6754,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "b2e64f90-5e84-4ae6-95ed-34ca0faa2b93",
+              "id": "dcae3d4a-a831-4fc3-815e-abeb951a142f",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -6803,7 +6803,7 @@
           }
         },
         {
-          "id": "17973f3f-5012-4b07-a9e9-7c1138572b35",
+          "id": "dca4d6c2-9638-474a-a6e5-c9f59001cf3f",
           "name": "List exercise flags",
           "request": {
             "name": "List exercise flags",
@@ -6830,7 +6830,7 @@
           },
           "response": [
             {
-              "id": "3c871b4a-7a74-4703-82c2-2c78d50975fb",
+              "id": "810ff264-5df0-49c5-810d-2b9744479d8c",
               "name": "Exercise flag references.",
               "originalRequest": {
                 "url": {
@@ -6873,7 +6873,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "fa72bc90-6cda-4e59-925e-d882ce3260c4",
+              "id": "5d43b401-2610-4851-ad80-fb645427e1ae",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -6916,7 +6916,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "369a20d3-a083-4a71-8e55-fe5d32e329ac",
+              "id": "1ba6710f-0d98-43ee-baaa-c70bccefd10e",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -6968,7 +6968,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "52b0ef64-bf0a-4aa7-9bc4-18a6d6d9b5ec",
+              "id": "8d49695f-3bc5-411e-8250-53074d66d0b5",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -7017,7 +7017,7 @@
           }
         },
         {
-          "id": "58564370-ae8f-4ace-80e1-016f9c4a55c0",
+          "id": "0d845ec2-d5a0-4f0a-a8f9-03bf8fb96a49",
           "name": "List joint regions",
           "request": {
             "name": "List joint regions",
@@ -7044,7 +7044,7 @@
           },
           "response": [
             {
-              "id": "0d0a5b2b-70e8-4314-a285-e1aabd7f11b8",
+              "id": "1e453fc0-7972-43fc-acf7-6172a25790ed",
               "name": "Joint region references.",
               "originalRequest": {
                 "url": {
@@ -7087,7 +7087,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "664da00a-97da-412f-b56d-fb08142b3a60",
+              "id": "58013f23-b03b-4182-971e-074c4fe8874e",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -7130,7 +7130,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "75575cba-0f7f-4b65-b701-84b3a4efe0ff",
+              "id": "e9344e4a-65a1-46fa-8669-2d0c6530a057",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -7182,7 +7182,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "ce3133de-7242-4f60-a61c-41ac86b34295",
+              "id": "7f8a1496-3ceb-4eb4-b439-5ba0c4714664",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -7237,7 +7237,7 @@
       "description": "Incremental sync for clients that cache the catalog locally. Returns only what changed, plus tombstones for records that were deleted or deprecated.\n",
       "item": [
         {
-          "id": "7d294833-aea7-4d2b-b1eb-db036a6be732",
+          "id": "cb73e423-6103-4848-a754-91a74424e027",
           "name": "Get catalog version and sync limits",
           "request": {
             "name": "Get catalog version and sync limits",
@@ -7268,7 +7268,7 @@
           },
           "response": [
             {
-              "id": "af0d4e4a-2d9a-449b-b02c-793807fe48ac",
+              "id": "94df6f16-93cc-45cf-af7f-0d8dce30d355",
               "name": "Catalog version, latest timestamps, resources, and enums.",
               "originalRequest": {
                 "url": {
@@ -7307,12 +7307,12 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"data\": {\n    \"catalogVersion\": \"<integer>\",\n    \"resources\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"endpoints\": {\n      \"key_0\": \"<string>\"\n    },\n    \"enums\": {\n      \"key_0\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"key_1\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    \"pageSizeMax\": \"<integer>\",\n    \"latestExerciseUpdatedAt\": \"<dateTime>\",\n    \"latestChangeAt\": \"<dateTime>\"\n  },\n  \"success\": true\n}",
+              "body": "{\n  \"data\": {\n    \"catalogVersion\": \"<integer>\",\n    \"resources\": [\n      \"<string>\",\n      \"<string>\"\n    ],\n    \"endpoints\": {\n      \"key_0\": \"<string>\",\n      \"key_1\": \"<string>\"\n    },\n    \"enums\": {\n      \"key_0\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    \"pageSizeMax\": \"<integer>\",\n    \"latestExerciseUpdatedAt\": \"<dateTime>\",\n    \"latestChangeAt\": \"<dateTime>\"\n  },\n  \"success\": true\n}",
               "cookie": [],
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "acaa2aa4-0b0e-435d-a940-0ba73778eaad",
+              "id": "aebdd806-3f8e-4749-85b2-4880bfcb4bc6",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -7356,7 +7356,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "c6a5ac28-5a29-4686-a230-68e7a441c9ec",
+              "id": "00d6be75-34bd-4fd0-94fd-eacab97d4955",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -7409,7 +7409,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "82407e22-f9ee-420f-b676-0ef3cb24090d",
+              "id": "e0f1cedc-3a2f-4234-8d86-e9267c9a6e44",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -7459,7 +7459,7 @@
           }
         },
         {
-          "id": "5c2bf205-8e30-4b7b-9e2f-acd6c1ba5dc8",
+          "id": "3612ad71-261c-4cb5-87e5-6130b764ce5f",
           "name": "Sync exercises changed since a timestamp",
           "request": {
             "name": "Sync exercises changed since a timestamp",
@@ -7527,7 +7527,7 @@
           },
           "response": [
             {
-              "id": "2b4d4d40-bd4a-4298-a126-9062e4dee7d4",
+              "id": "1c8dd191-c87e-42f1-a068-1be8e6bd6eff",
               "name": "Changed exercises, tombstones, and a cursor.",
               "originalRequest": {
                 "url": {
@@ -7603,12 +7603,12 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"data\": {\n    \"exercises\": [\n      {\n        \"catalogVersion\": \"<integer>\",\n        \"contraindications\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"description\": \"<string>\",\n        \"difficulty\": \"beginner\",\n        \"flags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"id\": \"<uuid>\",\n        \"instructions\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"isPremium\": \"<boolean>\",\n        \"jointRegions\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"mechanics\": \"isolation\",\n        \"movementPattern\": \"rotation\",\n        \"name\": \"<string>\",\n        \"programming\": {\n          \"key_0\": true\n        },\n        \"slug\": \"<string>\",\n        \"status\": \"active\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"tips\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"updatedAt\": \"<dateTime>\",\n        \"category\": \"<string>\",\n        \"breathingCues\": \"<string>\",\n        \"forceType\": \"static\",\n        \"position\": \"kneeling\",\n        \"planeOfMotion\": \"frontal\",\n        \"laterality\": \"unilateral\",\n        \"loadType\": \"bodyweight\",\n        \"skillType\": \"strength\"\n      },\n      {\n        \"catalogVersion\": \"<integer>\",\n        \"contraindications\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"description\": \"<string>\",\n        \"difficulty\": \"advanced\",\n        \"flags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"id\": \"<uuid>\",\n        \"instructions\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"isPremium\": \"<boolean>\",\n        \"jointRegions\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"mechanics\": \"isolation\",\n        \"movementPattern\": \"gait\",\n        \"name\": \"<string>\",\n        \"programming\": {\n          \"key_0\": 7912\n        },\n        \"slug\": \"<string>\",\n        \"status\": \"deprecated\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"tips\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"updatedAt\": \"<dateTime>\",\n        \"category\": \"<string>\",\n        \"breathingCues\": \"<string>\",\n        \"forceType\": \"static\",\n        \"position\": \"kneeling\",\n        \"planeOfMotion\": \"frontal\",\n        \"laterality\": \"unilateral\",\n        \"loadType\": \"machine\",\n        \"skillType\": \"strength\"\n      }\n    ],\n    \"tombstones\": [\n      {\n        \"exerciseId\": \"<uuid>\",\n        \"changeType\": \"deleted\",\n        \"changedAt\": \"<dateTime>\",\n        \"catalogVersion\": \"<integer>\"\n      },\n      {\n        \"exerciseId\": \"<uuid>\",\n        \"changeType\": \"deleted\",\n        \"changedAt\": \"<dateTime>\",\n        \"catalogVersion\": \"<integer>\"\n      }\n    ],\n    \"latestChangeAt\": \"<dateTime>\"\n  },\n  \"pagination\": {\n    \"limit\": \"<integer>\",\n    \"hasMore\": \"<boolean>\",\n    \"nextCursor\": \"<string>\"\n  },\n  \"success\": true\n}",
+              "body": "{\n  \"data\": {\n    \"exercises\": [\n      {\n        \"catalogVersion\": \"<integer>\",\n        \"contraindications\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"description\": \"<string>\",\n        \"difficulty\": \"advanced\",\n        \"flags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"id\": \"<uuid>\",\n        \"instructions\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"isPremium\": \"<boolean>\",\n        \"jointRegions\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"mechanics\": \"compound\",\n        \"movementPattern\": \"push\",\n        \"name\": \"<string>\",\n        \"programming\": {\n          \"key_0\": true\n        },\n        \"slug\": \"<string>\",\n        \"status\": \"draft\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"tips\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"updatedAt\": \"<dateTime>\",\n        \"category\": \"<string>\",\n        \"breathingCues\": \"<string>\",\n        \"forceType\": \"pull\",\n        \"position\": \"seated\",\n        \"planeOfMotion\": \"sagittal\",\n        \"laterality\": \"single_side\",\n        \"loadType\": \"other\",\n        \"skillType\": \"balance\"\n      },\n      {\n        \"catalogVersion\": \"<integer>\",\n        \"contraindications\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"description\": \"<string>\",\n        \"difficulty\": \"beginner\",\n        \"flags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"id\": \"<uuid>\",\n        \"instructions\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"isPremium\": \"<boolean>\",\n        \"jointRegions\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"mechanics\": \"isolation\",\n        \"movementPattern\": \"squat\",\n        \"name\": \"<string>\",\n        \"programming\": {\n          \"key_0\": 9271\n        },\n        \"slug\": \"<string>\",\n        \"status\": \"deprecated\",\n        \"tags\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"tips\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"updatedAt\": \"<dateTime>\",\n        \"category\": \"<string>\",\n        \"breathingCues\": \"<string>\",\n        \"forceType\": \"static\",\n        \"position\": \"other\",\n        \"planeOfMotion\": \"frontal\",\n        \"laterality\": \"unilateral\",\n        \"loadType\": \"cable\",\n        \"skillType\": \"mobility\"\n      }\n    ],\n    \"tombstones\": [\n      {\n        \"exerciseId\": \"<uuid>\",\n        \"changeType\": \"deprecated\",\n        \"changedAt\": \"<dateTime>\",\n        \"catalogVersion\": \"<integer>\"\n      },\n      {\n        \"exerciseId\": \"<uuid>\",\n        \"changeType\": \"deprecated\",\n        \"changedAt\": \"<dateTime>\",\n        \"catalogVersion\": \"<integer>\"\n      }\n    ],\n    \"latestChangeAt\": \"<dateTime>\"\n  },\n  \"pagination\": {\n    \"limit\": \"<integer>\",\n    \"hasMore\": \"<boolean>\",\n    \"nextCursor\": \"<string>\"\n  },\n  \"success\": true\n}",
               "cookie": [],
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "e23c642a-1c4a-426d-9f0e-35394f463fef",
+              "id": "ce0075cf-21fb-41e3-92db-ae7e9c02f8f9",
               "name": "The request was malformed or failed validation.",
               "originalRequest": {
                 "url": {
@@ -7689,7 +7689,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "ecfd41f0-2612-44bc-973c-2b6ab8fd4ee3",
+              "id": "b838a7d8-acf5-4a82-b832-96498e3d7a10",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -7770,7 +7770,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "3dcbc33e-010c-4dd6-8f8a-a1c3be524e16",
+              "id": "4b696cfd-fbe5-4116-a05d-739978c3c7d4",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -7860,7 +7860,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "60bc2f80-d691-43ee-a472-28035dacfe48",
+              "id": "7cffd4e5-50d1-427f-b3d1-af898cb0a420",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -7953,7 +7953,7 @@
       "description": "Subscription checkout. Tier changes arrive by webhook.",
       "item": [
         {
-          "id": "ed40a501-cbbe-4ea6-b071-9cc19a1affe6",
+          "id": "d3c2dfba-d618-4342-9204-b1fef0d35fe7",
           "name": "Create a checkout for a paid tier",
           "request": {
             "name": "Create a checkout for a paid tier",
@@ -7985,7 +7985,7 @@
             "method": "POST",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tier\": \"enterprise\"\n}",
+              "raw": "{\n  \"tier\": \"pro\"\n}",
               "options": {
                 "raw": {
                   "headerFamily": "json",
@@ -8013,7 +8013,7 @@
           },
           "response": [
             {
-              "id": "04c8de63-44ff-40b5-90c3-20e21247b837",
+              "id": "76b990ad-9fb0-4f34-b254-400a7517bd38",
               "name": "Checkout created.",
               "originalRequest": {
                 "url": {
@@ -8048,7 +8048,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"tier\": \"enterprise\"\n}",
+                  "raw": "{\n  \"tier\": \"pro\"\n}",
                   "options": {
                     "raw": {
                       "headerFamily": "json",
@@ -8074,12 +8074,12 @@
                   "value": "<uri>"
                 }
               ],
-              "body": "{\n  \"data\": {\n    \"tier\": \"enterprise\",\n    \"checkoutUrl\": \"<uri>\"\n  },\n  \"success\": true\n}",
+              "body": "{\n  \"data\": {\n    \"tier\": \"basic\",\n    \"checkoutUrl\": \"<uri>\"\n  },\n  \"success\": true\n}",
               "cookie": [],
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "7bcfe592-c708-4789-af97-2e0907e08ed5",
+              "id": "8a3ae934-2527-44d1-b3b7-ea1eebc680e7",
               "name": "The request was malformed or failed validation.",
               "originalRequest": {
                 "url": {
@@ -8114,7 +8114,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"tier\": \"enterprise\"\n}",
+                  "raw": "{\n  \"tier\": \"pro\"\n}",
                   "options": {
                     "raw": {
                       "headerFamily": "json",
@@ -8136,7 +8136,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "531f48bd-32f7-47c5-8a00-5bfbc32f9ada",
+              "id": "5720ce54-52d8-4683-ad9a-492e1b4e2621",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -8171,7 +8171,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"tier\": \"enterprise\"\n}",
+                  "raw": "{\n  \"tier\": \"pro\"\n}",
                   "options": {
                     "raw": {
                       "headerFamily": "json",
@@ -8193,7 +8193,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "279ccd05-9f63-41de-9699-b713d0ddaf4f",
+              "id": "3778e443-3829-4715-befc-eef2e72ac86e",
               "name": "The daily quota for this API key is exhausted.",
               "originalRequest": {
                 "url": {
@@ -8228,7 +8228,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"tier\": \"enterprise\"\n}",
+                  "raw": "{\n  \"tier\": \"pro\"\n}",
                   "options": {
                     "raw": {
                       "headerFamily": "json",
@@ -8259,7 +8259,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "345251cb-da20-48e9-ad18-c3c1d6128ec6",
+              "id": "8ce1ce4d-0ed1-4e31-a09e-17e62babb6bf",
               "name": "An upstream dependency failed or timed out.",
               "originalRequest": {
                 "url": {
@@ -8294,7 +8294,7 @@
                 "method": "POST",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"tier\": \"enterprise\"\n}",
+                  "raw": "{\n  \"tier\": \"pro\"\n}",
                   "options": {
                     "raw": {
                       "headerFamily": "json",
@@ -8328,7 +8328,7 @@
       "description": "Called by the billing provider, not by you. Authenticated with an HMAC signature rather than an API key.\n",
       "item": [
         {
-          "id": "9ff5ad9c-f7b2-4d81-8429-381e83806527",
+          "id": "419b6fbd-b786-43a9-8718-c3194da60cb9",
           "name": "Receive a Lemon Squeezy subscription event",
           "request": {
             "name": "Receive a Lemon Squeezy subscription event",
@@ -8381,7 +8381,7 @@
           },
           "response": [
             {
-              "id": "deec6ff0-de88-47c1-ba78-34be04330260",
+              "id": "1869b372-8716-4fee-ba26-08be54afab35",
               "name": "Delivery accepted. Acknowledged even when not applied.",
               "originalRequest": {
                 "url": {
@@ -8447,7 +8447,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "1eab329a-1947-430a-a563-6268a22648d0",
+              "id": "bed05855-31e8-4e96-8199-da5e8c3f5667",
               "name": "The request was malformed or failed validation.",
               "originalRequest": {
                 "url": {
@@ -8513,7 +8513,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "535a8806-0e88-4ac3-a24b-166ae480f227",
+              "id": "e5b00419-a420-4460-b25a-36c8ead349fd",
               "name": "The API key is missing, malformed, revoked, or expired.",
               "originalRequest": {
                 "url": {
@@ -8579,7 +8579,7 @@
               "_postman_previewlanguage": "json"
             },
             {
-              "id": "02bdd413-498c-4754-b9e1-9ad0348c752c",
+              "id": "40f0f509-aa8a-4e4a-8512-7d56e49cfa36",
               "name": "An unexpected error. `detail` is always a generic message; internals are never exposed.",
               "originalRequest": {
                 "url": {
@@ -8687,7 +8687,7 @@
     }
   ],
   "info": {
-    "_postman_id": "29da766e-ba02-4748-ab38-37cdfcd01566",
+    "_postman_id": "bf8d11b3-6aa1-4171-911b-cabcfbe4a7ea",
     "name": "ExerciseDB API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "description": {
