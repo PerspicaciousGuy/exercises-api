@@ -3,13 +3,13 @@
 You will make your first authenticated request in about two minutes. There are
 three steps: register, copy your API key, call an endpoint.
 
-The examples below assume the API is running at `http://localhost:3000`. Replace
-that with your deployed base URL.
+The base URL is `https://api.harshitbishnoi.dev`. Running the API locally
+instead? Swap it for `http://localhost:3000`.
 
 ## 1. Register a developer account
 
 ```bash
-curl -X POST http://localhost:3000/auth/register \
+curl -X POST https://api.harshitbishnoi.dev/auth/register \
   -H 'content-type: application/json' \
   -d '{
     "email": "alice@example.com",
@@ -53,7 +53,7 @@ create a new key with `POST /me/keys` and revoke the old one.
 Send the key in an `x-api-key` header:
 
 ```bash
-curl http://localhost:3000/exercises?limit=2 \
+curl https://api.harshitbishnoi.dev/exercises?limit=2 \
   -H "x-api-key: exdb_XEtT1o…"
 ```
 
