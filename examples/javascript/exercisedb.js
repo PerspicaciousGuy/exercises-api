@@ -4,7 +4,8 @@
  * Run: EXERCISEDB_API_KEY=exdb_… node examples/javascript/exercisedb.js
  */
 
-const BASE_URL = process.env.EXERCISEDB_BASE_URL ?? 'http://localhost:3000';
+const BASE_URL =
+  process.env.EXERCISEDB_BASE_URL ?? 'https://api.harshitbishnoi.dev';
 const API_KEY = process.env.EXERCISEDB_API_KEY;
 const PAGE_SIZE = 100;
 
