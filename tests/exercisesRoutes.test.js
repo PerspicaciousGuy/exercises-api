@@ -89,7 +89,7 @@ describe('exercise routes', () => {
     const response = await request(app).get('/exercises?limit=500').expect(400);
 
     expect(response.body).toEqual({
-      type: 'https://exercisedb-api.dev/errors/validation-error',
+      type: 'https://docs.harshitbishnoi.dev/errors/validation-error',
       title: 'Validation Error',
       status: 400,
       detail: 'limit must be less than or equal to 100',
@@ -186,7 +186,7 @@ describe('exercise routes', () => {
       .expect(403);
 
     expect(response.body).toEqual({
-      type: 'https://exercisedb-api.dev/errors/premium-access-required',
+      type: 'https://docs.harshitbishnoi.dev/errors/premium-access-required',
       title: 'Premium Access Required',
       status: 403,
       detail: 'Premium content requires a pro or enterprise API tier',
@@ -298,7 +298,7 @@ describe('exercise routes', () => {
     const response = await request(app).get('/exercises/search').expect(400);
 
     expect(response.body).toEqual({
-      type: 'https://exercisedb-api.dev/errors/validation-error',
+      type: 'https://docs.harshitbishnoi.dev/errors/validation-error',
       title: 'Validation Error',
       status: 400,
       detail: 'q is required',
@@ -354,7 +354,7 @@ describe('exercise routes', () => {
     const response = await request(app).get('/exercises/bulk').expect(400);
 
     expect(response.body).toEqual({
-      type: 'https://exercisedb-api.dev/errors/validation-error',
+      type: 'https://docs.harshitbishnoi.dev/errors/validation-error',
       title: 'Validation Error',
       status: 400,
       detail: 'ids is required',
@@ -498,7 +498,7 @@ describe('exercise routes', () => {
       .expect(404);
 
     expect(response.body).toEqual({
-      type: 'https://exercisedb-api.dev/errors/exercise-not-found',
+      type: 'https://docs.harshitbishnoi.dev/errors/exercise-not-found',
       title: 'Exercise Not Found',
       status: 404,
       detail: 'Exercise was not found',
