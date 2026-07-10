@@ -1,0 +1,32 @@
+# Never copy secrets or local state into an image.
+.env
+.env.*
+!.env.example
+
+node_modules
+npm-debug.log
+
+.git
+.gitignore
+
+# Separate projects with their own build and deploy.
+website
+dashboard
+
+# Not needed at runtime.
+tests
+coverage
+scripts
+examples
+postman
+supabase
+data
+docs
+agents-guidelines
+.claude
+.mcp.json
+*.md
+!README.md
+eslint.config.js
+.prettierrc
+.prettierignore
