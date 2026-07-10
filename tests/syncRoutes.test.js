@@ -108,7 +108,7 @@ describe('sync routes', () => {
       .expect(400);
 
     expect(response.body).toEqual({
-      type: 'https://exercisedb-api.dev/errors/validation-error',
+      type: 'https://docs.harshitbishnoi.dev/errors/validation-error',
       title: 'Validation Error',
       status: 400,
       detail: 'updated_since invalid datetime',
