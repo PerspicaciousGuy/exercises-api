@@ -108,17 +108,22 @@ with content type `application/problem+json`:
 
 ```json
 {
-  "type": "https://exercisedb-api.dev/errors/validation-error",
+  "type": "https://docs.harshitbishnoi.dev/errors/validation-error",
   "title": "Validation Error",
   "status": 400,
   "detail": "limit must be less than or equal to 100",
   "instance": "/exercises?limit=500",
-  "code": "VALIDATION_ERROR"
+  "code": "VALIDATION_ERROR",
+  "requestId": "485fa7dd-03b1-44e1-ae56-6b88d13b652b"
 }
 ```
 
 Branch on `code` — it is stable. `detail` is written for humans and may be
-reworded. `type` is a stable, documentable URI; it does not resolve to a page.
+reworded. `type` is a stable URI identifying the error class.
+
+`requestId` also comes back in the `X-Request-Id` header. Quote it when you
+report a problem: on a `5xx` the `detail` is deliberately generic, and the
+request id is the only way to find the server log line behind it.
 
 ## Where next
 
