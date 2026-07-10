@@ -34,6 +34,14 @@ export default defineConfig({
         ]
       },
       {
+        text: 'Guides',
+        items: [
+          { text: 'Sync Guide', link: '/sync-guide' },
+          { text: 'Examples', link: '/examples' },
+          { text: 'Architecture', link: '/architecture' }
+        ]
+      },
+      {
         text: 'Reference',
         items: [{ text: 'API Reference', link: '/api-reference' }]
       }
