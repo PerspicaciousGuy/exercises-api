@@ -32,7 +32,7 @@ Page through `GET /sync/exercises` with no `updated_since`. Omitting it means
 "everything".
 
 ```bash
-curl 'http://localhost:3000/sync/exercises?limit=100' -H "x-api-key: exdb_…"
+curl 'https://api.harshitbishnoi.dev/sync/exercises?limit=100' -H "x-api-key: exdb_…"
 ```
 
 ```json
@@ -61,7 +61,7 @@ One pass gives you everything you need to render an exercise offline.
 Pass `nextCursor` back as `cursor` until `hasMore` is `false`.
 
 ```bash
-curl 'http://localhost:3000/sync/exercises?limit=100&cursor=eyJvZmZzZXQiOjEwMH0' \
+curl 'https://api.harshitbishnoi.dev/sync/exercises?limit=100&cursor=eyJvZmZzZXQiOjEwMH0' \
   -H "x-api-key: exdb_…"
 ```
 
@@ -84,7 +84,7 @@ terminates early and silently loses records.
 Send your stored watermark:
 
 ```bash
-curl 'http://localhost:3000/sync/exercises?updated_since=2026-07-02T09:14:00.000Z' \
+curl 'https://api.harshitbishnoi.dev/sync/exercises?updated_since=2026-07-02T09:14:00.000Z' \
   -H "x-api-key: exdb_…"
 ```
 
