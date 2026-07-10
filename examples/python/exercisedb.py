@@ -12,7 +12,7 @@ import urllib.parse
 import urllib.request
 from typing import Any, Callable, Iterator
 
-BASE_URL = os.environ.get("EXERCISEDB_BASE_URL", "http://localhost:3000")
+BASE_URL = os.environ.get("EXERCISEDB_BASE_URL", "https://api.harshitbishnoi.dev")
 API_KEY = os.environ.get("EXERCISEDB_API_KEY", "")
 PAGE_SIZE = 100
 
