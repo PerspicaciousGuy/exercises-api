@@ -19,7 +19,8 @@ export default [
     }
   },
   {
-    // The docs site is a separate Vite/Vue project with its own toolchain.
-    ignores: ['coverage/', 'node_modules/', 'website/']
+    // The docs site and the dashboard are separate Vite/Vue projects with
+    // their own toolchains, their own dependencies, and browser globals.
+    ignores: ['coverage/', 'node_modules/', 'website/', 'dashboard/']
   }
 ];
