@@ -104,24 +104,26 @@ onMounted(load);
         </span>
       </div>
 
-      <table v-else class="table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Requests</th>
-            <th>Limit</th>
-            <th>Remaining</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="row in usage" :key="row.date">
-            <td>{{ row.date }}</td>
-            <td>{{ row.requestCount }}</td>
-            <td>{{ row.limit }}</td>
-            <td>{{ row.remaining }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div v-else class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Requests</th>
+              <th>Limit</th>
+              <th>Remaining</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="row in usage" :key="row.date">
+              <td>{{ row.date }}</td>
+              <td>{{ row.requestCount }}</td>
+              <td>{{ row.limit }}</td>
+              <td>{{ row.remaining }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </template>
 </template>
