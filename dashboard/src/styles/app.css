@@ -1,5 +1,9 @@
 @import './tokens.css';
 
+/* -----------------------------------------------------------------------
+ * Base
+ * -------------------------------------------------------------------- */
+
 *,
 *::before,
 *::after {
@@ -13,6 +17,7 @@ body {
   line-height: var(--ex-leading-normal);
   color: var(--ex-color-text);
   background: var(--ex-color-surface-sunken);
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
@@ -31,9 +36,17 @@ code,
   font-size: var(--ex-text-sm);
 }
 
+.muted {
+  color: var(--ex-color-text-muted);
+}
+
+/* -----------------------------------------------------------------------
+ * App shell — sidebar + main column
+ * -------------------------------------------------------------------- */
+
 .layout {
   display: grid;
-  grid-template-columns: 15rem 1fr;
+  grid-template-columns: 16rem 1fr;
   min-height: 100vh;
 }
 
@@ -44,52 +57,159 @@ code,
 }
 
 .sidebar {
-  padding: var(--ex-space-6);
+  display: flex;
+  flex-direction: column;
+  padding: var(--ex-space-5);
   background: var(--ex-color-surface);
   border-right: 1px solid var(--ex-color-border);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+@media (max-width: 60rem) {
+  .sidebar {
+    position: static;
+    height: auto;
+  }
 }
 
 .sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--ex-space-2);
   font-weight: var(--ex-weight-bold);
   font-size: var(--ex-text-lg);
-  margin-bottom: var(--ex-space-6);
+  letter-spacing: var(--ex-tracking-tight);
+  color: var(--ex-color-text);
+  padding: var(--ex-space-2) var(--ex-space-2) var(--ex-space-6);
+}
+
+.sidebar__brand-mark {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--ex-radius-md);
+  background: var(--ex-color-brand);
+  color: var(--ex-color-on-brand);
+  flex-shrink: 0;
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ex-space-1);
 }
 
 .sidebar__link {
-  display: block;
-  padding: var(--ex-space-2) var(--ex-space-3);
-  margin-bottom: var(--ex-space-1);
+  display: flex;
+  align-items: center;
+  gap: var(--ex-space-3);
+  padding: var(--ex-space-3);
   border-radius: var(--ex-radius-md);
   color: var(--ex-color-text-muted);
-  transition: background var(--ex-duration-fast) var(--ex-ease-standard);
+  font-weight: var(--ex-weight-medium);
+  transition:
+    background var(--ex-duration-fast) var(--ex-ease-standard),
+    color var(--ex-duration-fast) var(--ex-ease-standard);
 }
 
 .sidebar__link:hover {
   background: var(--ex-color-surface-sunken);
+  color: var(--ex-color-text);
   text-decoration: none;
 }
 
 .sidebar__link--active {
   background: var(--ex-color-brand-subtle);
   color: var(--ex-color-brand);
-  font-weight: var(--ex-weight-medium);
+}
+
+.sidebar__link--active:hover {
+  background: var(--ex-color-brand-subtle);
+  color: var(--ex-color-brand);
+}
+
+.sidebar__icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+
+.sidebar__footer {
+  margin-top: auto;
+  padding-top: var(--ex-space-5);
+  border-top: 1px solid var(--ex-color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ex-space-3);
+}
+
+.sidebar__account {
+  display: flex;
+  align-items: center;
+  gap: var(--ex-space-3);
+  min-width: 0;
+}
+
+.sidebar__avatar {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--ex-radius-full);
+  background: var(--ex-color-brand-subtle);
+  color: var(--ex-color-brand);
+  font-weight: var(--ex-weight-semibold);
+  font-size: var(--ex-text-sm);
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.sidebar__email {
+  font-size: var(--ex-text-sm);
+  color: var(--ex-color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .main {
   padding: var(--ex-space-7);
-  max-width: 60rem;
+  max-width: 64rem;
+  width: 100%;
+}
+
+@media (max-width: 40rem) {
+  .main {
+    padding: var(--ex-space-5);
+  }
+}
+
+/* -----------------------------------------------------------------------
+ * Page header
+ * -------------------------------------------------------------------- */
+
+.page-header {
+  margin-bottom: var(--ex-space-6);
 }
 
 .page-title {
   font-size: var(--ex-text-2xl);
-  font-weight: var(--ex-weight-semibold);
+  font-weight: var(--ex-weight-bold);
+  letter-spacing: var(--ex-tracking-tight);
   margin: 0 0 var(--ex-space-2);
 }
 
 .page-subtitle {
   color: var(--ex-color-text-muted);
-  margin: 0 0 var(--ex-space-6);
+  margin: 0;
 }
+
+/* -----------------------------------------------------------------------
+ * Cards
+ * -------------------------------------------------------------------- */
 
 .card {
   background: var(--ex-color-surface);
@@ -97,13 +217,32 @@ code,
   border-radius: var(--ex-radius-lg);
   padding: var(--ex-space-5);
   margin-bottom: var(--ex-space-5);
+  box-shadow: var(--ex-shadow-sm);
+}
+
+.card__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ex-space-4);
+  margin-bottom: var(--ex-space-4);
 }
 
 .card__title {
   font-size: var(--ex-text-lg);
   font-weight: var(--ex-weight-semibold);
-  margin: 0 0 var(--ex-space-4);
+  margin: 0;
 }
+
+.card__hint {
+  color: var(--ex-color-text-subtle);
+  font-size: var(--ex-text-sm);
+  margin: 0;
+}
+
+/* -----------------------------------------------------------------------
+ * Forms
+ * -------------------------------------------------------------------- */
 
 .field {
   margin-bottom: var(--ex-space-4);
@@ -116,6 +255,12 @@ code,
   font-weight: var(--ex-weight-medium);
 }
 
+.field__hint {
+  margin: var(--ex-space-2) 0 0;
+  font-size: var(--ex-text-sm);
+  color: var(--ex-color-text-subtle);
+}
+
 .input {
   width: 100%;
   padding: var(--ex-space-3);
@@ -124,14 +269,26 @@ code,
   background: var(--ex-color-surface);
   border: 1px solid var(--ex-color-border-strong);
   border-radius: var(--ex-radius-md);
+  transition:
+    border-color var(--ex-duration-fast) var(--ex-ease-standard),
+    box-shadow var(--ex-duration-fast) var(--ex-ease-standard);
 }
 
-.input:focus-visible {
-  outline: 2px solid var(--ex-color-brand);
-  outline-offset: 1px;
+.input:focus {
+  outline: none;
+  border-color: var(--ex-color-brand);
+  box-shadow: 0 0 0 3px var(--ex-color-brand-subtle);
 }
+
+/* -----------------------------------------------------------------------
+ * Buttons
+ * -------------------------------------------------------------------- */
 
 .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ex-space-2);
   padding: var(--ex-space-3) var(--ex-space-5);
   font: inherit;
   font-weight: var(--ex-weight-medium);
@@ -140,7 +297,9 @@ code,
   border: 1px solid transparent;
   border-radius: var(--ex-radius-md);
   cursor: pointer;
-  transition: background var(--ex-duration-fast) var(--ex-ease-standard);
+  transition:
+    background var(--ex-duration-fast) var(--ex-ease-standard),
+    border-color var(--ex-duration-fast) var(--ex-ease-standard);
 }
 
 .button:hover:not(:disabled) {
@@ -149,6 +308,11 @@ code,
 
 .button:active:not(:disabled) {
   background: var(--ex-color-brand-active);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--ex-color-brand);
+  outline-offset: 2px;
 }
 
 .button:disabled {
@@ -174,29 +338,87 @@ code,
 
 .button--danger:hover:not(:disabled) {
   background: var(--ex-color-danger-subtle);
+  border-color: var(--ex-color-danger);
 }
 
+.button--sm {
+  padding: var(--ex-space-2) var(--ex-space-3);
+  font-size: var(--ex-text-sm);
+}
+
+.button--block {
+  width: 100%;
+}
+
+/* Small square button, used for the theme toggle. */
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  color: var(--ex-color-text-muted);
+  background: transparent;
+  border: 1px solid var(--ex-color-border-strong);
+  border-radius: var(--ex-radius-md);
+  cursor: pointer;
+  transition:
+    background var(--ex-duration-fast) var(--ex-ease-standard),
+    color var(--ex-duration-fast) var(--ex-ease-standard);
+}
+
+.icon-button:hover {
+  background: var(--ex-color-surface-sunken);
+  color: var(--ex-color-text);
+}
+
+.icon-button svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* -----------------------------------------------------------------------
+ * Alerts
+ * -------------------------------------------------------------------- */
+
 .alert {
+  display: flex;
+  gap: var(--ex-space-3);
   padding: var(--ex-space-3) var(--ex-space-4);
+  border: 1px solid transparent;
   border-radius: var(--ex-radius-md);
   margin-bottom: var(--ex-space-4);
   font-size: var(--ex-text-sm);
 }
 
+.alert__icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
 .alert--error {
   color: var(--ex-color-danger);
   background: var(--ex-color-danger-subtle);
+  border-color: var(--ex-color-danger);
 }
 
 .alert--success {
   color: var(--ex-color-success);
   background: var(--ex-color-success-subtle);
+  border-color: var(--ex-color-success);
 }
 
 .alert--warning {
   color: var(--ex-color-warning);
   background: var(--ex-color-warning-subtle);
+  border-color: var(--ex-color-warning);
 }
+
+/* -----------------------------------------------------------------------
+ * Tables
+ * -------------------------------------------------------------------- */
 
 .table {
   width: 100%;
@@ -211,19 +433,52 @@ code,
   border-bottom: 1px solid var(--ex-color-border);
 }
 
-.table th {
+.table thead th {
   color: var(--ex-color-text-subtle);
   font-weight: var(--ex-weight-medium);
+  font-size: var(--ex-text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--ex-tracking-wide);
 }
 
+.table tbody tr {
+  transition: background var(--ex-duration-fast) var(--ex-ease-standard);
+}
+
+.table tbody tr:hover {
+  background: var(--ex-color-surface-raised);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table__actions {
+  text-align: right;
+}
+
+/* -----------------------------------------------------------------------
+ * Badges
+ * -------------------------------------------------------------------- */
+
 .badge {
-  display: inline-block;
-  padding: 0 var(--ex-space-2);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ex-space-1);
+  padding: 0.1rem var(--ex-space-2);
   font-size: var(--ex-text-xs);
   font-weight: var(--ex-weight-medium);
   border-radius: var(--ex-radius-full);
   background: var(--ex-color-surface-sunken);
   color: var(--ex-color-text-muted);
+}
+
+.badge::before {
+  content: '';
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: var(--ex-radius-full);
+  background: currentColor;
 }
 
 .badge--active {
@@ -236,6 +491,42 @@ code,
   color: var(--ex-color-danger);
 }
 
+/* -----------------------------------------------------------------------
+ * Stats / metrics
+ * -------------------------------------------------------------------- */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--ex-space-5);
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ex-space-1);
+}
+
+.metric__label {
+  color: var(--ex-color-text-subtle);
+  font-size: var(--ex-text-sm);
+  order: -1;
+}
+
+.metric__value {
+  font-size: var(--ex-text-3xl);
+  font-weight: var(--ex-weight-bold);
+  letter-spacing: var(--ex-tracking-tight);
+  line-height: var(--ex-leading-tight);
+}
+
+.metric__value--mono {
+  font-size: var(--ex-text-base);
+  font-family: var(--ex-font-mono);
+  font-weight: var(--ex-weight-regular);
+}
+
+/* Backwards-compatible aliases retained for any un-migrated markup. */
 .stat {
   font-size: var(--ex-text-3xl);
   font-weight: var(--ex-weight-bold);
@@ -246,11 +537,125 @@ code,
   font-size: var(--ex-text-sm);
 }
 
-.stat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-  gap: var(--ex-space-5);
+/* -----------------------------------------------------------------------
+ * Usage meter
+ * -------------------------------------------------------------------- */
+
+.meter {
+  height: 0.5rem;
+  border-radius: var(--ex-radius-full);
+  background: var(--ex-color-surface-sunken);
+  overflow: hidden;
 }
+
+.meter__fill {
+  height: 100%;
+  border-radius: var(--ex-radius-full);
+  background: var(--ex-color-brand);
+  transition: width var(--ex-duration-slow) var(--ex-ease-out);
+}
+
+.meter__fill--warning {
+  background: var(--ex-color-warning);
+}
+
+.meter__fill--danger {
+  background: var(--ex-color-danger);
+}
+
+/* -----------------------------------------------------------------------
+ * Plan cards
+ * -------------------------------------------------------------------- */
+
+.plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--ex-space-4);
+}
+
+.plan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ex-space-3);
+  padding: var(--ex-space-4);
+  border: 1px solid var(--ex-color-border);
+  border-radius: var(--ex-radius-md);
+  background: var(--ex-color-surface);
+}
+
+.plan--current {
+  border-color: var(--ex-color-brand-border);
+  background: var(--ex-color-brand-subtle);
+}
+
+.plan__name {
+  font-weight: var(--ex-weight-semibold);
+  text-transform: capitalize;
+}
+
+.plan__tag {
+  font-size: var(--ex-text-xs);
+  font-weight: var(--ex-weight-medium);
+  color: var(--ex-color-brand);
+}
+
+/* -----------------------------------------------------------------------
+ * Token reveal
+ * -------------------------------------------------------------------- */
+
+.token-reveal {
+  display: flex;
+  align-items: center;
+  gap: var(--ex-space-3);
+  padding: var(--ex-space-3) var(--ex-space-4);
+  background: var(--ex-color-surface-sunken);
+  border: 1px dashed var(--ex-color-border-strong);
+  border-radius: var(--ex-radius-md);
+}
+
+.token-reveal__value {
+  flex: 1;
+  word-break: break-all;
+}
+
+/* -----------------------------------------------------------------------
+ * Empty & loading states
+ * -------------------------------------------------------------------- */
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--ex-space-2);
+  padding: var(--ex-space-7) var(--ex-space-5);
+  color: var(--ex-color-text-muted);
+}
+
+.state__icon {
+  width: 2rem;
+  height: 2rem;
+  color: var(--ex-color-text-subtle);
+}
+
+.spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--ex-color-border-strong);
+  border-top-color: var(--ex-color-brand);
+  border-radius: var(--ex-radius-full);
+  animation: spin var(--ex-duration-slow) linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* -----------------------------------------------------------------------
+ * Auth screens
+ * -------------------------------------------------------------------- */
 
 .auth-shell {
   display: grid;
@@ -259,19 +664,69 @@ code,
   padding: var(--ex-space-5);
 }
 
-.auth-shell .card {
+.auth-card {
   width: 100%;
   max-width: 24rem;
 }
 
-.muted {
-  color: var(--ex-color-text-muted);
+.auth-card .card {
+  margin-bottom: 0;
+  box-shadow: var(--ex-shadow-lg);
 }
 
-.token-reveal {
-  padding: var(--ex-space-3);
-  background: var(--ex-color-surface-sunken);
-  border: 1px dashed var(--ex-color-border-strong);
-  border-radius: var(--ex-radius-md);
-  word-break: break-all;
+.auth-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ex-space-2);
+  margin-bottom: var(--ex-space-5);
+  font-weight: var(--ex-weight-bold);
+  font-size: var(--ex-text-lg);
+}
+
+.auth-footer {
+  margin: var(--ex-space-5) 0 0;
+  text-align: center;
+  color: var(--ex-color-text-muted);
+  font-size: var(--ex-text-sm);
+}
+
+/* -----------------------------------------------------------------------
+ * Utilities — thin, token-backed spacing helpers so views need no inline
+ * styles. Kept minimal by design.
+ * -------------------------------------------------------------------- */
+
+.stack > * + * {
+  margin-top: var(--ex-space-4);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ex-space-3);
+  align-items: center;
+}
+
+.mt-0 {
+  margin-top: 0;
+}
+
+.mt-4 {
+  margin-top: var(--ex-space-4);
+}
+
+.mb-0 {
+  margin-bottom: 0;
+}
+
+.mb-5 {
+  margin-bottom: var(--ex-space-5);
+}
+
+.row--between {
+  justify-content: space-between;
+}
+
+.capitalize {
+  text-transform: capitalize;
 }
