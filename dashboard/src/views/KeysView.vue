@@ -139,7 +139,8 @@ onMounted(load);
       <span>No keys yet. Create one above to start calling the API.</span>
     </div>
 
-    <table v-else class="table">
+    <div v-else class="table-wrap">
+    <table class="table">
       <thead>
         <tr>
           <th>Label</th>
@@ -174,5 +175,6 @@ onMounted(load);
         </tr>
       </tbody>
     </table>
+    </div>
   </div>
 </template>
