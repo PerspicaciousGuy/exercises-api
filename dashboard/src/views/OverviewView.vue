@@ -33,24 +33,14 @@ async function upgrade(tier) {
 
   <div v-if="user" class="card">
     <div class="card__header">
-      <h2 class="card__title">Account</h2>
-      <span
-        class="badge"
-        :class="user.isActive ? 'badge--active' : 'badge--revoked'"
-      >
-        {{ user.isActive ? 'Active' : 'Inactive' }}
-      </span>
+      <h2 class="card__title">Your plan</h2>
+      <span class="badge badge--active capitalize">{{ user.tier }}</span>
     </div>
-    <div class="stat-grid">
-      <div class="metric">
-        <div class="metric__label">Email</div>
-        <div class="metric__value metric__value--mono">{{ user.email }}</div>
-      </div>
-      <div class="metric">
-        <div class="metric__label">Current tier</div>
-        <div class="metric__value capitalize">{{ user.tier }}</div>
-      </div>
-    </div>
+    <p class="card__hint mb-0">
+      You are on the <strong class="capitalize">{{ user.tier }}</strong> tier.
+      Manage your account details in
+      <RouterLink :to="{ name: 'settings' }">Settings</RouterLink>.
+    </p>
   </div>
 
   <div class="card">
