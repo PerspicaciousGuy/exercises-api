@@ -1,19 +1,59 @@
+import { reactive } from 'vue';
+
 const DARK_CLASS = 'dark';
 const DARK_QUERY = '(prefers-color-scheme: dark)';
+const STORAGE_KEY = 'exdb-theme';
+
+const THEME_LIGHT = 'light';
+const THEME_DARK = 'dark';
+
+const query = window.matchMedia(DARK_QUERY);
 
 /**
- * The design system re-points its semantic tokens under a `.dark` class, which
- * VitePress toggles on the docs site. Nothing toggles it here, so the dashboard
- * would render light even for a dark-mode reader. This binds the class to the
- * OS preference instead.
+ * Reactive theme state the UI can bind to. `preference` is what the user chose
+ * ('light', 'dark', or 'system'); `resolved` is the theme actually applied,
+ * which is what a toggle button should reflect.
  */
-export function followSystemTheme() {
-  const query = window.matchMedia(DARK_QUERY);
+export const theme = reactive({
+  preference: readStoredPreference(),
+  resolved: THEME_LIGHT
+});
 
-  const apply = (isDark) => {
-    document.documentElement.classList.toggle(DARK_CLASS, isDark);
-  };
+function readStoredPreference() {
+  const stored = window.localStorage.getItem(STORAGE_KEY);
+  return stored === THEME_LIGHT || stored === THEME_DARK ? stored : 'system';
+}
 
-  apply(query.matches);
-  query.addEventListener('change', (event) => apply(event.matches));
+function resolve(preference) {
+  if (preference === 'system') {
+    return query.matches ? THEME_DARK : THEME_LIGHT;
+  }
+  return preference;
+}
+
+function apply() {
+  const resolved = resolve(theme.preference);
+  theme.resolved = resolved;
+  document.documentElement.classList.toggle(DARK_CLASS, resolved === THEME_DARK);
+}
+
+/**
+ * The design system re-points its semantic tokens under a `.dark` class. This
+ * applies the user's stored preference on load and keeps a 'system' choice in
+ * sync with the OS as it changes.
+ */
+export function initTheme() {
+  apply();
+  query.addEventListener('change', () => {
+    if (theme.preference === 'system') {
+      apply();
+    }
+  });
+}
+
+/** Flip between light and dark, persisting the explicit choice. */
+export function toggleTheme() {
+  theme.preference = theme.resolved === THEME_DARK ? THEME_LIGHT : THEME_DARK;
+  window.localStorage.setItem(STORAGE_KEY, theme.preference);
+  apply();
 }
