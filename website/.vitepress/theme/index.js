@@ -2,6 +2,7 @@ import { defineClientComponent } from 'vitepress';
 import DefaultTheme from 'vitepress/theme';
 
 import './design-system.css';
+import LandingPage from './components/LandingPage.vue';
 
 /**
  * Scalar reads `window` at import time, so it must never run during the static
@@ -15,5 +16,6 @@ export default {
   extends: DefaultTheme,
   enhanceApp({ app }) {
     app.component('ApiReference', ApiReference);
+    app.component('LandingPage', LandingPage);
   }
 };
