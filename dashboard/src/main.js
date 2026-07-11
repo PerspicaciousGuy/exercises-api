@@ -3,8 +3,8 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import { router } from './router.js';
 import './styles/app.css';
-import { followSystemTheme } from './styles/theme.js';
+import { initTheme } from './styles/theme.js';
 
-followSystemTheme();
+initTheme();
 
 createApp(App).use(router).mount('#app');
