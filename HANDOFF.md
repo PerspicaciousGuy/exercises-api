@@ -16,7 +16,52 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Switched the RFC 9457 error `type` base URI from `https://exercisedb-api.dev/errors` — a domain nobody owns — to `https://docs.harshitbishnoi.dev/errors`. Twelve references across seven files: the constant in `src/constants/service.js`, seven exact-match test assertions, and four documented examples.
+Redesigned the developer dashboard's UI. This was a presentation-only change: no
+API logic, routing, or session-store code was touched, and nothing outside
+`dashboard/` changed. The visual language was rebuilt to feel like an app rather
+than a form, while every design value still resolves to an existing `--ex-*`
+token from the shared `website/.vitepress/theme/design-system.css`, so the
+dashboard and docs site remain one product.
+
+What changed:
+
+- **`dashboard/src/styles/theme.js`** gained a persisted manual light/dark
+  toggle. Dark mode already existed but only followed the OS; it now honours a
+  `localStorage` preference (`exdb-theme`) and falls back to `system`, staying in
+  sync with the OS while the choice is `system`. Exposes a reactive `theme`
+  object and `toggleTheme()`. `main.js` calls the renamed `initTheme()`.
+- **`dashboard/src/styles/app.css`** was rewritten from a flat stylesheet into
+  the app's component layer: a two-tone sticky sidebar with icon links and an
+  account footer, elevated cards with header rows, a metric/stat treatment, a
+  colour-shifting usage meter, refined hover-state tables, segmented plan cards,
+  badges with status dots, empty/loading states with a spinner, and polished
+  auth screens. Every value is a token; no raw colours, sizes, or durations.
+- **`dashboard/src/components/AppIcon.vue`** (new) is an inline-SVG icon set
+  (Lucide paths, redrawn as static data) so the dashboard ships no icon
+  dependency and every glyph inherits `currentColor`.
+- All five views and `App.vue` were rebuilt on the new layer. Overview shows
+  account metrics and a plan grid with the current tier visually distinct; Keys
+  and Register gained a one-click copy button on the key reveal; Usage gained the
+  meter that turns amber at 75% and red at 90%; auth screens gained a brand mark
+  and footer.
+- Every static inline `style=""` was removed — they violated the project's own
+  no-hardcoded-values rule — and replaced with token-backed utility classes. The
+  only remaining `:style` is the usage meter's data-driven width, which is
+  legitimately dynamic.
+
+Verified: `npm run build` succeeds (34 modules, no errors) and `npm run dev`
+starts clean and serves HTTP 200. Visual rendering in both themes is left for the
+owner to confirm in-browser, since a JS-rendered SPA cannot be screenshotted from
+this environment.
+
+Flagged, not acted on: `app.css` is now ~680 lines, over the 500-line hard limit
+in `AGENTS.md`. It is one cohesive responsibility — the app's presentation layer,
+mirroring the single-file pattern of `design-system.css` — so it was not split;
+splitting it into per-component stylesheets would fragment a sheet read as a unit
+for no real separation of concern. Awaiting a decision on whether to split.
+
+Before that, switched the RFC 9457 error `type` base URI from
+`https://exercisedb-api.dev/errors` — a domain nobody owns — to `https://docs.harshitbishnoi.dev/errors`. Twelve references across seven files: the constant in `src/constants/service.js`, seven exact-match test assertions, and four documented examples.
 
 This was free now and permanently expensive later. `type` is part of the error contract, so changing it after a single developer integrates would require a `/v2`, exactly the reasoning that governed adopting RFC 9457 in the first place. The URIs now point at a site that exists, so a page per error code can be published there later; RFC 9457 does not require them to resolve, but nothing stops them.
 
