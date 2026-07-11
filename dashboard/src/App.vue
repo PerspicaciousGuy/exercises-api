@@ -82,5 +82,18 @@ async function signOut() {
     <main class="main">
       <RouterView />
     </main>
+
+    <nav class="tabbar" aria-label="Primary">
+      <RouterLink
+        v-for="link in NAV_LINKS"
+        :key="link.name"
+        class="tabbar__link"
+        active-class="tabbar__link--active"
+        :to="{ name: link.name }"
+      >
+        <AppIcon class="tabbar__icon" :name="link.icon" />
+        <span class="tabbar__label">{{ link.label }}</span>
+      </RouterLink>
+    </nav>
   </div>
 </template>
