@@ -1,13 +1,11 @@
 <script setup>
 import { computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 
 import AppIcon from './components/AppIcon.vue';
 import { session } from './stores/session.js';
-import { theme, toggleTheme } from './styles/theme.js';
 
 const route = useRoute();
-const router = useRouter();
 
 const isAuthPage = computed(() => Boolean(route.meta.public));
 const user = computed(() => session.state.user);
@@ -15,15 +13,11 @@ const user = computed(() => session.state.user);
 const NAV_LINKS = [
   { name: 'overview', label: 'Overview', icon: 'overview' },
   { name: 'keys', label: 'API keys', icon: 'keys' },
-  { name: 'usage', label: 'Usage', icon: 'usage' }
+  { name: 'usage', label: 'Usage', icon: 'usage' },
+  { name: 'settings', label: 'Settings', icon: 'settings' }
 ];
 
 const initial = computed(() => user.value?.email?.[0] ?? '?');
-
-async function signOut() {
-  await session.logout();
-  router.push({ name: 'login' });
-}
 </script>
 
 <template>
@@ -49,34 +43,14 @@ async function signOut() {
         </RouterLink>
       </nav>
 
-      <div v-if="user" class="sidebar__footer">
-        <div class="sidebar__account">
-          <span class="sidebar__avatar" aria-hidden="true">{{ initial }}</span>
-          <span class="sidebar__email">{{ user.email }}</span>
-        </div>
-        <div class="row">
-          <button
-            class="icon-button"
-            type="button"
-            :aria-label="
-              theme.resolved === 'dark'
-                ? 'Switch to light theme'
-                : 'Switch to dark theme'
-            "
-            @click="toggleTheme"
-          >
-            <AppIcon :name="theme.resolved === 'dark' ? 'sun' : 'moon'" />
-          </button>
-          <button
-            class="button button--ghost button--sm"
-            type="button"
-            @click="signOut"
-          >
-            <AppIcon class="sidebar__icon" name="logout" />
-            Sign out
-          </button>
-        </div>
-      </div>
+      <RouterLink
+        v-if="user"
+        class="sidebar__account"
+        :to="{ name: 'settings' }"
+      >
+        <span class="sidebar__avatar" aria-hidden="true">{{ initial }}</span>
+        <span class="sidebar__email">{{ user.email }}</span>
+      </RouterLink>
     </aside>
 
     <main class="main">
