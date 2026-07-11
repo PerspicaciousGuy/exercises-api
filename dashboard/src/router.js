@@ -5,12 +5,14 @@ import KeysView from './views/KeysView.vue';
 import LoginView from './views/LoginView.vue';
 import OverviewView from './views/OverviewView.vue';
 import RegisterView from './views/RegisterView.vue';
+import SettingsView from './views/SettingsView.vue';
 import UsageView from './views/UsageView.vue';
 
 const routes = [
   { path: '/', name: 'overview', component: OverviewView },
   { path: '/keys', name: 'keys', component: KeysView },
   { path: '/usage', name: 'usage', component: UsageView },
+  { path: '/settings', name: 'settings', component: SettingsView },
   {
     path: '/login',
     name: 'login',
