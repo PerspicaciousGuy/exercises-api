@@ -71,47 +71,6 @@ code,
   height: 100vh;
 }
 
-/* On narrow screens the sidebar collapses to a slim sticky top bar (brand +
- * theme toggle + sign-out) and navigation moves to a fixed bottom tab bar —
- * the standard mobile-app pattern, always within thumb reach. */
-@media (max-width: 60rem) {
-  .sidebar {
-    position: sticky;
-    top: 0;
-    height: auto;
-    z-index: var(--ex-z-sticky);
-    flex-direction: row;
-    align-items: center;
-    gap: var(--ex-space-4);
-    padding: var(--ex-space-3) var(--ex-space-4);
-    border-right: none;
-    border-bottom: 1px solid var(--ex-color-border);
-  }
-
-  .sidebar__brand {
-    padding: 0;
-    margin-right: auto;
-  }
-
-  /* The vertical nav is replaced by the bottom tab bar on mobile. */
-  .sidebar__nav {
-    display: none;
-  }
-
-  .sidebar__footer {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: none;
-    flex-direction: row;
-    align-items: center;
-    gap: var(--ex-space-3);
-  }
-
-  .sidebar__account {
-    display: none;
-  }
-}
-
 .sidebar__brand {
   display: flex;
   align-items: center;
@@ -175,20 +134,21 @@ code,
   flex-shrink: 0;
 }
 
-.sidebar__footer {
-  margin-top: auto;
-  padding-top: var(--ex-space-5);
-  border-top: 1px solid var(--ex-color-border);
-  display: flex;
-  flex-direction: column;
-  gap: var(--ex-space-3);
-}
-
 .sidebar__account {
+  margin-top: auto;
   display: flex;
   align-items: center;
   gap: var(--ex-space-3);
   min-width: 0;
+  padding: var(--ex-space-3);
+  border-radius: var(--ex-radius-md);
+  color: var(--ex-color-text);
+  transition: background var(--ex-duration-fast) var(--ex-ease-standard);
+}
+
+.sidebar__account:hover {
+  background: var(--ex-color-surface-sunken);
+  text-decoration: none;
 }
 
 .sidebar__avatar {
@@ -211,6 +171,40 @@ code,
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* On narrow screens the sidebar collapses to a slim sticky top bar (brand +
+ * theme toggle + sign-out) and navigation moves to a fixed bottom tab bar —
+ * the standard mobile-app pattern, always within thumb reach.
+ *
+ * This block MUST come after every base .sidebar* rule above: media queries
+ * add no specificity, so a later same-specificity base rule would otherwise
+ * win over these overrides. */
+@media (max-width: 60rem) {
+  .sidebar {
+    position: sticky;
+    top: 0;
+    height: auto;
+    z-index: var(--ex-z-sticky);
+    flex-direction: row;
+    align-items: center;
+    gap: var(--ex-space-4);
+    padding: var(--ex-space-3) var(--ex-space-4);
+    border-right: none;
+    border-bottom: 1px solid var(--ex-color-border);
+  }
+
+  .sidebar__brand {
+    padding: 0;
+    margin-right: auto;
+  }
+
+  /* The vertical nav is replaced by the bottom tab bar on mobile, and the
+   * account row moves to the Settings tab — leaving an app-name-only bar. */
+  .sidebar__nav,
+  .sidebar__account {
+    display: none;
+  }
 }
 
 .main {
@@ -702,6 +696,90 @@ code,
   font-size: var(--ex-text-xs);
   font-weight: var(--ex-weight-medium);
   color: var(--ex-color-brand);
+}
+
+/* -----------------------------------------------------------------------
+ * Detail list — label/value pairs, used on the Settings account card.
+ * -------------------------------------------------------------------- */
+
+.detail-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-list__row {
+  display: flex;
+  gap: var(--ex-space-4);
+  padding: var(--ex-space-3) 0;
+  border-bottom: 1px solid var(--ex-color-border);
+}
+
+.detail-list__row:last-child {
+  border-bottom: none;
+}
+
+.detail-list__label {
+  flex: 0 0 8rem;
+  color: var(--ex-color-text-subtle);
+  font-size: var(--ex-text-sm);
+}
+
+.detail-list__value {
+  margin: 0;
+  min-width: 0;
+  word-break: break-word;
+}
+
+/* -----------------------------------------------------------------------
+ * Segmented control — used for the theme preference on Settings.
+ * -------------------------------------------------------------------- */
+
+.segmented {
+  display: inline-flex;
+  padding: var(--ex-space-1);
+  gap: var(--ex-space-1);
+  background: var(--ex-color-surface-sunken);
+  border-radius: var(--ex-radius-md);
+}
+
+.segmented__option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ex-space-2);
+  padding: var(--ex-space-2) var(--ex-space-4);
+  font: inherit;
+  font-size: var(--ex-text-sm);
+  font-weight: var(--ex-weight-medium);
+  color: var(--ex-color-text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--ex-radius-sm);
+  cursor: pointer;
+  transition:
+    background var(--ex-duration-fast) var(--ex-ease-standard),
+    color var(--ex-duration-fast) var(--ex-ease-standard);
+}
+
+.segmented__option:hover {
+  color: var(--ex-color-text);
+}
+
+.segmented__option--active {
+  color: var(--ex-color-text);
+  background: var(--ex-color-surface);
+  box-shadow: var(--ex-shadow-sm);
+}
+
+@media (max-width: 40rem) {
+  .segmented {
+    display: flex;
+  }
+
+  .segmented__option {
+    flex: 1;
+    justify-content: center;
+  }
 }
 
 /* -----------------------------------------------------------------------
