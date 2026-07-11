@@ -53,7 +53,19 @@ export function initTheme() {
 
 /** Flip between light and dark, persisting the explicit choice. */
 export function toggleTheme() {
-  theme.preference = theme.resolved === THEME_DARK ? THEME_LIGHT : THEME_DARK;
-  window.localStorage.setItem(STORAGE_KEY, theme.preference);
+  setThemePreference(theme.resolved === THEME_DARK ? THEME_LIGHT : THEME_DARK);
+}
+
+/**
+ * Set the theme explicitly. 'system' clears the stored choice so the theme
+ * follows the OS again; 'light'/'dark' persist the override.
+ */
+export function setThemePreference(preference) {
+  theme.preference = preference;
+  if (preference === 'system') {
+    window.localStorage.removeItem(STORAGE_KEY);
+  } else {
+    window.localStorage.setItem(STORAGE_KEY, preference);
+  }
   apply();
 }
