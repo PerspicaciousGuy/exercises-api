@@ -67,10 +67,55 @@ code,
   height: 100vh;
 }
 
+/* On narrow screens the sidebar becomes a compact top bar so page content
+ * starts near the top instead of below a full screen of navigation. The DOM
+ * order (brand, nav, footer) is reused: the top row is brand + footer via
+ * flex ordering, and the nav sits beneath it as a horizontal strip. */
 @media (max-width: 60rem) {
   .sidebar {
-    position: static;
+    position: sticky;
+    top: 0;
     height: auto;
+    z-index: var(--ex-z-sticky);
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ex-space-2) var(--ex-space-4);
+    padding: var(--ex-space-3) var(--ex-space-4);
+    border-right: none;
+    border-bottom: 1px solid var(--ex-color-border);
+  }
+
+  .sidebar__brand {
+    padding: 0;
+    margin-right: auto;
+  }
+
+  .sidebar__footer {
+    order: 1;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--ex-space-3);
+  }
+
+  .sidebar__account {
+    display: none;
+  }
+
+  .sidebar__nav {
+    order: 2;
+    flex-basis: 100%;
+    flex-direction: row;
+    gap: var(--ex-space-1);
+    overflow-x: auto;
+  }
+
+  .sidebar__link {
+    padding: var(--ex-space-2) var(--ex-space-3);
+    white-space: nowrap;
   }
 }
 
