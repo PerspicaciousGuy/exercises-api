@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress';
 
 const SITE_TITLE = 'ExerciseDB API';
 const SITE_DESCRIPTION =
-  'A public exercise catalog API for fitness app developers. Browse, search, and sync thousands of exercises into your own app.';
+  'A public exercise catalog API for fitness app developers. Browse, search, and sync a curated exercise catalog into your own app.';
 
 export default defineConfig({
   title: SITE_TITLE,
