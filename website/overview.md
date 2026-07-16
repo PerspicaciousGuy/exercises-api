@@ -87,14 +87,13 @@ A tombstone is the only signal that a record disappeared. If you ignore
 `tombstones`, deleted exercises will linger in your app forever.
 :::
 
-## Tiers gate premium content, not features
+## Tiers gate quota, not content
 
-Every account starts on `free`, which allows 1,000 requests per day and excludes
-exercises marked `isPremium`.
+Every account starts on `free`, which allows 1,000 requests per day.
 
-Premium exercises are **filtered out** of list, search, and relation responses
-rather than causing an error — a free-tier client sees a shorter list, not a
-broken one. Requesting a premium exercise directly returns `403`.
+Every tier sees the **same catalog and the same endpoints**. Paid tiers raise the
+daily quota and change nothing else — there is no content held back from the free
+tier, and upgrading is not a code change.
 
 Quotas are per API key and reset at midnight UTC. `X-RateLimit-Remaining` tells
 you where you stand; a `429` carries `Retry-After`.
@@ -109,12 +108,12 @@ served as `application/problem+json`:
 
 ```json
 {
-  "type": "https://docs.harshitbishnoi.dev/errors/premium-access-required",
-  "title": "Premium Access Required",
-  "status": 403,
-  "detail": "Premium content requires a pro or enterprise API tier",
+  "type": "https://docs.harshitbishnoi.dev/errors/exercise-not-found",
+  "title": "Exercise Not Found",
+  "status": 404,
+  "detail": "Exercise was not found",
   "instance": "/exercises/8c1e5a10-0000-4000-8000-000000000001",
-  "code": "PREMIUM_ACCESS_REQUIRED",
+  "code": "EXERCISE_NOT_FOUND",
   "requestId": "485fa7dd-03b1-44e1-ae56-6b88d13b652b"
 }
 ```
