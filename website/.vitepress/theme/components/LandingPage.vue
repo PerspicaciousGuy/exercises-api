@@ -48,10 +48,20 @@ const DIFFERENTIATORS = [
 ];
 
 const TIERS = [
-  { name: 'Free', requests: '1,000', premium: false, featured: false },
-  { name: 'Basic', requests: '10,000', premium: false, featured: false },
-  { name: 'Pro', requests: '100,000', premium: true, featured: true },
-  { name: 'Enterprise', requests: '1,000,000', premium: true, featured: false }
+  { name: 'Free', requests: '1,000', note: 'No card required', featured: false },
+  { name: 'Basic', requests: '10,000', note: '10× the free quota', featured: false },
+  {
+    name: 'Pro',
+    requests: '100,000',
+    note: '100× the free quota',
+    featured: true
+  },
+  {
+    name: 'Enterprise',
+    requests: '1,000,000',
+    note: 'For high-volume sync',
+    featured: false
+  }
 ];
 </script>
 
@@ -120,7 +130,8 @@ const TIERS = [
           <p class="lp__eyebrow">Plans</p>
           <h2 class="lp__title">Start free. Scale when you need to.</h2>
           <p class="lp__lede">
-            Every account starts on Free. No card, no trial clock.
+            Every tier gets the whole catalog and every endpoint. Paid tiers
+            raise the daily quota — that is the only difference.
           </p>
         </div>
 
@@ -137,28 +148,17 @@ const TIERS = [
               <span class="lp__plan-number">{{ tier.requests }}</span>
               <span class="lp__plan-unit">requests / day</span>
             </p>
-            <ul class="lp__plan-list">
-              <li class="lp__plan-item lp__plan-item--yes">Full catalog</li>
-              <li class="lp__plan-item lp__plan-item--yes">Sync endpoints</li>
-              <li
-                class="lp__plan-item"
-                :class="
-                  tier.premium ? 'lp__plan-item--yes' : 'lp__plan-item--no'
-                "
-              >
-                Premium exercises
-              </li>
-            </ul>
+            <p class="lp__plan-note">{{ tier.note }}</p>
           </article>
         </div>
 
         <p class="lp__note">
-          Quotas are counted per API key and reset at midnight UTC. Every
-          response carries <code>X-RateLimit-Remaining</code>, and a
-          <code>429</code> carries <code>Retry-After</code> telling you exactly
-          when to try again. Premium exercises are <strong>filtered out</strong>
-          of list and search responses on the tiers without access — you see a
-          shorter list, never a broken one.
+          Every account starts on Free — no card, no trial clock. Quotas are
+          counted per API key and reset at midnight UTC. Every response carries
+          <code>X-RateLimit-Remaining</code>, and a <code>429</code> carries
+          <code>Retry-After</code> telling you exactly when to try again.
+          Upgrading is not a code change: your tier lives on your key, so the
+          same key simply returns more.
         </p>
       </div>
     </section>
@@ -408,37 +408,10 @@ const TIERS = [
   color: var(--ex-color-text-subtle);
 }
 
-.lp__plan-list {
+.lp__plan-note {
   margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.lp__plan-item {
-  display: flex;
-  align-items: center;
-  gap: var(--ex-space-2);
-  padding: var(--ex-space-2) 0;
   font-size: var(--ex-text-sm);
-}
-
-.lp__plan-item::before {
-  flex-shrink: 0;
-  font-weight: var(--ex-weight-bold);
-}
-
-.lp__plan-item--yes::before {
-  content: '✓';
-  color: var(--ex-color-success);
-}
-
-.lp__plan-item--no {
-  color: var(--ex-color-text-subtle);
-}
-
-.lp__plan-item--no::before {
-  content: '—';
-  color: var(--ex-color-text-subtle);
+  color: var(--ex-color-text-muted);
 }
 
 /* CTA */
