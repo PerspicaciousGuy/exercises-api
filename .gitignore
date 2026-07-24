@@ -14,5 +14,6 @@ __pycache__/
 AGENTS.md
 PLAN.md
 IMPLEMENTATION_PLAN.md
-agent-guidelines/
+agents-guidelines/
 curation-rules.md
+catalog-plan.md
