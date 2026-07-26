@@ -78,6 +78,23 @@ describe('SupabaseRestClient retries', () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
+  it('retries a delete after a network error, since delete by filter is idempotent', async () => {
+    // A DELETE that dies mid-flight may or may not have committed. Replaying it
+    // reaches the same end state either way: the second run matches zero rows.
+    const fetchImpl = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError('fetch failed'))
+      .mockResolvedValueOnce(jsonOk([{ exercise_id: 'ex-1' }]));
+    const client = createClient(fetchImpl);
+
+    await expect(
+      client.delete('exercise_primary_muscles', {
+        filters: { exercise_id: 'eq.ex-1' }
+      })
+    ).resolves.toEqual([{ exercise_id: 'ex-1' }]);
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
   it('retries an insert on a 429, which is refused before any work happens', async () => {
     const fetchImpl = vi
       .fn()

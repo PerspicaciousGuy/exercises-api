@@ -78,6 +78,47 @@ describe('SupabaseRestClient', () => {
       })
     );
   });
+
+  it('sends filtered deletes through the REST API and returns removed rows', async () => {
+    const fetchImpl = vi.fn(async () =>
+      jsonResponse([{ exercise_id: 'ex-1', muscle_id: 'm-9' }])
+    );
+    const client = new SupabaseRestClient({
+      supabaseUrl: 'https://example.supabase.co',
+      serviceRoleKey: 'service-role-key',
+      fetchImpl
+    });
+
+    const rows = await client.delete('exercise_primary_muscles', {
+      filters: { exercise_id: 'eq.ex-1', muscle_id: 'in.(m-9)' },
+      select: 'exercise_id,muscle_id'
+    });
+
+    expect(rows).toEqual([{ exercise_id: 'ex-1', muscle_id: 'm-9' }]);
+    expect(fetchImpl).toHaveBeenCalledWith(
+      'https://example.supabase.co/rest/v1/exercise_primary_muscles?exercise_id=eq.ex-1&muscle_id=in.%28m-9%29&select=exercise_id%2Cmuscle_id',
+      expect.objectContaining({
+        method: 'DELETE',
+        headers: expect.objectContaining({
+          Prefer: 'return=representation'
+        })
+      })
+    );
+  });
+
+  it('refuses an unfiltered delete rather than truncating the table', async () => {
+    const fetchImpl = vi.fn();
+    const client = new SupabaseRestClient({
+      supabaseUrl: 'https://example.supabase.co',
+      serviceRoleKey: 'service-role-key',
+      fetchImpl
+    });
+
+    await expect(client.delete('exercises')).rejects.toThrow(
+      'Refusing to delete from "exercises" without a filter'
+    );
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
 });
 
 function jsonResponse(body, overrides = {}) {

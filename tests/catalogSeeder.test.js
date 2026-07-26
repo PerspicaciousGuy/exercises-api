@@ -64,7 +64,8 @@ describe('catalog seeder', () => {
     const client = {
       select: vi.fn(async () => []),
       upsert: vi.fn(async (table, rows) => rows),
-      insert: vi.fn(async (table, rows) => rows)
+      insert: vi.fn(async (table, rows) => rows),
+      delete: vi.fn(async () => [])
     };
 
     await importExerciseData({
@@ -129,4 +130,136 @@ describe('catalog seeder', () => {
       })
     ]);
   });
+
+  it('deletes links absent from the plan, scoped to the seeded exercise', async () => {
+    const client = {
+      select: vi.fn(async () => []),
+      upsert: vi.fn(async (table, rows) => rows),
+      insert: vi.fn(async (table, rows) => rows),
+      delete: vi.fn(async () => [])
+    };
+
+    await importExerciseData({
+      client,
+      idFactory: () => 'exercise-1',
+      referenceLookups: {
+        categoryIdsBySlug: new Map([['strength', 1]]),
+        muscleIdsBySlug: new Map([
+          ['chest', 10],
+          ['triceps', 11]
+        ]),
+        equipmentIdsBySlug: new Map([['bodyweight', 20]])
+      },
+      exercises: [baseExercise({ primaryMuscleSlugs: ['chest', 'triceps'] })]
+    });
+
+    expect(client.delete).toHaveBeenCalledWith('exercise_primary_muscles', {
+      filters: {
+        exercise_id: 'eq.exercise-1',
+        muscle_id: 'not.in.(10,11)'
+      },
+      select: 'muscle_id'
+    });
+  });
+
+  it('deletes every link in a table the exercise no longer uses', async () => {
+    const client = {
+      select: vi.fn(async () => []),
+      upsert: vi.fn(async (table, rows) => rows),
+      insert: vi.fn(async (table, rows) => rows),
+      delete: vi.fn(async () => [])
+    };
+
+    await importExerciseData({
+      client,
+      idFactory: () => 'exercise-1',
+      referenceLookups: {
+        categoryIdsBySlug: new Map([['strength', 1]]),
+        muscleIdsBySlug: new Map([['chest', 10]]),
+        equipmentIdsBySlug: new Map()
+      },
+      exercises: [baseExercise({ equipmentSlugs: [] })]
+    });
+
+    expect(client.delete).toHaveBeenCalledWith('exercise_equipment', {
+      filters: { exercise_id: 'eq.exercise-1' },
+      select: 'equipment_id'
+    });
+  });
+
+  it('reconciles only after every upsert, so a mid-run failure leaves a superset', async () => {
+    const calls = [];
+    const client = {
+      select: vi.fn(async () => []),
+      upsert: vi.fn(async (table, rows) => {
+        calls.push(`upsert:${table}`);
+        return rows;
+      }),
+      insert: vi.fn(async (table, rows) => rows),
+      delete: vi.fn(async (table) => {
+        calls.push(`delete:${table}`);
+        return [];
+      })
+    };
+
+    await importExerciseData({
+      client,
+      idFactory: () => 'exercise-1',
+      referenceLookups: {
+        categoryIdsBySlug: new Map([['strength', 1]]),
+        muscleIdsBySlug: new Map([['chest', 10]]),
+        equipmentIdsBySlug: new Map([['bodyweight', 20]])
+      },
+      exercises: [baseExercise()]
+    });
+
+    const firstDelete = calls.findIndex((call) => call.startsWith('delete:'));
+    const lastUpsert = findLastIndex(calls, (call) =>
+      call.startsWith('upsert:')
+    );
+
+    expect(firstDelete).toBeGreaterThan(lastUpsert);
+  });
 });
+
+function findLastIndex(items, predicate) {
+  for (let index = items.length - 1; index >= 0; index -= 1) {
+    if (predicate(items[index])) {
+      return index;
+    }
+  }
+
+  return -1;
+}
+
+function baseExercise(overrides = {}) {
+  return {
+    name: 'Push-up',
+    slug: 'push-up',
+    status: 'active',
+    description: 'A bodyweight upper-body pushing exercise.',
+    instructions: ['Start in a high plank.'],
+    tips: [],
+    contraindications: [],
+    categorySlug: 'strength',
+    difficulty: 'beginner',
+    movementPattern: 'push',
+    mechanics: 'compound',
+    jointRegionSlugs: [],
+    flagSlugs: [],
+    programming: {},
+    tags: [],
+    isPremium: false,
+    catalogVersion: 1,
+    aliases: [],
+    primaryMuscleSlugs: ['chest'],
+    secondaryMuscleSlugs: [],
+    stabilizerMuscleSlugs: [],
+    equipmentSlugs: ['bodyweight'],
+    variationSlugs: [],
+    progressionSlugs: [],
+    regressionSlugs: [],
+    media: [],
+    ...overrides
+  };
+}

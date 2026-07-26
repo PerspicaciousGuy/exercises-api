@@ -8,12 +8,14 @@ import {
 } from '../src/validation/catalogFixtures.js';
 
 describe('catalog fixture validation', () => {
-  it('accepts the checked-in Phase 2 fixture dataset', async () => {
+  it('accepts the checked-in catalog fixture dataset', async () => {
     const fixtures = await loadCatalogFixtures();
 
+    // The catalog grows one reviewed batch at a time, so these assert a floor
+    // rather than an exact count — matching the reference-count checks above.
     expect(fixtures.references.muscles.length).toBeGreaterThanOrEqual(10);
     expect(fixtures.references.equipment.length).toBeGreaterThanOrEqual(8);
-    expect(fixtures.exercises).toHaveLength(12);
+    expect(fixtures.exercises.length).toBeGreaterThanOrEqual(12);
   });
 
   it('accepts the Phase 2 reference fixtures', () => {
