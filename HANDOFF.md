@@ -16,7 +16,82 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Drafted, seeded, and verified the Phase 1 **push** batch on hosted Supabase, end
+Drafted, seeded, and verified the **final Phase 1 batch — carry + rotation + gait**
+— on hosted Supabase, end to end (owner said "go ahead"). **This completes Phase 1.**
+
+**Seeded: 64 → 78 exercises.** 78 exercises, 51 aliases, 402 muscle links, 100
+equipment links, 78 change events. Final pattern breakdown, exactly matching
+`docs/exercise-list.md`: squat 16, hinge 15, push 17, pull 13, carry 5, rotation
+5, gait 6, core 1.
+
+**`data/exercises/carry-rotation-gait.json`, 14 new records:**
+- carry (5): farmers-walk, suitcase-carry, front-rack-carry, overhead-carry,
+  trap-bar-carry
+- rotation (5): pallof-press, russian-twist, cable-woodchop, landmine-rotation,
+  medicine-ball-rotational-throw
+- gait (4): jump-rope, sled-push, sled-drag, stationary-bike-ride
+
+**One existing record repointed:** `treadmill-run` gained its `stationary-bike-ride`
+variation (it previously had no relationships — nothing to reconcile away).
+`walking-lunge` and `forward-lunge` were **deliberately left untouched**: the one
+cross-pattern chain (`forward-lunge` squat → `walking-lunge` gait, mirrored) was
+already correct and live, and the verification confirmed it survived the seed
+intact.
+
+Chains:
+- carry: `farmers-walk → front-rack-carry → overhead-carry`;
+  `farmers-walk ↔ suitcase-carry ↔ trap-bar-carry`
+- rotation: `pallof-press → landmine-rotation`;
+  `russian-twist → cable-woodchop → medicine-ball-rotational-throw`;
+  `cable-woodchop ↔ landmine-rotation`
+- gait: `sled-push ↔ sled-drag`; `treadmill-run ↔ stationary-bike-ride`;
+  `jump-rope` standalone (honest empty per §5.6)
+
+**Verified:** `fixtures:validate` passed on 78 exercises; reciprocity checker
+reported **zero errors**; the live graph is an **exact match** to the fixtures —
+154 links, zero stale, zero missing. The `forward-lunge ↔ walking-lunge`
+cross-pattern link survived reconciliation. Live DB snapshotted before/after; count
+64 → 78, user data untouched. Seed ran in the background (per-record reconciliation
+cost).
+
+Before that: drafted, seeded, and verified the Phase 1 **pull** batch on hosted Supabase, end
+to end in one pass (owner said "go ahead for the pull phase").
+
+**Seeded: 53 → 64 exercises.** 64 exercises, 41 aliases, 327 muscle links, 85
+equipment links, 64 change events. 13 pull-pattern exercises live.
+
+**`data/exercises/pull.json`, 11 new records:** lat-pulldown, assisted-pull-up,
+chin-up, weighted-pull-up, suspension-row, inverted-row, barbell-row, dumbbell-row,
+t-bar-row, chest-supported-row, face-pull. From the pre-approved
+`docs/exercise-list.md` pull section (13 listed, 2 already exist). `chin-up` ⚠
+included under the same §2 grip amendment as `sumo-deadlift`/`close-grip-bench-press`
+(supinated grip shifts primaries to `lats+biceps`). `face-pull` **was included**
+rather than deferred to Phase 2 — it has no relationships (rear-delt accessory,
+honest empty per §5.6); if the owner would rather it wait, it is a single clean
+removal.
+
+**Two existing pull records repointed** in `sample-exercises.json`; reconciliation
+deleted the 4 stale links. This fixed a real classification error: `pull-up` and
+`cable-row` were cross-linked as variation+progression, conflating a **vertical
+pull** with a **horizontal row**. Now:
+- `pull-up`: regresses to `chin-up`, progresses to `weighted-pull-up`, variation ↔
+  `lat-pulldown` (vertical chain).
+- `cable-row`: variations ↔ the four other rows (barbell/dumbbell/t-bar/chest-
+  supported), no progression to pull-up (it is a horizontal-row peer).
+
+Chains:
+- vertical: `lat-pulldown → assisted-pull-up → chin-up → pull-up → weighted-pull-up`
+- horizontal: `suspension-row → inverted-row → barbell-row`
+- row variations (5-way, fully mutual): `barbell-row ↔ dumbbell-row ↔ cable-row ↔
+  t-bar-row ↔ chest-supported-row`
+
+**Verified:** `fixtures:validate` passed on 64 exercises; reciprocity checker
+reported **zero errors**; the live graph is an **exact match** to the fixtures —
+132 links, zero stale, zero missing. Live DB snapshotted before/after; count 53 →
+64, user data untouched. Seed ran in the background (exceeds the 120s foreground
+window — same per-record reconciliation cost noted below).
+
+Before that: drafted, seeded, and verified the Phase 1 **push** batch on hosted Supabase, end
 to end in one pass (owner said "finish the whole push batch").
 
 **Seeded: 39 → 53 exercises.** `npm run seed:sample` reported 53 exercises, 32
@@ -462,24 +537,29 @@ Migration `012` was then applied to hosted Supabase through the Supabase MCP ser
 
 ## In Progress
 
-Nothing mid-flight. Squat, hinge, and push batches are seeded and verified (53
-exercises live, 100 relationship links, fully reciprocal). The next Phase 1 batch
-is **pull** (13 records, 2 already exist, per `docs/exercise-list.md`), then
-**carry + rotation + gait** (16 records, 2 already exist). After those, Phase 1 is
-complete.
+Nothing mid-flight. **Phase 1 is complete.** All 78 core-compound-lift records are
+drafted, reviewed, seeded, and verified against the live DB (154 relationship
+links, exact-match to fixtures, fully reciprocal, all 8 movement patterns
+populated). This is the point `catalog-plan.md` calls "a usable product on its own".
 
-Notes for the remaining batches:
-- **Pull**: `chin-up` ⚠ is approved by the same §2 grip amendment (supinated grip
-  shifts emphasis to biceps). `face-pull` is on the Phase 1 list but flagged as a
-  possible Phase 2 deferral — confirm with the owner before drafting it.
-- **Carry+rotation+gait**: includes the one cross-pattern chain already half-built
-  — `forward-lunge` (squat) → `walking-lunge` (gait); `walking-lunge` currently
-  regresses to `forward-lunge`, so `forward-lunge` must progress to `walking-lunge`
-  (it already does — verify it survives the gait batch).
+Next options, none blocking:
+- **Phase 0.2 finish** — the full audit of the original 12 records against
+  `curation-rules.md` (instructions/tips/contraindications/classification). Only
+  their muscles and relationships have been revised so far; several still carry
+  terse Phase-2-fixture prose (e.g. `cable-row`, `treadmill-run` instructions are
+  thin next to the newly drafted records). Worth doing before Phase 2 so the
+  catalog reads uniformly.
+- **Phase 2** — accessory and isolation work (`catalogVersion: 2`), per
+  `catalog-plan.md`: arms, shoulders, legs, core, back. New per-pattern batches,
+  same gates.
+- **Decide `parentMuscleSlug`** — still discarded by `mapMuscleRow`; `openapi.yaml`
+  documents `parentMuscleId` publicly. Wire it or drop it.
 
-Uncommitted since the owner's last commit: this session's push batch
-(`push.json` + 3 corrections in `sample-exercises.json`) and HANDOFF. Squat and
-hinge work plus migration 014 were committed by the owner before the push batch.
+Uncommitted since the owner's last commit: the push, pull, and
+carry-rotation-gait batches (`push.json`, `pull.json`,
+`carry-rotation-gait.json`, plus the in-place corrections in
+`sample-exercises.json`) and HANDOFF. Squat and hinge work plus migration 014 were
+committed by the owner earlier.
 
 Uncommitted: migration `014` is applied to the live DB but the working tree still
 holds unstaged changes across many files (the reconciliation work, the squat

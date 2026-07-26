@@ -149,9 +149,9 @@
     "secondaryMuscleSlugs": ["biceps", "rhomboids", "forearms"],
     "stabilizerMuscleSlugs": ["abs"],
     "equipmentSlugs": ["pull-up-bar"],
-    "variationSlugs": ["cable-row"],
-    "progressionSlugs": [],
-    "regressionSlugs": ["cable-row"],
+    "variationSlugs": ["lat-pulldown"],
+    "progressionSlugs": ["weighted-pull-up"],
+    "regressionSlugs": ["chin-up"],
     "media": []
   },
   {
@@ -421,8 +421,8 @@
     "secondaryMuscleSlugs": ["biceps", "rear-delts", "traps"],
     "stabilizerMuscleSlugs": ["abs"],
     "equipmentSlugs": ["cable-machine"],
-    "variationSlugs": ["pull-up"],
-    "progressionSlugs": ["pull-up"],
+    "variationSlugs": ["barbell-row", "dumbbell-row", "t-bar-row", "chest-supported-row"],
+    "progressionSlugs": [],
     "regressionSlugs": [],
     "media": []
   },
@@ -459,7 +459,7 @@
     "secondaryMuscleSlugs": ["abs"],
     "stabilizerMuscleSlugs": [],
     "equipmentSlugs": ["treadmill"],
-    "variationSlugs": [],
+    "variationSlugs": ["stationary-bike-ride"],
     "progressionSlugs": [],
     "regressionSlugs": [],
     "media": []
