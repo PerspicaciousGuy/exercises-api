@@ -16,7 +16,139 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Drafted, seeded, and verified the **final Phase 1 batch — carry + rotation + gait**
+Drafted, reviewed, seeded, and verified **all four remaining Phase 2 groups in one
+pass** (shoulders, legs, core, back). Owner approved the one-pass review and had
+them seeded live in a single run. **This completes Phase 2.**
+
+**Seeded: 92 → 130 exercises.** 130 exercises, 76 aliases, 534 muscle links, 156
+equipment links, 130 change events. Verified live: **78 records at
+catalogVersion 1, 52 at version 2** (all Phase 2 correctly versioned); core
+pattern now 12; total relationship links 182 → 234 (+52), DB count matches fixture
+count exactly; reciprocity zero errors across all 130. The two repointed Phase 1
+records landed correctly — `plank` gained `side-plank` (var) + `ab-wheel-rollout`
+(prog) with its previously-empty relationships now populated; `back-extension`
+kept `cable-pull-through` and gained `superman` (var + regr).
+
+**38 new records across four files, all `catalogVersion: 2`:**
+- `data/exercises/shoulders.json` (10): dumbbell/cable lateral raise, dumbbell/
+  plate front raise, reverse dumbbell/cable fly, reverse pec deck, dumbbell/barbell
+  shrug, upright-row
+- `data/exercises/legs.json` (12): leg-extension, lying/seated leg curl, standing/
+  seated calf raise, calf-press-leg-press, hip adduction/abduction machine,
+  cable-hip-abduction, nordic-hamstring-curl, glute-kickback, sissy-squat
+- `data/exercises/core.json` (11): dead-bug, hollow-hold, ab-wheel-rollout,
+  hanging/lying leg raise, crunch, cable-crunch, side-plank, bicycle-crunch,
+  mountain-climber, v-up
+- `data/exercises/back-isolation.json` (5): straight-arm-pulldown, dumbbell-pullover,
+  seated-cable-shrug, superman, band-pull-apart
+
+Total catalog now **130 records** (78 v1 + 52 v2). Pattern counts: pull 30, push
+31, squat 21, hinge 20, core 12, gait 6, carry 5, rotation 5.
+
+**Cross-links into Phase 1 (3 records repointed):** `plank` gained a `side-plank`
+variation and an `ab-wheel-rollout` progression (it was relationship-less before);
+`back-extension` (hinge) gained a `superman` variation + regression. These are the
+only pre-existing records touched — the rest of the 38 relate within their own
+groups.
+
+**Judgment calls made during drafting** (worth a look at review):
+- Isolation `movementPattern` is by dominant joint action: curls/raises that flex
+  or abduct are `push` or `pull` by direction (lateral raise = `push`,
+  reverse-fly/shrug/pulldown = `pull`); leg-extension/adduction/abduction are
+  `squat`, leg-curls/kickback/nordic/superman are `hinge`. No enum for "raise" or
+  "isolation-of-pattern", so the dominant pattern is picked.
+- Two `plank` cross-links were deliberately **dropped** rather than mirrored:
+  `mountain-climber → plank` and `crunch → hanging-leg-raise` were not clean
+  progressions; those records were left with honest simpler relationships instead.
+- `mountain-climber` is `category: cardio` + `skillType: endurance` (it is a
+  conditioning move that lives under `core`); `ab-wheel-rollout`/`mountain-climber`
+  are `mechanics: compound`, the rest of core is `isolation`.
+
+Gates run: `fixtures:validate` passes on 130; reciprocity checker reports **zero
+errors** across the whole catalog (15 gaps found and resolved during drafting).
+Once approved, seed all four files in one `npm run seed:sample` (background) and
+verify with the exact-match graph diff.
+
+Before that: drafted, seeded, and verified the **first Phase 2 batch — arms**
+(`catalogVersion: 2`). Owner approved the diff; seeded to hosted Supabase.
+
+**Seeded: 78 → 92 exercises.** 92 exercises, 60 aliases, 429 muscle links, 117
+equipment links, 92 change events. Verified live: **14 records at catalogVersion 2,
+78 still at version 1** (the version bump is correctly scoped to the new batch);
+total relationship links 154 → 182 (+28), DB count matches fixture count exactly;
+the arms subgraph is fully reciprocal (curl clusters mutual, triceps clusters
+mutual, `bench-dip ↔ diamond-push-up` progression correct). No pre-existing record
+was disturbed.
+
+**`data/exercises/arms.json`, 14 records, all `catalogVersion: 2`:**
+- biceps (7): dumbbell-curl, barbell-curl, ez-bar-curl, cable-curl, hammer-curl,
+  preacher-curl, incline-dumbbell-curl
+- triceps (7): triceps-pushdown, skull-crusher, dumbbell-overhead-extension,
+  cable-overhead-extension, triceps-kickback, bench-dip, diamond-push-up
+
+There is **no pre-approved Phase 2 exercise list** (`exercise-list.md` covered
+Phase 1 only). Per the "go straight to batches" decision, chains were designed so
+every relationship target is inside this batch — **zero dangling references to
+un-drafted Phase 2 records**. Isolation work relates mostly as variations
+(equipment swaps), not long ladders, which is honest for arms.
+
+Classification calls worth reviewing:
+- **Curls are `movementPattern: pull`, extensions are `push`** — elbow flexion is
+  a pull, extension is a push; consistent with `forceType`. Defensible but a
+  judgment call.
+- **`bench-dip`/`diamond-push-up` are `mechanics: compound`** (they move the whole
+  body and involve chest + delts), while every isolation curl/extension is
+  `isolation`. The one progression pair is `bench-dip → diamond-push-up`.
+- **`hammer-curl` primaries `biceps+forearms`** (neutral grip loads the
+  brachialis/forearms), the one biceps record that is not biceps-only.
+
+Gates run: `fixtures:validate` passes on 92 exercises; reciprocity checker reports
+**zero errors**. Not seeded, not committed. Once approved, seed via
+`npm run seed:sample` (background) and verify — this batch adds no links to the 78
+existing records, so reconciliation touches nothing pre-existing.
+
+Before that: finished, seeded, and verified the **Phase 0.2 audit of the original 12 records** —
+a content/prose rewrite to bring them up to the house style the 66 Phase 1 records
+set. Owner approved; seeded to hosted Supabase (78 exercises, unchanged count).
+Verified live: updated descriptions present, `barbell-deadlift`'s contraindication
+is now the mechanical version (no "acute back pain"), and the 7 previously-empty
+contraindication fields now carry mechanical entries. `catalogVersion` was NOT
+bumped (a prose fix is not a sync-worthy catalog change).
+
+Scope was deliberately narrow: only the four **content** fields
+(`description`, `instructions`, `tips`, `contraindications`) were changed. A diff
+against `HEAD` confirmed **every classification enum, muscle, equipment, and
+relationship field is byte-identical** — those were already audited/fixed across
+the Phase 1 batches and were not touched. `fixtures:validate` passes on 78.
+
+What changed and why:
+- **Terse instructions expanded** to full unambiguous sentences (§4: clear
+  without a picture). "Hinge down and grip the bar." → a flat-back, grip-outside-
+  knees, brace-then-drive sequence.
+- **Tips that restated steps rewritten** into real failure-mode cues (§7): e.g.
+  cable-row's "Avoid shrugging into the neck" kept, "Keep the chest tall" replaced
+  with the lean-back fault.
+- **Contraindications added to 7 records that had none** (bodyweight-squat,
+  barbell-back-squat, dumbbell-shoulder-press, walking-lunge, plank,
+  romanian-deadlift, cable-row) — mechanical, never clinical, per §4. Empty was an
+  omission next to every comparable new record, not a decision.
+- **`barbell-deadlift`'s borderline-clinical contraindication reworded**: "Avoid
+  max loading with acute back pain" (edges toward naming a condition) → flat-back
+  bracing language (§4: describe the sensation, not the diagnosis). This was the
+  one genuine §7 violation in the twelve.
+- **Descriptions enriched** from bare one-liners to say what the movement is and
+  where it sits (e.g. "the primary posterior-chain strength lift").
+
+Classification was audited and left **unchanged** — force/mechanics/plane/position/
+skill were all defensible, including `plank` as `skillType: strength` (isometric
+trunk strength). No wrong filterable value existed, which is the high-severity
+category §4 cares about; this was purely a prose fix.
+
+Once approved, seed via `npm run seed:sample` (background — exceeds 120s). No graph
+change results, so verification is just: 78 records unchanged in count, and the
+updated instructions/descriptions present on the live records.
+
+Before that: drafted, seeded, and verified the **final Phase 1 batch — carry + rotation + gait**
 — on hosted Supabase, end to end (owner said "go ahead"). **This completes Phase 1.**
 
 **Seeded: 64 → 78 exercises.** 78 exercises, 51 aliases, 402 muscle links, 100
@@ -537,23 +669,31 @@ Migration `012` was then applied to hosted Supabase through the Supabase MCP ser
 
 ## In Progress
 
-Nothing mid-flight. **Phase 1 is complete.** All 78 core-compound-lift records are
-drafted, reviewed, seeded, and verified against the live DB (154 relationship
-links, exact-match to fixtures, fully reciprocal, all 8 movement patterns
-populated). This is the point `catalog-plan.md` calls "a usable product on its own".
+Nothing mid-flight. **Phase 2 is complete** — all five groups (arms, shoulders,
+legs, core, back) drafted, reviewed, seeded, and verified. **130 exercises live**
+(78 v1 + 52 v2), 234 relationship links, exact-match to fixtures, fully reciprocal,
+all 8 movement patterns populated.
 
-Next options, none blocking:
-- **Phase 0.2 finish** — the full audit of the original 12 records against
-  `curation-rules.md` (instructions/tips/contraindications/classification). Only
-  their muscles and relationships have been revised so far; several still carry
-  terse Phase-2-fixture prose (e.g. `cable-row`, `treadmill-run` instructions are
-  thin next to the newly drafted records). Worth doing before Phase 2 so the
-  catalog reads uniformly.
-- **Phase 2** — accessory and isolation work (`catalogVersion: 2`), per
-  `catalog-plan.md`: arms, shoulders, legs, core, back. New per-pattern batches,
-  same gates.
-- **Decide `parentMuscleSlug`** — still discarded by `mapMuscleRow`; `openapi.yaml`
-  documents `parentMuscleId` publicly. Wire it or drop it.
+Next, per `catalog-plan.md`:
+- **Phase 3** — equipment variants and the long tail (`catalogVersion: 3+`, bumped
+  per batch): machine variants of established compounds, Smith/landmine/suspension/
+  band variants, conditioning/cardio modalities. This phase has **no defined end**;
+  apply the §2 granularity test ruthlessly to avoid near-duplicates.
+- **Decide `parentMuscleSlug`** — still deferred; `mapMuscleRow` hardcodes null
+  while `openapi.yaml` documents `parentMuscleId`. Wire or drop.
+- Uncommitted: arms + all four Phase 2 group files (shoulders/legs/core/back) and
+  the `plank`/`back-extension` repointing, plus HANDOFF and catalog-plan. Commit
+  when the owner asks.
+
+Phase 2 decisions locked with the owner this session:
+- **Approach:** go straight to batches (no separate pre-approved list); review the
+  JSON diff per batch. Design each batch so its relationship targets are
+  self-contained to avoid dangling references.
+- **First group: arms.** Remaining Phase 2 groups: shoulders, legs, core, back.
+- **`parentMuscleSlug`: left for now** — flat 21-muscle list, `mapMuscleRow` keeps
+  `parent_muscle_id: null`. Not wired, not dropped from the contract. Revisit as
+  its own task later.
+- All Phase 2 records carry **`catalogVersion: 2`** so `sync` reports them.
 
 Uncommitted since the owner's last commit: the push, pull, and
 carry-rotation-gait batches (`push.json`, `pull.json`,
