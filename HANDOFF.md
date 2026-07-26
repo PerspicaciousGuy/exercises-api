@@ -16,7 +16,48 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Drafted, reviewed, seeded, and verified the **first Phase 3 batch — machine
+Drafted, reviewed, seeded, and verified the **second Phase 3 batch — smith /
+landmine / band variants** (`catalogVersion: 4`). Owner approved the diff and had
+it seeded.
+
+**Seeded: 138 → 149 exercises.** 149 exercises, 90 aliases, 610 muscle links, 177
+equipment links, 149 change events. Verified live: version split **78 v1 / 52 v2 /
+8 v3 / 11 v4** (this batch correctly at v4); total relationship links 984 → 1087
+(+103, from 11 new records + their reciprocal partners); DB total-link count (1087)
+**matches the fixture-declared total (1087) exactly** — zero stale, zero missing;
+`fixtures:validate` passes on 149; reciprocity checker zero errors.
+
+**`data/exercises/smith-landmine-band.json`, 11 records** (all `catalogVersion: 4`):
+- smith (5): smith-machine-row, smith-machine-overhead-press,
+  smith-machine-romanian-deadlift, smith-machine-calf-raise, smith-machine-split-squat
+- landmine (2): landmine-squat, landmine-romanian-deadlift
+- band (3): band-chest-press, band-row, banded-squat
+- suspension (1): suspension-push-up
+
+**§2 granularity applied hard.** Only 11 records; deliberately NOT created:
+`landmine-row` (already `t-bar-row` — a t-bar *is* a landmine row), smith-shrug /
+smith-lunge / band-good-morning (cues on free-weight parents, no emphasis shift),
+suspension squat/lunge (regression cues, not distinct movements), suspension arm
+work (ambiguous long-tail).
+
+20 reciprocal variation links were added to existing records, each attaching to its
+natural cluster (e.g. smith-machine-row ↔ {barbell-row, machine-row};
+landmine-squat ↔ {goblet-squat}; band-chest-press ↔ {push-up, dumbbell-bench-press};
+suspension-push-up ↔ {push-up}). Additive to existing records, so reconciliation
+removed nothing pre-existing.
+
+**Note:** the reciprocal-link edits reformatted the touched fixture files from
+compact to expanded JSON (one array element per line). Zero functional impact — the
+seeder parses content, not formatting, and these files are git-excluded
+(Supabase-only, per owner). Flagged for the option to pin the formatter on future
+batches.
+
+These exercise data files (`data/exercises/*.json`) are **private and git-excluded**
+— they go only to Supabase via the seed, never committed. `.gitignore` covers
+`exercises/`; `sample-exercises.json` and `squat.json` were `git rm --cached`
+(untracked going forward, kept on disk).
+
+Before that: drafted, reviewed, seeded, and verified the **first Phase 3 batch — machine
 variants** (`catalogVersion: 3`). Owner approved the diff and had it seeded.
 
 **Seeded: 130 → 138 exercises.** 138 exercises, 86 aliases, 560 muscle links, 164

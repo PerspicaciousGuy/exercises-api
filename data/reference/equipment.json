@@ -148,5 +148,35 @@
     "slug": "rowing-machine",
     "equipmentGroup": "cardio_machine",
     "displayOrder": 250
+  },
+  {
+    "name": "Assault Bike",
+    "slug": "assault-bike",
+    "equipmentGroup": "cardio_machine",
+    "displayOrder": 260
+  },
+  {
+    "name": "Elliptical",
+    "slug": "elliptical",
+    "equipmentGroup": "cardio_machine",
+    "displayOrder": 270
+  },
+  {
+    "name": "Stair Climber",
+    "slug": "stair-climber",
+    "equipmentGroup": "cardio_machine",
+    "displayOrder": 280
+  },
+  {
+    "name": "Ski Erg",
+    "slug": "ski-erg",
+    "equipmentGroup": "cardio_machine",
+    "displayOrder": 290
+  },
+  {
+    "name": "Battle Ropes",
+    "slug": "battle-ropes",
+    "equipmentGroup": "implement",
+    "displayOrder": 300
   }
 ]
