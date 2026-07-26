@@ -77,6 +77,26 @@ code alongside the standard `type` / `title` / `status` / `detail` members.
 which was the only moment it was free. After a single developer integrates, the
 same change costs a `/v2`.
 
+### `parentMuscleId` was dropped from the muscle contract
+
+The `Muscle` response schema once documented `parentMuscleId`, backed by a real
+`muscles.parent_muscle_id` column, FK, and index (migrations `003`/`010`). But the
+importer always wrote `null`, no fixture ever set a parent, and Phase 0.1 of the
+catalog deliberately **flattened** the muscle set — the would-be parents (`back`,
+`shoulders`) were deleted, not kept. Grouping is already served by the flat
+`muscleGroup` and `region` fields. So the contract advertised a muscle tree that
+was always null.
+
+It is now removed from `openapi.yaml`, `referenceRepository`'s read/mapper, and the
+fixture validator's `parentMuscleSlug`. The DB column is **kept** (unused,
+nullable) — dropping it is destructive and buys nothing, and re-introducing a
+hierarchy later would only need the importer wired back up.
+
+**Why this and not keeping it:** removing a documented response field is a breaking
+change, free only while the API has zero consumers — the same window that governed
+adopting RFC 9457 and deleting the coarse muscle slugs. Keeping a field that always
+returns `null` is the dishonest option §4-style honesty rejects.
+
 ### Structured logging with Pino
 
 `backend/node-rules.md` mandates Pino. `src/logging/logger.js` configures it:

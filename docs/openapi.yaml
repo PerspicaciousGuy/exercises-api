@@ -1101,7 +1101,6 @@ components:
         name: { type: string, example: Pectoralis Major }
         region: { type: string, nullable: true, example: upper-body }
         muscleGroup: { type: string, nullable: true, example: chest }
-        parentMuscleId: { type: integer, nullable: true }
         displayOrder: { type: integer, nullable: true }
         updatedAt: { type: string, format: date-time }
 

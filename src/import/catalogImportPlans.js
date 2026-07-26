@@ -61,7 +61,6 @@ function mapMuscleRow(muscle) {
     slug: muscle.slug,
     region: muscle.region,
     muscle_group: muscle.muscleGroup,
-    parent_muscle_id: null,
     display_order: muscle.displayOrder
   };
 }

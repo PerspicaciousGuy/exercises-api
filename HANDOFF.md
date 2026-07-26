@@ -16,7 +16,27 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Drafted, reviewed, seeded, and verified **all four remaining Phase 2 groups in one
+Settled `parentMuscleSlug` / `parentMuscleId` — **dropped from the contract**
+(owner's decision after reviewing the options). The field was always `null`: the
+importer hardcoded it, no fixture set a parent, and Phase 0.1 deliberately
+flattened the muscle set (deleted the `back`/`shoulders` parents), with
+`muscleGroup`/`region` already providing grouping. So the API documented a muscle
+tree that was permanently null.
+
+Removed from four places: `docs/openapi.yaml` (the `Muscle` schema field),
+`src/repositories/referenceRepository.js` (the SELECT columns and the mapper),
+`src/import/catalogImportPlans.js` (`mapMuscleRow`'s `parent_muscle_id: null`), and
+`src/validation/catalogFixtures.js` (`parentMuscleSlug`). The **DB column is kept**
+(nullable, unused) — no migration; dropping it is destructive and buys nothing, and
+wiring a hierarchy back later would only need the importer re-connected. Two tests
+that asserted the old shape were updated (entailed by the contract change, not
+optional). Postman regenerated. **176 tests pass, fixtures validate on 130, no
+re-seed needed** — this is a read-path + contract change, not a data change.
+Recorded in `docs/conventions.md` as a zero-consumers breaking change, alongside
+the RFC 9457 and muscle-slug precedents. This was a code change, so it did not go
+through the catalog curation gate.
+
+Before that: drafted, reviewed, seeded, and verified **all four remaining Phase 2 groups in one
 pass** (shoulders, legs, core, back). Owner approved the one-pass review and had
 them seeded live in a single run. **This completes Phase 2.**
 
@@ -456,11 +476,9 @@ Two gaps found and **logged rather than fixed**, both recorded in
   is one that gets corrected; every correction re-seeded through an additive-only
   pipeline leaves debris. The truncate escape hatch closes once the catalog is
   real.
-- **`parentMuscleSlug` is silently discarded.** `mapMuscleRow()` hardcodes
-  `parent_muscle_id: null`. The column, FK, index, repository read, and fixture
-  schema all exist, and **`openapi.yaml` documents `parentMuscleId` publicly** —
-  so the contract promises a muscle tree that is always null. Nothing depends on
-  it now; decide later whether to wire it or drop it from the contract.
+- ~~**`parentMuscleSlug` is silently discarded.**~~ Resolved: `parentMuscleId`
+  dropped from the contract (openapi + repository + importer + validator + postman).
+  The DB column is kept but unused. See Last Action and `docs/conventions.md`.
 
 Before that, redesigned the developer dashboard's UI. This was a presentation-only change: no
 API logic, routing, or session-store code was touched, and nothing outside
@@ -679,11 +697,13 @@ Next, per `catalog-plan.md`:
   per batch): machine variants of established compounds, Smith/landmine/suspension/
   band variants, conditioning/cardio modalities. This phase has **no defined end**;
   apply the §2 granularity test ruthlessly to avoid near-duplicates.
-- **Decide `parentMuscleSlug`** — still deferred; `mapMuscleRow` hardcodes null
-  while `openapi.yaml` documents `parentMuscleId`. Wire or drop.
-- Uncommitted: arms + all four Phase 2 group files (shoulders/legs/core/back) and
-  the `plank`/`back-extension` repointing, plus HANDOFF and catalog-plan. Commit
-  when the owner asks.
+- Uncommitted: arms + all four Phase 2 group files (shoulders/legs/core/back), the
+  `plank`/`back-extension` repointing, the `parentMuscleId` removal (4 source files
+  + 2 tests + openapi + postman + conventions), plus HANDOFF and catalog-plan.
+  Commit when the owner asks.
+
+Resolved this session: `parentMuscleId` is no longer an open question — dropped
+from the contract (see Last Action).
 
 Phase 2 decisions locked with the owner this session:
 - **Approach:** go straight to batches (no separate pre-approved list); review the
@@ -736,9 +756,6 @@ Phase 7 developer experience docs.
   regresses to `push-up`, which push-up does not mirror — and push-up→shoulder-press
   is not a real progression pair anyway. Push-family Phase 0.2 audit debt, out of
   squat scope. Fix when the push batch is drafted.
-- **`parentMuscleSlug` still discarded** (`mapMuscleRow` hardcodes `null`), while
-  `openapi.yaml` documents `parentMuscleId` publicly. Unchanged this session.
-  Decide whether to wire it or drop it from the contract.
 - The reciprocity check that validated the squat batch is a one-off node script,
   not a committed test. `fixtures:validate` enforces non-dangling references but
   **not** reciprocity (by design — §5.2 makes it a review responsibility).

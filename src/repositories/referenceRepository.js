@@ -101,7 +101,7 @@ export function createReferenceRepository({ client }) {
       const rows = await selectReferenceRows(client, {
         table: 'muscles',
         columns:
-          'id,slug,name,region,muscle_group,parent_muscle_id,display_order,updated_at'
+          'id,slug,name,region,muscle_group,display_order,updated_at'
       });
 
       return rows.map(mapMuscle);
@@ -161,7 +161,6 @@ function mapMuscle(row) {
     name: row.name,
     region: row.region,
     muscleGroup: row.muscle_group,
-    parentMuscleId: row.parent_muscle_id,
     displayOrder: row.display_order,
     updatedAt: row.updated_at
   };

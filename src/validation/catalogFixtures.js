@@ -17,8 +17,7 @@ const namedReferenceSchema = z.object({
 
 const muscleSchema = namedReferenceSchema.extend({
   region: z.string().min(1),
-  muscleGroup: z.string().min(1),
-  parentMuscleSlug: slugSchema.optional()
+  muscleGroup: z.string().min(1)
 });
 
 const equipmentSchema = namedReferenceSchema.extend({

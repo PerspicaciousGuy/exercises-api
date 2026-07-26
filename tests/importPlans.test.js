@@ -29,7 +29,6 @@ describe('catalog import plans', () => {
         slug: 'chest',
         region: 'upper_body',
         muscle_group: 'push',
-        parent_muscle_id: null,
         display_order: 10
       }
     ]);

@@ -12,7 +12,6 @@ describe('createReferenceRepository', () => {
           name: 'Chest',
           region: 'upper_body',
           muscle_group: 'push',
-          parent_muscle_id: null,
           display_order: 10,
           updated_at: '2026-06-15T10:00:00.000Z'
         }
@@ -24,7 +23,7 @@ describe('createReferenceRepository', () => {
 
     expect(client.select).toHaveBeenCalledWith('muscles', {
       columns:
-        'id,slug,name,region,muscle_group,parent_muscle_id,display_order,updated_at',
+        'id,slug,name,region,muscle_group,display_order,updated_at',
       filters: {
         order: 'display_order.asc'
       }
@@ -36,7 +35,6 @@ describe('createReferenceRepository', () => {
         name: 'Chest',
         region: 'upper_body',
         muscleGroup: 'push',
-        parentMuscleId: null,
         displayOrder: 10,
         updatedAt: '2026-06-15T10:00:00.000Z'
       }
@@ -54,7 +52,6 @@ describe('createReferenceRepository', () => {
               name: 'Chest',
               region: 'upper_body',
               muscle_group: 'push',
-              parent_muscle_id: null,
               display_order: 10,
               updated_at: '2026-06-15T10:00:00.000Z'
             }
