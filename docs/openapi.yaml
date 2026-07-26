@@ -984,7 +984,7 @@ components:
           enum: [beginner, intermediate, advanced]
         movementPattern:
           type: string
-          enum: [squat, hinge, push, pull, carry, rotation, gait]
+          enum: [squat, hinge, push, pull, carry, rotation, gait, core]
         tags:
           type: array
           items: { type: string }
