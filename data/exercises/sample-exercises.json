@@ -35,9 +35,9 @@
     "secondaryMuscleSlugs": ["triceps", "front-delts", "serratus"],
     "stabilizerMuscleSlugs": ["abs"],
     "equipmentSlugs": ["bodyweight"],
-    "variationSlugs": ["barbell-bench-press"],
-    "progressionSlugs": ["barbell-bench-press"],
-    "regressionSlugs": [],
+    "variationSlugs": [],
+    "progressionSlugs": ["decline-push-up", "dumbbell-bench-press"],
+    "regressionSlugs": ["incline-push-up"],
     "media": []
   },
   {
@@ -73,9 +73,9 @@
     "secondaryMuscleSlugs": ["triceps", "front-delts"],
     "stabilizerMuscleSlugs": [],
     "equipmentSlugs": ["barbell", "bench"],
-    "variationSlugs": ["push-up"],
+    "variationSlugs": ["dumbbell-bench-press", "smith-machine-bench-press", "incline-barbell-bench-press", "close-grip-bench-press"],
     "progressionSlugs": [],
-    "regressionSlugs": ["push-up"],
+    "regressionSlugs": ["dumbbell-bench-press"],
     "media": []
   },
   {
@@ -112,8 +112,8 @@
     "stabilizerMuscleSlugs": ["abs"],
     "equipmentSlugs": ["dumbbell"],
     "variationSlugs": [],
-    "progressionSlugs": [],
-    "regressionSlugs": ["push-up"],
+    "progressionSlugs": ["barbell-overhead-press"],
+    "regressionSlugs": ["landmine-press"],
     "media": []
   },
   {

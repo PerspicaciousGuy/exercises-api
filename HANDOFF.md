@@ -16,7 +16,55 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Seeded the Phase 1 **hinge** batch to hosted Supabase and verified it. The owner
+Drafted, seeded, and verified the Phase 1 **push** batch on hosted Supabase, end
+to end in one pass (owner said "finish the whole push batch").
+
+**Seeded: 39 → 53 exercises.** `npm run seed:sample` reported 53 exercises, 32
+aliases, 267 muscle links, 69 equipment links, 53 change events. 17 push-pattern
+exercises live; `plank` remains correctly `core` with no relationships. (The seed
+now exceeds the 120s foreground window because reconciliation makes many per-record
+PostgREST round-trips across 53 records × 7 link tables — it ran in the background
+and exited 0. Not an error, just slow; a future optimisation could batch the
+reconciliation deletes.)
+
+**`data/exercises/push.json`, 14 new records:** knee-push-up, incline-push-up,
+decline-push-up, dumbbell-bench-press, incline-barbell-bench-press,
+incline-dumbbell-bench-press, smith-machine-bench-press, close-grip-bench-press,
+dip, pike-push-up, handstand-push-up, landmine-press, barbell-overhead-press,
+push-press. Drawn from the pre-approved `docs/exercise-list.md` push section (18
+listed, 4 already exist). `close-grip-bench-press` included under the same §2
+grip/stance amendment as `sumo-deadlift` — the narrow grip shifts primaries to
+`triceps+chest`.
+
+**Three existing push-family records repointed** in `sample-exercises.json` to
+close the chains reciprocally; reconciliation deleted the 5 stale links captured
+in the pre-seed snapshot:
+- `push-up`: was var+prog ↔ `barbell-bench-press`; now regresses to
+  `incline-push-up`, progresses to `decline-push-up` + `dumbbell-bench-press`
+  (barbell bench is now two steps away via the dumbbell bench).
+- `barbell-bench-press`: now regresses to `dumbbell-bench-press`, variations
+  `dumbbell`/`smith`/`incline-barbell`/`close-grip` bench.
+- `dumbbell-shoulder-press`: was an **unmirrored** regression to `push-up` (the
+  push-family debt logged since Phase 0); now regresses to `landmine-press`,
+  progresses to `barbell-overhead-press`. **This fixes that debt** — the whole
+  53-record catalog is now fully reciprocal for the first time (the by-hand
+  reciprocity checker reports zero errors, where it previously always reported
+  that one).
+
+Chains:
+- horizontal: `knee-push-up → incline-push-up → push-up → decline-push-up → dip`;
+  `push-up → dumbbell-bench-press → barbell-bench-press`
+- vertical: `pike-push-up → handstand-push-up`;
+  `landmine-press → dumbbell-shoulder-press → barbell-overhead-press → push-press`
+- bench variations: `barbell-bench-press ↔ {dumbbell, smith, incline-barbell,
+  close-grip}`; `incline-barbell ↔ incline-dumbbell`
+
+**Verified:** `fixtures:validate` passed on 53 exercises; reciprocity checker
+reported **zero errors** (first fully-clean run); the live relationship graph is an
+**exact match** to the fixtures — 100 links, zero stale, zero missing. Live DB
+snapshotted before and after; exercise count 39 → 53, user data untouched.
+
+Before that: seeded the Phase 1 **hinge** batch to hosted Supabase and verified it. The owner
 approved the diff at the review gate; this session ran the pipeline and confirmed
 the result.
 
@@ -414,20 +462,24 @@ Migration `012` was then applied to hosted Supabase through the Supabase MCP ser
 
 ## In Progress
 
-Nothing mid-flight. Squat and hinge batches are seeded and verified (39 exercises
-live). The next Phase 1 batch to draft is **push** (18 records, 4 already exist,
-per `docs/exercise-list.md`), then pull, then carry+rotation+gait. Each follows
-the same gate: draft the per-pattern file → owner reviews the diff → validate →
-seed → verify the live graph.
+Nothing mid-flight. Squat, hinge, and push batches are seeded and verified (53
+exercises live, 100 relationship links, fully reciprocal). The next Phase 1 batch
+is **pull** (13 records, 2 already exist, per `docs/exercise-list.md`), then
+**carry + rotation + gait** (16 records, 2 already exist). After those, Phase 1 is
+complete.
 
-Note for the push batch: `plank` is already `core` (correct) but the list marks
-it under push with no relationships — leave it as `core` and unrelated. The
-`close-grip-bench-press` ⚠ record is approved by the §2 amendment (grip change
-that shifts emphasis to triceps), same basis as `sumo-deadlift`.
+Notes for the remaining batches:
+- **Pull**: `chin-up` ⚠ is approved by the same §2 grip amendment (supinated grip
+  shifts emphasis to biceps). `face-pull` is on the Phase 1 list but flagged as a
+  possible Phase 2 deferral — confirm with the owner before drafting it.
+- **Carry+rotation+gait**: includes the one cross-pattern chain already half-built
+  — `forward-lunge` (squat) → `walking-lunge` (gait); `walking-lunge` currently
+  regresses to `forward-lunge`, so `forward-lunge` must progress to `walking-lunge`
+  (it already does — verify it survives the gait batch).
 
-Uncommitted: migrations `014` is applied live; the working tree holds unstaged
-changes (reconciliation code, squat + hinge fixtures, migration 014, `core` enum
-additions, docs, HANDOFF). Nothing committed yet — commit when the owner asks.
+Uncommitted since the owner's last commit: this session's push batch
+(`push.json` + 3 corrections in `sample-exercises.json`) and HANDOFF. Squat and
+hinge work plus migration 014 were committed by the owner before the push batch.
 
 Uncommitted: migration `014` is applied to the live DB but the working tree still
 holds unstaged changes across many files (the reconciliation work, the squat
