@@ -78,7 +78,8 @@ const exerciseSchema = z.object({
     'pull',
     'carry',
     'rotation',
-    'gait'
+    'gait',
+    'core'
   ]),
   forceType: z.enum(['push', 'pull', 'static', 'compound']).optional(),
   mechanics: z.enum(['compound', 'isolation']),

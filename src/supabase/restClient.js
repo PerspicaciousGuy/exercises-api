@@ -90,6 +90,29 @@ export class SupabaseRestClient {
   }
 
   /**
+   * Deletes rows matching `filters` and returns the removed rows.
+   *
+   * A filter is mandatory. An unfiltered delete would wipe the table, and the
+   * seeder's reconciliation issues these against live data — a missing filter
+   * must fail loudly here, not silently truncate a catalog.
+   */
+  async delete(table, { filters = {}, select = '*' } = {}) {
+    if (Object.keys(filters).length === 0) {
+      throw new Error(`Refusing to delete from "${table}" without a filter`);
+    }
+
+    const url = this.buildTableUrl(table, {
+      ...filters,
+      select
+    });
+
+    return this.request(url, {
+      method: 'DELETE',
+      prefer: 'return=representation'
+    });
+  }
+
+  /**
    * Retries transient failures with exponential backoff and jitter.
    *
    * What counts as retryable depends on the method, not only on the failure.
