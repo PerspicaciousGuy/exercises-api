@@ -260,6 +260,10 @@ These are intentionally postponed until the public catalog API is excellent.
 
 ## Execution Notes
 
+- This file tracks building the **software**. Populating the **catalog** is
+  tracked separately in `docs/catalog-plan.md`, against the standard in
+  `docs/curation-rules.md`. The API is deployed; the catalog behind it is not
+  yet built.
 - Implement one phase at a time.
 - Prefer test-first development for services, middleware, and endpoint behavior.
 - Keep migrations small and reviewable.

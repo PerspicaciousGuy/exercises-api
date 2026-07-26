@@ -4,7 +4,7 @@ ExerciseDB API is a production-grade public exercise catalog API for fitness app
 
 ## Current State
 
-Phase 0 is complete. Phase 1 migrations have been applied to the hosted Supabase project at `https://yfdxihexqcsccoxhgxgm.supabase.co`. Phase 2 seed/import pipeline is implemented and has been run against hosted Supabase. Phase 3 public catalog read endpoints are implemented. Phase 4 sync endpoints are implemented. Phase 5 authentication, API keys, tier limits, usage tracking, rate limit headers, and premium gating are implemented.
+Phase 0 is complete. Phase 1 migrations (through `014_add_core_movement_pattern.sql`) have been applied to the hosted Supabase project at `https://yfdxihexqcsccoxhgxgm.supabase.co`. Phase 2 seed/import pipeline is implemented, reconciles link tables, and has been run against hosted Supabase — the catalog now holds 26 exercises (12 originals plus the 14-record squat pilot batch), with the relationship graph verified to match the fixtures exactly. Phase 3 public catalog read endpoints are implemented. Phase 4 sync endpoints are implemented. Phase 5 authentication, API keys, tier limits, usage tracking, rate limit headers, and premium gating are implemented.
 
 Error responses now follow RFC 9457 (`application/problem+json`) across every error path. Success responses keep the existing `{ success, data }` envelope. Deliberate deviations from `agents-guidelines/` are recorded in `docs/conventions.md`, which is loaded every session via `CLAUDE.md`.
 
@@ -16,7 +16,149 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Redesigned the developer dashboard's UI. This was a presentation-only change: no
+Seeded the squat pilot batch to hosted Supabase and verified it. The owner had
+already signed off on the chains at the review gate; this session applied the
+migration that was blocking the seed and ran the pipeline end to end.
+
+**Migration `014_add_core_movement_pattern.sql` applied to hosted Supabase.** The
+earlier seed had failed on the `plank` record because `movement_pattern` is a real
+Postgres enum, not a plain-text column — my earlier "no migration needed" claim
+was wrong and was retracted. `alter type public.movement_pattern add value if not
+exists 'core'` was applied through the Supabase MCP as a standalone statement
+(Postgres forbids adding and using an enum value in one transaction). The enum now
+carries `core` as its 8th value; verified against `pg_enum`. Migration has no
+`down` — Postgres cannot remove an enum value.
+
+**Squat batch seeded: 12 → 26 exercises.** `npm run seed:sample` (which globs all
+`data/exercises/*.json`) imported the 12 existing records plus the 14 new squat
+records, reporting 26 exercises, 17 aliases, 138 muscle links, 31 equipment links,
+26 change events. `plank` is now correctly `core`. 16 squat-pattern exercises live.
+
+**Relationship graph verified exact against the fixtures.** Pulled all 51
+variation/progression/regression rows from the live DB and diffed them against the
+51 the fixtures declare: **exact match, zero stale, zero missing.** Critically,
+reconciliation did what the additive-only pipeline could not: the pre-existing
+`bodyweight-squat ↔ barbell-back-squat` cross-links captured in the pre-seed
+snapshot were **removed**, replaced by the curated squat-ladder neighbours
+(`bodyweight-squat` now progresses to `goblet-squat`, regresses to `box-squat`;
+`barbell-back-squat` progresses to `overhead-squat`, regresses to
+`barbell-front-squat`). No superset, no debris.
+
+Pre-flight before touching the live DB: all 176 tests pass, `fixtures:validate`
+passes on 26 exercises, and a dangling-reference check confirmed every
+relationship target resolves to a batch or existing record (a missing target
+would throw `Missing exercise lookup` — the seeder resolves relationship slugs
+with `requiredLookup`). The live DB was snapshotted before and after; user
+accounts, keys, and sessions were untouched.
+
+**Not done: the live HTTP `/exercises/{slug}/related` smoke test.** The data the
+endpoint serves was verified at the database layer (exact-match diff above), but
+the endpoint itself was not hit against a running server — that needs the `.env`
+credentials and a running process, and the DB-layer verification already proves
+the served graph is correct. Left as an optional confirmation.
+
+Before that: built the reconciliation plumbing Phase 1 was blocked on, then
+drafted the squat pilot batch.
+
+**Curation-rules `§2` amended.** The granularity table forbade grip and stance
+changes a record while already granting angle changes one "if it moves the
+emphasis" — an internal inconsistency. The emphasis test now covers grip, stance,
+and angle uniformly, which legitimises `sumo-deadlift`, `close-grip-bench-press`,
+and `chin-up` without opening the door to "back squat, wider stance".
+
+**`movementPattern` gained `core`.** `plank` was classified `push`, which is
+false — a plank pushes nothing. Added to the fixture validator
+(`src/validation/catalogFixtures.js`) and `docs/openapi.yaml`, and reclassified
+`plank`. **Correction to an earlier claim:** `movement_pattern` *is* a real
+Postgres enum, not a plain-text column. This was discovered when the seed failed;
+migration `014` (see the current Last Action) adds `core` to the enum type. Done
+now because the enum is public and the API has zero consumers; deferring it costs
+a `/v2` later.
+
+**`SupabaseRestClient.delete()`** — the method the seeder never had. It requires a
+filter and throws rather than issue an unfiltered (table-wide) delete. `DELETE`
+was added to `RETRY_SAFE_METHODS`: unlike POST, a delete-by-filter is idempotent,
+so replaying it after a mid-flight network error reaches the same end state. Three
+new tests pin the request shape, the empty-filter guard, and the retry.
+
+**Seeder reconciliation** (`catalogSeeder.js`). After the existing upserts, a new
+pass deletes any join-table link a seeded exercise no longer has — the fix for
+the additive-only gap logged in Phase 0. Ordering is **upsert-first, then
+delete** (a deliberate choice): a mid-run failure can only leave an extra stale
+link, a superset a reader tolerates, never a missing one. PostgREST has no
+cross-request transaction, so this ordering is the integrity guarantee. Scoped to
+the seven id-keyed link tables (muscles ×3, equipment, variations, progressions,
+regressions); `exercise_aliases` is excluded because its key is free text that
+cannot go in a `not.in.()` filter safely, and a stale alias is low-harm. Three
+tests cover the stale-link delete, the empty-table delete, and the ordering.
+
+**Phase 0.4 — fixture split.** `loadCatalogFixtures` now globs
+`data/exercises/*.json` (sorted, concatenated) instead of reading one hardcoded
+`sample-exercises.json`. This is what lets each movement pattern live in its own
+reviewable file.
+
+**Squat pilot (`data/exercises/squat.json`, 14 new records).** The Phase 1 squat
+batch: box, goblet, dumbbell, front, overhead, smith-machine, hack, leg-press,
+split-squat, Bulgarian split-squat, reverse/forward lunge, step-up, pistol. The
+two pre-existing squats (`bodyweight-squat`, `barbell-back-squat`) were corrected
+**in place** in `sample-exercises.json` to fit the curated chains — which is
+exactly the reconciliation case above: their stale `bodyweight-squat ↔
+barbell-back-squat` cross-links are removed, and the seeder will now delete them
+rather than leave debris. A reciprocity checker (run by hand, not a committed
+test) confirmed every variation/progression/regression link is mirrored across
+both files, and closed one bad pre-existing link: `walking-lunge` claimed
+`bodyweight-squat` as a variation and regression, which is wrong across movement
+patterns; it now regresses to `forward-lunge` (the one intended squat→gait
+chain), and `forward-lunge` progresses to it.
+
+One pre-existing asymmetry was found and **deliberately left**:
+`dumbbell-shoulder-press` lists `push-up` as a regression that push-up does not
+mirror. It is in the push family, not squat scope, and is Phase 0.2 audit debt —
+logged below, not touched.
+
+Before that, started catalog population. Wrote the standard
+(`docs/curation-rules.md`) and the plan (`docs/catalog-plan.md`), then executed
+Phase 0.1.
+
+**Reference data: 11 → 21 muscles, 10 → 25 equipment.** `back` and `shoulders`
+were **deleted**, not kept. Both were too coarse to carry information — a barbell
+row and a lat pulldown both resolved to `back`, which is the exact defect
+`curation-rules.md` §4 warns about. Replaced with `lats`, `traps`, `rhomboids`,
+`rear-delts`, `front-delts`, `side-delts`, `serratus`, plus `forearms`,
+`obliques`, `adductors`, `abductors`, `hip-flexors`. Deleting published slugs is a
+breaking change and was free only because the API has zero consumers — the same
+reasoning `conventions.md` records for adopting RFC 9457 when it did. Equipment
+grew because our granularity rule makes equipment changes new exercises, so that
+file effectively sets catalog size.
+
+**The catalog was truncated and reseeded**, because reading the code turned up a
+gap: `catalogSeeder.js` has **zero deletes** and `restClient.js` has no `delete`
+method. The pipeline is additive-only — it can say "this exists" but not "this
+changed". Repointing `pull-up` from `back` to `lats` would have **added** the
+`lats` link without removing the `back` one, leaving the exercise reporting both:
+silently wrong data from a green build. Truncating was viable only because the
+catalog was 12 test fixtures with 3 users, all ours. Verified before doing it that
+no foreign key outside the catalog references it; user accounts, keys, and
+sessions were untouched (3/6/5 before and after).
+
+Seeded and verified against the database: 21 muscles, 25 equipment, 12 exercises,
+zero rows for `back`/`shoulders`, and `pull-up` carrying `lats` alone. Muscle
+links went 51 → 63 — the split producing more precise data, not just more rows.
+
+Two gaps found and **logged rather than fixed**, both recorded in
+`docs/catalog-plan.md`:
+
+- **Seeder reconciliation is required before Phase 1 seeding.** A curated catalog
+  is one that gets corrected; every correction re-seeded through an additive-only
+  pipeline leaves debris. The truncate escape hatch closes once the catalog is
+  real.
+- **`parentMuscleSlug` is silently discarded.** `mapMuscleRow()` hardcodes
+  `parent_muscle_id: null`. The column, FK, index, repository read, and fixture
+  schema all exist, and **`openapi.yaml` documents `parentMuscleId` publicly** —
+  so the contract promises a muscle tree that is always null. Nothing depends on
+  it now; decide later whether to wire it or drop it from the contract.
+
+Before that, redesigned the developer dashboard's UI. This was a presentation-only change: no
 API logic, routing, or session-store code was touched, and nothing outside
 `dashboard/` changed. The visual language was rebuilt to feel like an app rather
 than a form, while every design value still resolves to an existing `--ex-*`
@@ -223,7 +365,16 @@ Migration `012` was then applied to hosted Supabase through the Supabase MCP ser
 
 ## In Progress
 
-Nothing currently in progress. The documentation site scaffold is complete and builds; the remaining Phase 7 items are prose guides, one task each.
+Nothing mid-flight. The squat pilot is seeded and verified. The next Phase 1
+batch to draft is the **hinge** pattern, then push, pull, and
+carry+rotation+gait. Each follows the same gate: draft the per-pattern file →
+owner reviews the git diff of the chains → `fixtures:validate` → `seed:sample` →
+verify the live graph.
+
+Uncommitted: migration `014` is applied to the live DB but the working tree still
+holds unstaged changes across many files (the reconciliation work, the squat
+fixture, migration 014, the `core` enum additions to the validator/openapi, and
+docs). None of it is committed yet — commit when the owner asks.
 
 ## Pending
 
@@ -235,6 +386,34 @@ Phase 7 developer experience docs.
 
 ## Known Issues
 
+- **Seeder reconciliation does not cover reference-table deletions.** Dropping a
+  muscle/equipment slug from the fixtures still does not remove its row — only
+  exercise *link* rows are reconciled. Deleting a referenced reference row would
+  hit an `on delete restrict` FK, and dropping a published slug is a
+  breaking-change event that per `api-data-layer-rules.md` warrants explicit
+  confirmation each time. `back`/`shoulders` were already removed by the earlier
+  truncate. Left out deliberately; build it as its own task if a future phase
+  needs to retire a reference slug.
+- **`exercise_aliases` is still additive-only.** Reconciliation skips it (free-text
+  key, unsafe in a `not.in.()` filter). A removed alias lingers in the DB. Low
+  harm; reconcile it separately if it ever matters (e.g. delete-by-synthetic-id
+  after a read).
+- ~~**Squat pilot awaits review before seeding.**~~ Resolved: reviewed, seeded,
+  and verified against the live DB (26 exercises, 51 relationship links matching
+  fixtures exactly). Migration `014` (the `core` enum value) was applied to close
+  the enum blocker.
+- **Pre-existing relationship asymmetry left in place:** `dumbbell-shoulder-press`
+  regresses to `push-up`, which push-up does not mirror — and push-up→shoulder-press
+  is not a real progression pair anyway. Push-family Phase 0.2 audit debt, out of
+  squat scope. Fix when the push batch is drafted.
+- **`parentMuscleSlug` still discarded** (`mapMuscleRow` hardcodes `null`), while
+  `openapi.yaml` documents `parentMuscleId` publicly. Unchanged this session.
+  Decide whether to wire it or drop it from the contract.
+- The reciprocity check that validated the squat batch is a one-off node script,
+  not a committed test. `fixtures:validate` enforces non-dangling references but
+  **not** reciprocity (by design — §5.2 makes it a review responsibility).
+  Consider promoting the check into `fixtures:validate` or a test if review
+  fatigue becomes a risk across many batches.
 - `docs/openapi.yaml` is 1,529 lines, past the 500-line hard limit. Deliberately not split; the reasoning is recorded in `docs/conventions.md`.
 - The spec's only `servers` entry is `http://localhost:3000`. Scalar's "Test Request" console therefore targets localhost. Add the production URL when the API is deployed.
 - Redocly warns that `/exercises/slug/{slug}` is ambiguous against `/exercises/{id}/related`, `/variations`, `/progressions`, and `/regressions`. Benign in practice — Express matches by declaration order and the slug route is registered first — but a genuinely OpenAPI-ambiguous surface. Renaming to `/exercises/by-slug/{slug}` would remove it at the cost of a breaking change.
