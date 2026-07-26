@@ -187,9 +187,9 @@
     "secondaryMuscleSlugs": ["quadriceps", "traps", "lats", "forearms"],
     "stabilizerMuscleSlugs": ["abs", "lower-back"],
     "equipmentSlugs": ["barbell"],
-    "variationSlugs": ["romanian-deadlift"],
-    "progressionSlugs": [],
-    "regressionSlugs": ["romanian-deadlift"],
+    "variationSlugs": ["sumo-deadlift", "trap-bar-deadlift"],
+    "progressionSlugs": ["deficit-deadlift"],
+    "regressionSlugs": ["trap-bar-deadlift"],
     "media": []
   },
   {
@@ -383,9 +383,9 @@
     "secondaryMuscleSlugs": ["lower-back"],
     "stabilizerMuscleSlugs": ["abs"],
     "equipmentSlugs": ["barbell"],
-    "variationSlugs": ["barbell-deadlift"],
-    "progressionSlugs": ["barbell-deadlift"],
-    "regressionSlugs": [],
+    "variationSlugs": ["good-morning"],
+    "progressionSlugs": ["single-leg-romanian-deadlift"],
+    "regressionSlugs": ["dumbbell-romanian-deadlift"],
     "media": []
   },
   {

@@ -16,7 +16,56 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Seeded the squat pilot batch to hosted Supabase and verified it. The owner had
+Seeded the Phase 1 **hinge** batch to hosted Supabase and verified it. The owner
+approved the diff at the review gate; this session ran the pipeline and confirmed
+the result.
+
+**Seeded: 26 → 39 exercises.** `npm run seed:sample` reported 39 exercises, 23
+aliases, 206 muscle links, 47 equipment links, 39 change events. 15 hinge-pattern
+exercises live (13 new + the 2 repointed originals).
+
+**Relationship graph verified exact against fixtures:** 73 links in the DB, 73 in
+the fixtures, **zero stale, zero missing**. Reconciliation again did its job — the
+4 stale `barbell-deadlift ↔ romanian-deadlift` cross-links captured in the
+pre-seed snapshot were deleted and replaced by the deadlift/RDL ladder links. The
+one pre-existing asymmetry (`dumbbell-shoulder-press → push-up`) is untouched
+push-family debt, out of scope. Live DB snapshotted before and after; exercise
+count went 26 → 39, user data untouched.
+
+The batch drafted and approved this session:
+
+**`data/exercises/hinge.json`, 13 new records:** glute-bridge, hip-thrust,
+barbell-hip-thrust, cable-pull-through, kettlebell-swing, good-morning,
+dumbbell-romanian-deadlift, single-leg-romanian-deadlift, trap-bar-deadlift,
+rack-pull, deficit-deadlift, back-extension, sumo-deadlift. Drawn directly from
+the pre-approved `docs/exercise-list.md` hinge section (15 listed, 2 already
+exist). `sumo-deadlift` is included because the §2 amendment (grip/stance earns a
+record when it moves emphasis) is already in `curation-rules.md` — sumo shifts the
+primary muscles to `glutes+quadriceps+adductors`, so it clears the test.
+
+**Two existing records repointed in `sample-exercises.json`** to close the deadlift
+and RDL ladders reciprocally — the same reconciliation case as the squat batch:
+- `barbell-deadlift`: was variation+regression ↔ `romanian-deadlift`; now regresses
+  to `trap-bar-deadlift`, progresses to `deficit-deadlift`, variations
+  `sumo-deadlift`/`trap-bar-deadlift`. The stale RDL cross-links will be deleted by
+  reconciliation on seed.
+- `romanian-deadlift`: was variation+progression ↔ `barbell-deadlift`; now regresses
+  to `dumbbell-romanian-deadlift`, progresses to `single-leg-romanian-deadlift`,
+  variation ↔ `good-morning`.
+
+Chains (all difficulties ascend, all links reciprocal):
+- bridge: `glute-bridge → hip-thrust → barbell-hip-thrust`
+- hinge: `cable-pull-through → kettlebell-swing`; `back-extension ↔ cable-pull-through`
+- deadlift: `rack-pull → trap-bar-deadlift → barbell-deadlift → deficit-deadlift`;
+  `barbell-deadlift ↔ sumo-deadlift ↔ trap-bar-deadlift`
+- rdl: `dumbbell-romanian-deadlift → romanian-deadlift → single-leg-romanian-deadlift`;
+  `romanian-deadlift ↔ good-morning`
+
+Gates run before seeding: `fixtures:validate` passed on 39 exercises; the by-hand
+reciprocity checker reported **zero new errors** (only the pre-existing
+`dumbbell-shoulder-press → push-up` push-family asymmetry, out of hinge scope).
+
+Before that: seeded the squat pilot batch to hosted Supabase and verified it. The owner had
 already signed off on the chains at the review gate; this session applied the
 migration that was blocking the seed and ran the pipeline end to end.
 
@@ -365,11 +414,20 @@ Migration `012` was then applied to hosted Supabase through the Supabase MCP ser
 
 ## In Progress
 
-Nothing mid-flight. The squat pilot is seeded and verified. The next Phase 1
-batch to draft is the **hinge** pattern, then push, pull, and
-carry+rotation+gait. Each follows the same gate: draft the per-pattern file →
-owner reviews the git diff of the chains → `fixtures:validate` → `seed:sample` →
-verify the live graph.
+Nothing mid-flight. Squat and hinge batches are seeded and verified (39 exercises
+live). The next Phase 1 batch to draft is **push** (18 records, 4 already exist,
+per `docs/exercise-list.md`), then pull, then carry+rotation+gait. Each follows
+the same gate: draft the per-pattern file → owner reviews the diff → validate →
+seed → verify the live graph.
+
+Note for the push batch: `plank` is already `core` (correct) but the list marks
+it under push with no relationships — leave it as `core` and unrelated. The
+`close-grip-bench-press` ⚠ record is approved by the §2 amendment (grip change
+that shifts emphasis to triceps), same basis as `sumo-deadlift`.
+
+Uncommitted: migrations `014` is applied live; the working tree holds unstaged
+changes (reconciliation code, squat + hinge fixtures, migration 014, `core` enum
+additions, docs, HANDOFF). Nothing committed yet — commit when the owner asks.
 
 Uncommitted: migration `014` is applied to the live DB but the working tree still
 holds unstaged changes across many files (the reconciliation work, the squat
