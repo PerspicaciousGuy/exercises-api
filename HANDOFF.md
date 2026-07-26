@@ -16,7 +16,33 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Settled `parentMuscleSlug` / `parentMuscleId` — **dropped from the contract**
+Drafted, reviewed, seeded, and verified the **first Phase 3 batch — machine
+variants** (`catalogVersion: 3`). Owner approved the diff and had it seeded.
+
+**Seeded: 130 → 138 exercises.** 138 exercises, 86 aliases, 560 muscle links, 164
+equipment links, 138 change events. Verified live: **78 v1 / 52 v2 / 8 v3** (the
+machine batch correctly versioned); total relationship links 234 → 260 (+26, from
+8 new records + their reciprocal partners), DB count matches fixture count exactly;
+reciprocity zero errors across all 138; the v3 subgraph spot-verified — every
+cross-link into existing records is present and mirrored.
+
+**`data/exercises/machine-variants.json`, 8 records:** chest-press-machine,
+incline-chest-press-machine, machine-shoulder-press, pec-deck, cable-chest-fly,
+machine-row, belt-squat, assisted-dip-machine.
+
+**§2 granularity applied hard** — this is the phase where the catalog fragments if
+it isn't. Only 8 records because the catalog already had 29 machine/cable records;
+deliberately NOT created: pendulum-squat (≈ hack-squat), machine-preacher-curl /
+machine-lateral-raise (equipment detail on existing isolation), seated-row-machine
+(= machine-row), feet-up/converging press variants (cues, not records). The one
+genuinely new movement family is the **chest fly** (`pec-deck` + `cable-chest-fly`)
+— every prior chest move was a press.
+
+11 reciprocal links were added to existing Phase 1/2 records (bench, incline bench,
+shoulder press, overhead press, the 3 rows, the 3 machine squats, dip). These were
+additive (the records gained a variation), so reconciliation removed nothing.
+
+Before that: settled `parentMuscleSlug` / `parentMuscleId` — **dropped from the contract**
 (owner's decision after reviewing the options). The field was always `null`: the
 importer hardcoded it, no fixture set a parent, and Phase 0.1 deliberately
 flattened the muscle set (deleted the `back`/`shoulders` parents), with
@@ -687,23 +713,29 @@ Migration `012` was then applied to hosted Supabase through the Supabase MCP ser
 
 ## In Progress
 
-Nothing mid-flight. **Phase 2 is complete** — all five groups (arms, shoulders,
-legs, core, back) drafted, reviewed, seeded, and verified. **130 exercises live**
-(78 v1 + 52 v2), 234 relationship links, exact-match to fixtures, fully reciprocal,
-all 8 movement patterns populated.
+Nothing mid-flight. **Phase 3 has begun** — its first batch (machine variants, 8
+records) is seeded and verified. **138 exercises live** (78 v1 + 52 v2 + 8 v3), 260
+relationship links, exact-match to fixtures, fully reciprocal.
 
-Next, per `catalog-plan.md`:
-- **Phase 3** — equipment variants and the long tail (`catalogVersion: 3+`, bumped
-  per batch): machine variants of established compounds, Smith/landmine/suspension/
-  band variants, conditioning/cardio modalities. This phase has **no defined end**;
-  apply the §2 granularity test ruthlessly to avoid near-duplicates.
-- Uncommitted: arms + all four Phase 2 group files (shoulders/legs/core/back), the
-  `plank`/`back-extension` repointing, the `parentMuscleId` removal (4 source files
-  + 2 tests + openapi + postman + conventions), plus HANDOFF and catalog-plan.
-  Commit when the owner asks.
+Phase 3 runs **one themed batch at a time** (owner's decision) to keep §2
+granularity judgment sharp — this phase has no defined end and fragmentation is the
+main risk. Remaining Phase 3 themes, each its own batch:
+- **Smith / landmine / band variants** — Smith RDL/lunge/shrug, landmine squat/RDL/
+  row, band press/pull/squat, suspension work. More records are cues not records
+  here — apply §2 hard.
+- **Conditioning & cardio modalities** — rowing machine, elliptical, stair climber,
+  air bike, ski erg, battle ropes, burpees, box jumps. Mostly standalone.
+- **The long tail**, indefinitely.
 
-Resolved this session: `parentMuscleId` is no longer an open question — dropped
-from the contract (see Last Action).
+NOTE on versioning: each Phase 3 batch bumps `catalogVersion` (machine = 3, **next
+batch = 4**, etc.) so `sync` reports each batch distinctly. Confirm the intended
+number before seeding each one.
+
+Uncommitted: the `machine-variants.json` batch plus the 11 reciprocal-link edits to
+existing files (sample-exercises/push/pull/squat) and HANDOFF/catalog-plan. Prior
+work (Phase 1, Phase 2, parentMuscleId removal) was committed by the owner.
+
+Resolved earlier this session: `parentMuscleId` dropped from the contract.
 
 Phase 2 decisions locked with the owner this session:
 - **Approach:** go straight to batches (no separate pre-approved list); review the
