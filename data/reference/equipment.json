@@ -24,39 +24,129 @@
     "displayOrder": 40
   },
   {
+    "name": "Trap Bar",
+    "slug": "trap-bar",
+    "equipmentGroup": "free_weight",
+    "displayOrder": 50
+  },
+  {
+    "name": "EZ Bar",
+    "slug": "ez-bar",
+    "equipmentGroup": "free_weight",
+    "displayOrder": 60
+  },
+  {
+    "name": "Weight Plate",
+    "slug": "weight-plate",
+    "equipmentGroup": "free_weight",
+    "displayOrder": 70
+  },
+  {
+    "name": "Medicine Ball",
+    "slug": "medicine-ball",
+    "equipmentGroup": "free_weight",
+    "displayOrder": 80
+  },
+  {
     "name": "Cable Machine",
     "slug": "cable-machine",
     "equipmentGroup": "machine",
-    "displayOrder": 50
+    "displayOrder": 90
+  },
+  {
+    "name": "Smith Machine",
+    "slug": "smith-machine",
+    "equipmentGroup": "machine",
+    "displayOrder": 100
+  },
+  {
+    "name": "Leg Press Machine",
+    "slug": "leg-press-machine",
+    "equipmentGroup": "machine",
+    "displayOrder": 110
+  },
+  {
+    "name": "Lat Pulldown Machine",
+    "slug": "lat-pulldown-machine",
+    "equipmentGroup": "machine",
+    "displayOrder": 120
   },
   {
     "name": "Resistance Band",
     "slug": "resistance-band",
     "equipmentGroup": "band",
-    "displayOrder": 60
+    "displayOrder": 130
   },
   {
     "name": "Pull-up Bar",
     "slug": "pull-up-bar",
     "equipmentGroup": "station",
-    "displayOrder": 70
+    "displayOrder": 140
+  },
+  {
+    "name": "Dip Bars",
+    "slug": "dip-bars",
+    "equipmentGroup": "station",
+    "displayOrder": 150
+  },
+  {
+    "name": "Landmine",
+    "slug": "landmine",
+    "equipmentGroup": "station",
+    "displayOrder": 160
+  },
+  {
+    "name": "Suspension Trainer",
+    "slug": "suspension-trainer",
+    "equipmentGroup": "station",
+    "displayOrder": 170
   },
   {
     "name": "Bench",
     "slug": "bench",
     "equipmentGroup": "support",
-    "displayOrder": 80
+    "displayOrder": 180
+  },
+  {
+    "name": "Plyo Box",
+    "slug": "plyo-box",
+    "equipmentGroup": "support",
+    "displayOrder": 190
+  },
+  {
+    "name": "Sled",
+    "slug": "sled",
+    "equipmentGroup": "implement",
+    "displayOrder": 200
+  },
+  {
+    "name": "Jump Rope",
+    "slug": "jump-rope",
+    "equipmentGroup": "implement",
+    "displayOrder": 210
+  },
+  {
+    "name": "Ab Wheel",
+    "slug": "ab-wheel",
+    "equipmentGroup": "implement",
+    "displayOrder": 220
   },
   {
     "name": "Treadmill",
     "slug": "treadmill",
     "equipmentGroup": "cardio_machine",
-    "displayOrder": 90
+    "displayOrder": 230
   },
   {
     "name": "Stationary Bike",
     "slug": "stationary-bike",
     "equipmentGroup": "cardio_machine",
-    "displayOrder": 100
+    "displayOrder": 240
+  },
+  {
+    "name": "Rowing Machine",
+    "slug": "rowing-machine",
+    "equipmentGroup": "cardio_machine",
+    "displayOrder": 250
   }
 ]
