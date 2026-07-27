@@ -16,7 +16,93 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Drafted, reviewed, seeded, and verified the **second Phase 3 batch — smith /
+Production-readiness pass: verified the deployment checklist against the actual repo
+and closed the one in-repo drift.
+
+- **Postman collection was stale** — regenerated (`npm run postman:generate`), now 28
+  requests. It had drifted from `openapi.yaml` (the `parentMuscleId` removal and the
+  Phase 6 billing endpoints were never regenerated into it). This is the one tracked
+  file the pass actually changed besides the formatter work.
+- **Production `servers:` entry already present** in `openapi.yaml`
+  (`https://api.harshitbishnoi.dev`) — that checklist item was already done, contrary
+  to what the note implied.
+- **Security advisor (live):** one `WARN` — `citext` extension in the `public`
+  schema. **Left alone deliberately:** moving a live extension is a migration that can
+  break the `citext`-typed email columns; it is a warning, not an error, and buys
+  nothing at this stage. Logged under Known Issues.
+
+**The remaining checklist items are all operational, not in-repo** — they need the
+deployed URL, the Lemon Squeezy dashboard, a Linux host, or Docker, none available
+here. They cannot be done from this environment:
+1. Rotate the Lemon Squeezy API key (account-level, was pasted in a transcript) —
+   **real security action, do before public launch.**
+2. Register the Lemon Squeezy webhook against the prod URL + confirm one real
+   delivery (until it exists, checkout completes but tier never changes).
+3. Verify `SIGTERM` reaches Node on the Linux host (handler proven; signal *delivery*
+   only ever tested in-process on Windows, which has no POSIX signals).
+4. Build the Docker image once (written, never built — Docker absent here).
+
+Before that: pinned the fixture formatter to the compact house style. Added
+`scripts/format-fixtures.js` (`npm run fixtures:format`): expands objects, keeps
+scalar arrays inline on one line — the style Prettier cannot express. Scripted
+link-edits default to fully-expanded `JSON.stringify` output, which had been silently
+reformatting touched fixtures; this normalizes them back. Ran it once, reformatting
+all 14 fixture files; verified idempotent (2nd run = "already compact"), data intact
+(157 records still validate — pure reformat, no seed needed). `data/exercises/` and
+`data/reference/` were added to `.prettierignore` so `npm run format` never fights
+the custom style.
+
+**Batch workflow is now:** `fixtures:format` → `fixtures:validate` → `seed:sample`.
+Run the formatter after any scripted link-edit, before validating.
+
+Files: `scripts/format-fixtures.js` (new), `package.json` (script added),
+`.prettierignore` (two dirs added), all 14 `data/**/*.json` (reformatted, data
+unchanged — the fixtures are git-excluded so this is disk-only).
+
+Before that: drafted, seeded, and verified the **third Phase 3 batch — cardio / conditioning**
+(`catalogVersion: 5`). This is the last *bounded* Phase 3 theme; the remaining "long
+tail" is open-ended by design (see below).
+
+**Seeded: 149 → 157 exercises; 25 → 30 equipment.** 157 exercises, 104 aliases, 658
+muscle links, 185 equipment links, 157 change events. Verified live: version split
+**78 v1 / 52 v2 / 8 v3 / 11 v4 / 8 v5** (this batch at v5); total relationship links
+1087 → 1163 (+76); DB total-link count (1163) **matches the fixture-declared total
+(1163) exactly** — zero stale, zero missing; `fixtures:validate` passes on 157;
+by-hand reciprocity check zero errors across all 157.
+
+**Reference-data change:** 6 equipment added (`data/reference/equipment.json`):
+assault-bike, elliptical, stair-climber, ski-erg (all `cardio_machine`,
+displayOrder 260-290), battle-ropes (`implement`, 300). Equipment is upserted before
+exercises in the same seed run, so no separate migration was needed. Owner chose the
+widest scope ("machines + conditioning, add equipment").
+
+**`data/exercises/cardio-conditioning.json`, 8 records** (all `catalogVersion: 5`):
+- cardio machines (5): rowing-erg, ski-erg, elliptical-trainer, stair-climber,
+  assault-bike — all `movementPattern: gait` (owner chose to reuse `gait`,
+  consistent with the already-live treadmill-run / stationary-bike-ride, rather than
+  add a `cardio` enum value)
+- conditioning (3): battle-ropes (`pull`, arm-driven), burpee + box-jump (both
+  `squat`, category `plyometrics`)
+
+**§2 granularity applied.** Deliberately NOT created: spin-bike (= stationary-bike-
+ride), elliptical arms-vs-legs split (same machine), high-knees / butt-kicks (cues,
+not records), rope-slam vs rope-wave (parameter change on battle-ropes).
+
+**Reciprocal links:** the cardio machines form a variation cluster anchored on
+rowing-erg; the two existing cardio records (`treadmill-run`, `stationary-bike-ride`)
+were repointed to list the new machines back (additive — reconciliation removed
+nothing). burpee ↔ box-jump mutual.
+
+**Two muscle-slug fixes during drafting:** initial draft used `pectorals` and
+`erector-spinae`; the real slugs are `chest` and `lower-back` (verified against the
+live `muscles` table). Corrected before validation.
+
+**Phase 3 remaining is the open-ended "long tail"** — by the plan's own words it has
+"no defined end", approached one reviewed batch at a time. There is no bounded list
+left to seed; the three concrete themes (machine variants, smith/landmine/band,
+cardio/conditioning) are all done. Further growth is new batches on request.
+
+Before that: drafted, reviewed, seeded, and verified the **second Phase 3 batch — smith /
 landmine / band variants** (`catalogVersion: 4`). Owner approved the diff and had
 it seeded.
 

@@ -12,3 +12,8 @@ dashboard/dist/
 
 # Generated from docs/openapi.yaml by `npm run postman:generate`.
 postman/exercisedb-api.postman_collection.json
+
+# Catalog fixtures use a custom compact style (inline scalar arrays) that
+# Prettier cannot express. Owned by `npm run fixtures:format` instead.
+data/exercises/
+data/reference/
