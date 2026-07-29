@@ -107,6 +107,22 @@ export function createExercisesRouter({ exerciseRepository, exerciseService }) {
   );
 
   router.get(
+    '/exercises/:id/substitutes',
+    asyncHandler(async (request, response) => {
+      const equipment = parseEquipmentList(request.query.equipment);
+      const substitutes = await service.getSubstitutes({
+        exerciseId: request.params.id,
+        equipment
+      });
+
+      response.status(200).json({
+        success: true,
+        data: filterPremiumExercises(substitutes, request)
+      });
+    })
+  );
+
+  router.get(
     '/exercises/:id/variations',
     createRelationHandler(service, 'variations')
   );
@@ -211,6 +227,17 @@ function parseSearchFilters(query) {
     limit: parsed.data.limit,
     offset: parsed.data.offset
   };
+}
+
+function parseEquipmentList(equipment) {
+  if (!equipment) {
+    return [];
+  }
+
+  return equipment
+    .split(',')
+    .map((slug) => slug.trim())
+    .filter(Boolean);
 }
 
 function parseBulkIds(ids) {
