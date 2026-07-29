@@ -16,8 +16,137 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Production-readiness pass: verified the deployment checklist against the actual repo
-and closed the one in-repo drift.
+Fixed the **non-UUID id 500 across the whole API** (the bug logged in Known Issues
+after the V2 smoke test). `GET /exercises/{id}` and its `/related`, `/variations`,
+`/progressions`, `/regressions`, `/substitutes` siblings returned `500` when `{id}`
+was not a valid UUID, because the raw id hit a PostgREST filter on a `uuid` column.
+
+**Root-cause fix, one layer:** added `src/utils/ids.js` (`isUuid`) and guarded
+`getExerciseById` (malformed id → `null` → the service's existing `requireExercise`
+404s it) and `getExercisesByIds` (filters malformed ids out of the `in.(...)`
+query). Because every exercise-id service path funnels through `getExerciseById` /
+`ensureExerciseExists` first, this one guard covers all the `:id` routes.
+`analysisService` was refactored to import the shared `isUuid` (dropping its inline
+regex from the V2 fix). No route-layer changes — the fix is uniform at the boundary.
+
+**Verified live end to end:** `GET /exercises/not-a-uuid` and every `:id` sibling now
+return **404** (was 500); a well-formed-but-absent UUID also 404s correctly. **188
+tests pass** (was 186; +2 repository guard tests), lint clean. Two pre-existing repo
+tests used fake non-uuid ids (`exercise-1`) and were updated to real UUIDs — entailed
+by the guard, since those ids would now be filtered.
+
+Files: `src/utils/ids.js` (new), `src/repositories/exerciseRepository.js` (guard +
+import), `src/services/analysisService.js` (use shared `isUuid`),
+`tests/exerciseRepository.test.js` (2 new tests + uuid fixtures), `HANDOFF.md`. No
+packages.
+
+Before that: (a) a **progression-density curation batch** that unlocks pathfinding,
+folding in an equipment-data fix; then (b) a **live HTTP smoke test** of the V2
+endpoints, which caught and fixed a real bug.
+
+### (a) Progression-density batch + equipment fix (`catalogVersion: 6`)
+
+**Seeded, verified live.** Progression edges **50 → 69** (+19), regression edges
+50 → 69 (mirrored). Exercises reachable in a progression ladder **71 → 94** (+32%) —
+this is what makes pathfinding (V2.1) honest. A real new 3-node ladder was confirmed
+live: `chest-press-machine → dumbbell-bench-press → barbell-bench-press`.
+
+**19 progression edges added**, each connecting an isolated machine/band/entry
+variant as the lower rung of an *existing* ladder (owner approved the full list):
+chest/incline/smith/band press entries → their bench chains; machine/smith/band row
+→ row chain; machine/smith/dumbbell/leg-press/hack squat → back-squat; good-morning/
+smith-RDL → RDL; seated→lying leg curl; bike/elliptical/rower → assault-bike/ski-erg.
+**Deliberately NOT added:** ~180 "shares-a-muscle + harder" candidates the difficulty
+query surfaced (e.g. barbell-curl→chin-up, cable-fly→dip, isolation→compound). Those
+violate §5 (a progression must be the *same movement* one real step harder), and
+adding them would make pathfinding return nonsense.
+
+**Equipment-data fix folded in** (owner chose to fix in this batch): 11 exercises
+were mistagged `leg-press-machine` (chest-press-machine, machine-row, machine-
+shoulder-press, pec-deck, leg-extension, seated/lying-leg-curl, seated-calf-raise,
+hip-abduction/adduction-machine, incline-chest-press-machine). Added a generic
+`machine` equipment record (`data/reference/equipment.json`, 30→31 equipment) and
+repointed all 11. The 4 genuine leg-press movements (belt-squat, hack-squat,
+leg-press, calf-press-leg-press) kept `leg-press-machine`. This also makes the new
+`/substitutes` endpoint's equipment filtering accurate.
+
+38 fixture records touched across 10 files, all bumped to `catalogVersion: 6`.
+Gates: format (10 files) → validate (157 records, 31 equipment) → reciprocity zero
+errors. Live verify: 69/69 edges, 11 tagged `machine`, 4 tagged `leg-press-machine`,
+exact match to fixtures.
+
+### (b) Live smoke test — caught and fixed a coverage bug
+
+Booted the app with the route-test auth-bypass against the **real** repository (live
+DB), exercising the full HTTP + PostgREST path without a production key. Both V2
+endpoints verified end to end:
+- `/substitutes` filtering proven: `barbell-bench-press` all-variations = 5;
+  filtered `[barbell,bench]` = {close-grip, incline-barbell}; filtered `[dumbbell]`
+  = none (dumbbell-bench-press also needs a bench — every-equipment-must-be-present
+  logic confirmed).
+- `/analyze/coverage` returns correct primary/secondary muscle counts and push/pull
+  balance.
+
+**Bug found and fixed:** a non-UUID exercise id (`"ghost-id"`) made PostgREST reject
+the whole `in.(...)` query, 500-ing `/analyze/coverage` — the endpoint's own contract
+promised such ids land in `unknownExerciseIds`. Root cause: `getExercisesByIds` sends
+raw ids into a UUID-column filter. Fixed at the analysis boundary: `analyzeCoverage`
+now filters ids to UUID shape, queries only the valid ones, and folds malformed ones
+into `unknownExerciseIds`. Added a unit test pinning it. Re-ran the smoke test: the
+500 is gone, `unknownExerciseIds: ["ghost-id"]` at status 200. **186 tests pass**
+(was 185; +1), lint clean.
+
+**Files modified:** `src/services/analysisService.js` (UUID guard),
+`tests/analysisService.test.js` + `tests/graphIntelligenceRoutes.test.js` (UUID
+fixtures + new malformed-id test), the private `data/exercises/*.json` (19 edges +
+11 repoints, git-excluded), `data/reference/equipment.json` (machine record),
+`HANDOFF.md`. No new packages.
+
+Before that: built **V2.0 — graph-intelligence endpoints** (additive under v1, no
+breaking changes). Two new read/compute endpoints over the existing curated graph; no new
+catalog data, no migrations, no user-data storage.
+
+**1. `GET /exercises/:id/substitutes?equipment=slug1,slug2`** — the exercise's
+variations, optionally narrowed to those the caller can perform with the equipment
+they list. A variation is kept only if *all* its equipment is available;
+equipment-free variations (bodyweight) are always kept. Omit `equipment` → all
+variations. Honors premium filtering. Lives in the exercises router, ordered before
+`/exercises/:id`.
+
+**2. `POST /analyze/coverage`** body `{ exerciseIds: [...] }` (1–50) — stateless
+coverage analysis of a set: primary/secondary muscle counts (sorted), movement-
+pattern balance (pushCount = push+squat, pullCount = pull+hinge), distinct primary
+muscle-group count, and the ids that did not resolve. Descriptive only — no stored
+workout, no recommendations (owner chose "simple, factual"). New `routes/analysis.js`
++ `services/analysisService.js`, mounted after the exercises router.
+
+**Data feasibility was probed live first:** substitutes and coverage are 100% backed
+(157/157 exercises have equipment, 0 missing a primary muscle). Progression
+*pathfinding* was deliberately NOT built — only 50 progression edges exist and 86/157
+exercises are isolated nodes, so "path from A to B" would return "no path" more than
+half the time. It is deferred behind a progression-density curation batch, and is the
+honest V2.1.
+
+**Files created:** `src/routes/analysis.js`, `src/services/analysisService.js`,
+`tests/analysisService.test.js` (4 tests), `tests/graphIntelligenceRoutes.test.js`
+(5 tests). **Modified:** `src/repositories/exerciseQueries.js` (two new queries:
+`selectMuscleSlugsByExerciseIds`, `selectEquipmentSlugsByExerciseIds`, both using a
+PostgREST embed `muscles(slug)` / `equipment(slug)`),
+`src/repositories/exerciseRepository.js` (expose both + lazy wrapper),
+`src/services/exerciseService.js` (`getSubstitutes`), `src/routes/exercises.js`
+(`/substitutes` route + `parseEquipmentList`), `src/app.js` (mount analysis router),
+`docs/openapi.yaml` (both paths, `Analysis` tag, `CoverageRequest`/`Coverage`/
+`CoverageResponse`/`MuscleCoverageCount`/`CoverageBalance` schemas),
+`postman/exercisedb-api.postman_collection.json` (regenerated, 30 requests).
+
+**Verified:** all **185 tests pass** (was 176; +9 new), lint clean. The two new
+PostgREST embeds were verified against the **live DB** with a throwaway repository
+probe (not just mocked): `barbell-bench-press` resolved primary `chest`, secondary
+`front-delts`/`triceps`, equipment `barbell`/`bench` — matching a raw-SQL join.
+Probe deleted. OpenAPI parses (29 paths); Postman regenerated.
+
+Before that: production-readiness pass — verified the deployment checklist against the
+actual repo and closed the one in-repo drift.
 
 - **Postman collection was stale** — regenerated (`npm run postman:generate`), now 28
   requests. It had drifted from `openapi.yaml` (the `parentMuscleId` removal and the

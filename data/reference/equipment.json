@@ -48,6 +48,12 @@
     "displayOrder": 80
   },
   {
+    "name": "Weight Machine",
+    "slug": "machine",
+    "equipmentGroup": "machine",
+    "displayOrder": 85
+  },
+  {
     "name": "Cable Machine",
     "slug": "cable-machine",
     "equipmentGroup": "machine",

@@ -15,6 +15,7 @@ import { createLazyDefaultExerciseRepository } from './repositories/exerciseRepo
 import { createLazyDefaultReferenceRepository } from './repositories/referenceRepository.js';
 import { createLazyDefaultSessionRepository } from './repositories/sessionRepository.js';
 import { createLazyDefaultSyncRepository } from './repositories/syncRepository.js';
+import { createAnalysisRouter } from './routes/analysis.js';
 import { createAuthRouter } from './routes/auth.js';
 import { createBillingRouter } from './routes/billing.js';
 import { createExercisesRouter } from './routes/exercises.js';
@@ -88,6 +89,7 @@ export function createApp({
   app.use(createSyncRouter({ syncService, syncRepository }));
   app.use(createReferencesRouter({ referenceService, referenceRepository }));
   app.use(createExercisesRouter({ exerciseService, exerciseRepository }));
+  app.use(createAnalysisRouter({ exerciseRepository }));
 
   app.use(notFound);
   app.use(errorHandler);

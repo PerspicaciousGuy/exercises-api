@@ -48,6 +48,10 @@ tags:
     description: >
       The public catalog. Summaries carry the fields needed to render a list;
       details carry everything, including coaching cues and programming data.
+  - name: Analysis
+    description: >
+      Stateless analysis over the relationship graph — coverage of a set of
+      exercises, and equipment-aware substitutes. No workout data is stored.
   - name: References
     description: >
       Lookup tables and enum values. Fetch once, cache aggressively — these
@@ -521,6 +525,77 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExerciseSummaryArrayResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /exercises/{id}/substitutes:
+    get:
+      summary: Get equipment-aware substitutes for an exercise
+      description: >-
+        The exercise's variations, optionally narrowed to those the caller can
+        perform with the equipment they have. A variation is kept only when all
+        of its equipment is available; equipment-free variations are always
+        kept. Omit `equipment` to get every variation unfiltered.
+      operationId: getExerciseSubstitutes
+      tags: [Exercises]
+      parameters:
+        - $ref: '#/components/parameters/ExerciseId'
+        - name: equipment
+          in: query
+          required: false
+          description: >-
+            Comma-separated equipment slugs the caller has on hand, e.g.
+            `dumbbell,bodyweight`.
+          schema:
+            type: string
+          example: dumbbell,bodyweight
+      responses:
+        '200':
+          description: Substitute summaries the caller can perform.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseSummaryArrayResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /analyze/coverage:
+    post:
+      summary: Analyze muscle and movement coverage for a set of exercises
+      description: >-
+        Stateless analysis of a workout. Send a list of exercise ids and get
+        back which muscles the set trains as primary and secondary movers, and a
+        movement-pattern balance summary (push vs pull). Purely descriptive — it
+        reports coverage, it does not store the workout or prescribe changes.
+      operationId: analyzeCoverage
+      tags: [Analysis]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoverageRequest'
+      responses:
+        '200':
+          description: The coverage report for the set.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoverageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -1536,6 +1611,88 @@ components:
           required: [data]
           properties:
             data: { $ref: '#/components/schemas/RelatedExercises' }
+
+    CoverageRequest:
+      type: object
+      required: [exerciseIds]
+      properties:
+        exerciseIds:
+          type: array
+          description: Exercise ids to analyze together. 1 to 50 ids.
+          minItems: 1
+          maxItems: 50
+          items:
+            type: string
+          example:
+            - 3f1c9b2a-0000-4000-8000-000000000001
+            - 3f1c9b2a-0000-4000-8000-000000000002
+
+    MuscleCoverageCount:
+      type: object
+      required: [slug, count]
+      properties:
+        slug:
+          type: string
+          example: chest
+        count:
+          type: integer
+          description: How many exercises in the set train this muscle in this role.
+          example: 2
+
+    CoverageBalance:
+      type: object
+      required: [movementPatterns, pushCount, pullCount, primaryMuscleGroupCount]
+      properties:
+        movementPatterns:
+          type: array
+          description: Count of exercises per movement pattern.
+          items: { $ref: '#/components/schemas/MuscleCoverageCount' }
+        pushCount:
+          type: integer
+          description: Exercises whose pattern is push or squat.
+          example: 3
+        pullCount:
+          type: integer
+          description: Exercises whose pattern is pull or hinge.
+          example: 2
+        primaryMuscleGroupCount:
+          type: integer
+          description: Distinct muscles trained as a primary mover across the set.
+          example: 5
+
+    Coverage:
+      type: object
+      required: [exerciseCount, unknownExerciseIds, muscles, balance]
+      properties:
+        exerciseCount:
+          type: integer
+          description: Number of requested ids that resolved to a real exercise.
+          example: 5
+        unknownExerciseIds:
+          type: array
+          description: Requested ids that did not match any exercise.
+          items:
+            type: string
+        muscles:
+          type: object
+          required: [primary, secondary]
+          properties:
+            primary:
+              type: array
+              items: { $ref: '#/components/schemas/MuscleCoverageCount' }
+            secondary:
+              type: array
+              items: { $ref: '#/components/schemas/MuscleCoverageCount' }
+        balance:
+          $ref: '#/components/schemas/CoverageBalance'
+
+    CoverageResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data: { $ref: '#/components/schemas/Coverage' }
 
     CatalogMetadataResponse:
       allOf:

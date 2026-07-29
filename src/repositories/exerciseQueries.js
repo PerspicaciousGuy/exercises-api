@@ -126,6 +126,73 @@ export async function selectExerciseSummaryRowsByRelation(client, input) {
   );
 }
 
+const MUSCLE_ROLE_TABLES = {
+  primary: 'exercise_primary_muscles',
+  secondary: 'exercise_secondary_muscles'
+};
+
+/**
+ * For a set of exercise ids, returns each exercise's primary and secondary
+ * muscle slugs. Stabilizers are excluded on purpose: coverage analysis reasons
+ * about muscles a movement trains, not those that merely brace.
+ */
+export async function selectMuscleSlugsByExerciseIds(client, ids) {
+  if (ids.length === 0) {
+    return new Map();
+  }
+
+  const [primaryRows, secondaryRows] = await Promise.all([
+    selectMuscleRoleRows(client, MUSCLE_ROLE_TABLES.primary, ids),
+    selectMuscleRoleRows(client, MUSCLE_ROLE_TABLES.secondary, ids)
+  ]);
+
+  const byExercise = new Map(
+    ids.map((id) => [id, { primary: [], secondary: [] }])
+  );
+
+  for (const row of primaryRows) {
+    byExercise.get(row.exercise_id)?.primary.push(row.muscles.slug);
+  }
+  for (const row of secondaryRows) {
+    byExercise.get(row.exercise_id)?.secondary.push(row.muscles.slug);
+  }
+
+  return byExercise;
+}
+
+async function selectMuscleRoleRows(client, table, ids) {
+  return client.select(table, {
+    columns: 'exercise_id,muscles(slug)',
+    filters: {
+      exercise_id: `in.(${ids.join(',')})`
+    }
+  });
+}
+
+/**
+ * For a set of exercise ids, returns each exercise's equipment slugs. Used to
+ * keep only the substitutes a caller can perform with the equipment they have.
+ */
+export async function selectEquipmentSlugsByExerciseIds(client, ids) {
+  if (ids.length === 0) {
+    return new Map();
+  }
+
+  const rows = await client.select('exercise_equipment', {
+    columns: 'exercise_id,equipment(slug)',
+    filters: {
+      exercise_id: `in.(${ids.join(',')})`
+    }
+  });
+
+  const byExercise = new Map(ids.map((id) => [id, []]));
+  for (const row of rows) {
+    byExercise.get(row.exercise_id)?.push(row.equipment.slug);
+  }
+
+  return byExercise;
+}
+
 async function findExerciseIdsByMuscle(client, slug) {
   const muscle = await selectOneBySlug(client, 'muscles', slug);
 

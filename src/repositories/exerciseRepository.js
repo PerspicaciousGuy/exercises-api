@@ -1,5 +1,6 @@
 import { parseSupabaseScriptEnv } from '../config/supabaseEnv.js';
 import { SupabaseRestClient } from '../supabase/restClient.js';
+import { isUuid } from '../utils/ids.js';
 import {
   SUMMARY_COLUMNS,
   mapExerciseDetail,
@@ -9,8 +10,10 @@ import {
   buildListFilters,
   findMatchingExerciseIds,
   searchExerciseRows,
+  selectEquipmentSlugsByExerciseIds,
   selectExerciseDetailRowsByIds,
   selectExerciseSummaryRowsByRelation,
+  selectMuscleSlugsByExerciseIds,
   selectOneExercise
 } from './exerciseQueries.js';
 
@@ -47,6 +50,12 @@ export function createLazyDefaultExerciseRepository() {
     },
     listExerciseRelations(input) {
       return getRepository().listExerciseRelations(input);
+    },
+    getMuscleSlugsByExerciseIds(ids) {
+      return getRepository().getMuscleSlugsByExerciseIds(ids);
+    },
+    getEquipmentSlugsByExerciseIds(ids) {
+      return getRepository().getEquipmentSlugsByExerciseIds(ids);
     }
   };
 }
@@ -93,15 +102,24 @@ export function createExerciseRepository({ client }) {
     },
 
     async getExercisesByIds(ids) {
-      const rows = await selectExerciseDetailRowsByIds(client, ids);
+      // Drop malformed ids before the query: a non-uuid in an `in.(...)` filter
+      // on a uuid column makes PostgREST reject the whole request.
+      const validIds = ids.filter(isUuid);
+      const rows = await selectExerciseDetailRowsByIds(client, validIds);
       const exercisesById = new Map(
         rows.map((row) => [row.id, mapExerciseDetail(row)])
       );
 
-      return ids.map((id) => exercisesById.get(id)).filter(Boolean);
+      return validIds.map((id) => exercisesById.get(id)).filter(Boolean);
     },
 
     async getExerciseById(id) {
+      // A malformed id cannot match any row; return null so callers 404 it
+      // rather than sending it to PostgREST and 500-ing on a uuid cast error.
+      if (!isUuid(id)) {
+        return null;
+      }
+
       return selectOneExercise(client, { id: `eq.${id}` });
     },
 
@@ -116,6 +134,14 @@ export function createExerciseRepository({ client }) {
       });
 
       return relatedRows.map(mapExerciseSummary);
+    },
+
+    getMuscleSlugsByExerciseIds(ids) {
+      return selectMuscleSlugsByExerciseIds(client, ids);
+    },
+
+    getEquipmentSlugsByExerciseIds(ids) {
+      return selectEquipmentSlugsByExerciseIds(client, ids);
     }
   };
 }
