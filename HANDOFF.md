@@ -4,20 +4,58 @@ ExerciseDB API is a production-grade public exercise catalog API for fitness app
 
 ## Current State
 
-Phase 0 is complete. Phase 1 migrations (through `014_add_core_movement_pattern.sql`) have been applied to the hosted Supabase project at `https://yfdxihexqcsccoxhgxgm.supabase.co`. Phase 2 seed/import pipeline is implemented, reconciles link tables, and has been run against hosted Supabase — the catalog now holds 26 exercises (12 originals plus the 14-record squat pilot batch), with the relationship graph verified to match the fixtures exactly. Phase 3 public catalog read endpoints are implemented. Phase 4 sync endpoints are implemented. Phase 5 authentication, API keys, tier limits, usage tracking, rate limit headers, and premium gating are implemented.
+Phase 0 is complete. Phase 1 migrations (through `014_add_core_movement_pattern.sql`) have been applied to the hosted Supabase project at `https://yfdxihexqcsccoxhgxgm.supabase.co`. Phase 2 seed/import pipeline is implemented, reconciles link tables, and has been run against hosted Supabase. The catalog now holds **157 exercises across all 8 movement patterns and 31 equipment types** (catalog build complete through Phase 3's three bounded themes; only the open-ended "long tail" remains, by design), with the relationship graph verified to match the fixtures exactly and fully reciprocal. Phase 3 public catalog read endpoints are implemented. Phase 4 sync endpoints are implemented. Phase 5 authentication, API keys, tier limits, usage tracking, rate limit headers, and premium gating are implemented.
+
+**V2 (graph intelligence) is complete** — three additive read/compute endpoints over the curated graph, none breaking v1: `GET /exercises/{id}/substitutes` (equipment-aware variation filtering), `POST /analyze/coverage` (stateless muscle/pattern coverage of a set), and `GET /exercises/{id}/path?to={id}` (shortest progression chain, BFS). A progression-density curation batch (catalogVersion 6) lifted exercises reachable in a ladder from 71 → 94 to make pathfinding honest, and folded in an equipment-data fix (a generic `machine` slug replacing 11 mistagged `leg-press-machine` records). A whole-API non-UUID-id 500 was fixed at the repository boundary. Deferred to a possible V2.2 (no action pending): computed substitute fallback for exercises with no curated variations; prescriptive coverage recommendations.
 
 Error responses now follow RFC 9457 (`application/problem+json`) across every error path. Success responses keep the existing `{ success, data }` envelope. Deliberate deviations from `agents-guidelines/` are recorded in `docs/conventions.md`, which is loaded every session via `CLAUDE.md`.
 
 Phase 6 provider-neutral billing is implemented with Lemon Squeezy as the first provider: checkout creation, signature-verified webhook ingestion, idempotent delivery handling, tier upgrades on subscription activation, and immediate downgrade to `free` on cancellation, expiry, pause, or payment failure.
 
-Local lint and tests pass (116 tests, 25 files). `npm run format:check` fails on pre-existing unformatted `agents-guidelines/**` files — see Known Issues.
+Local lint and tests pass (196 tests, 32 files). `npm run format:check` fails on pre-existing unformatted `agents-guidelines/**` files — see Known Issues.
 
 Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and verified: six billing columns on `api_users`, both new enums, and `billing_webhook_events` with RLS enabled and a service-role policy. The security advisor reports no new findings.
 
 ## Last Action
 
-Fixed the **non-UUID id 500 across the whole API** (the bug logged in Known Issues
-after the V2 smoke test). `GET /exercises/{id}` and its `/related`, `/variations`,
+Built **V2.1 — progression pathfinding** (additive under v1). The progression-density
+batch made this honest; the endpoint is now live.
+
+**`GET /exercises/:id/path?to={targetId}`** — the shortest ordered progression chain
+from `:id` up to the target, walking the directed progression graph (easier →
+harder). Returns exercise summaries, start first, target last. Directed: if the
+target is not reachable by progressing (it is easier, or on a different sub-ladder),
+`data` is `null` — both exercises exist, there is just no path. `404` if either id is
+unknown/malformed (reuses the UUID guard); `400` if `to` is missing.
+
+**Algorithm:** BFS over an in-memory adjacency map. The graph is tiny (69 edges), so
+all edges load once per request (`selectAllProgressionEdges`) rather than a recursive
+SQL CTE. BFS gives the shortest chain and is cycle-safe via the visited set (verified
+the live graph has no 2-cycles, but the guard is unconditional).
+
+**Verified live end to end:**
+- `chest-press-machine → barbell-bench-press` returns the real 3-node chain
+  `chest-press-machine | dumbbell-bench-press | barbell-bench-press`
+- `box-squat → pistol-squat` = `null` (honestly: box-squat's ladder is the barbell
+  squat line box→bodyweight→goblet→front→back→overhead; pistol is on the separate
+  split-squat line — genuinely unconnected, not a data gap)
+- reverse direction (`barbell-bench-press → chest-press-machine`) = `null` (directed)
+- same-node = single-element path; missing `?to=` = 400; malformed id = 404
+
+**Files created:** `src/services/pathfindingService.js` (BFS core),
+`tests/pathfindingService.test.js` (5 tests: shortest path, same-node, no-path,
+cycle-safety, 404). **Modified:** `src/repositories/exerciseQueries.js`
+(`selectAllProgressionEdges`; exported `selectExerciseSummaryRowsByIds`),
+`src/repositories/exerciseRepository.js` (`getProgressionEdges`,
+`getExerciseSummariesByIds` + lazy wrapper), `src/routes/exercises.js` (`/path` route
++ `parseTargetId`, wired `pathfindingService`), `docs/openapi.yaml` (`/path` path +
+`PathResponse` schema), `postman/exercisedb-api.postman_collection.json` (31
+requests), `HANDOFF.md`.
+
+**Verified:** **196 tests pass** (was 188; +8), lint clean, spec parses (30 paths).
+
+Before that: fixed the **non-UUID id 500 across the whole API** (the bug logged in
+Known Issues after the V2 smoke test). `GET /exercises/{id}` and its `/related`, `/variations`,
 `/progressions`, `/regressions`, `/substitutes` siblings returned `500` when `{id}`
 was not a valid UUID, because the raw id hit a PostgREST filter on a `uuid` column.
 

@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { PREMIUM_ACCESS_TIERS } from '../constants/rateLimits.js';
 import { AppError } from '../errors/AppError.js';
 import { createExerciseService } from '../services/exerciseService.js';
+import { createPathfindingService } from '../services/pathfindingService.js';
 
 const BULK_ID_LIMIT = 50;
 const PREMIUM_ACCESS_ERROR = {
@@ -34,10 +35,16 @@ const searchExercisesQuerySchema = z.object({
   offset: z.coerce.number().int().min(0).default(0)
 });
 
-export function createExercisesRouter({ exerciseRepository, exerciseService }) {
+export function createExercisesRouter({
+  exerciseRepository,
+  exerciseService,
+  pathfindingService
+}) {
   const router = Router();
   const service =
     exerciseService ?? createExerciseService({ exerciseRepository });
+  const pathfinder =
+    pathfindingService ?? createPathfindingService({ exerciseRepository });
 
   router.get(
     '/exercises',
@@ -118,6 +125,25 @@ export function createExercisesRouter({ exerciseRepository, exerciseService }) {
       response.status(200).json({
         success: true,
         data: filterPremiumExercises(substitutes, request)
+      });
+    })
+  );
+
+  router.get(
+    '/exercises/:id/path',
+    asyncHandler(async (request, response) => {
+      const toId = parseTargetId(request.query.to);
+      const result = await pathfinder.findProgressionPath({
+        fromId: request.params.id,
+        toId
+      });
+
+      response.status(200).json({
+        success: true,
+        data:
+          result.path === null
+            ? null
+            : filterPremiumExercises(result.path, request)
       });
     })
   );
@@ -238,6 +264,14 @@ function parseEquipmentList(equipment) {
     .split(',')
     .map((slug) => slug.trim())
     .filter(Boolean);
+}
+
+function parseTargetId(to) {
+  if (typeof to !== 'string' || to.trim().length === 0) {
+    throwValidationMessage('to is required');
+  }
+
+  return to.trim();
 }
 
 function parseBulkIds(ids) {

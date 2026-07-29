@@ -85,6 +85,56 @@ describe('GET /exercises/:id/substitutes', () => {
   });
 });
 
+describe('GET /exercises/:id/path', () => {
+  it('returns the ordered progression chain to the target', async () => {
+    const exerciseRepository = {
+      getExerciseById: vi.fn(async (id) => ({ id })),
+      getProgressionEdges: vi.fn(async () => [
+        { from: 'a', to: 'b' },
+        { from: 'b', to: 'c' }
+      ]),
+      getExerciseSummariesByIds: vi.fn(async (ids) =>
+        ids.map((id) => summary(id, id))
+      )
+    };
+    const app = createAppWithAuthBypass({ exerciseRepository });
+
+    const response = await request(app)
+      .get('/exercises/a/path')
+      .query({ to: 'c' })
+      .expect(200);
+
+    expect(response.body.data.map((e) => e.id)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('returns data: null when there is no path', async () => {
+    const exerciseRepository = {
+      getExerciseById: vi.fn(async (id) => ({ id })),
+      getProgressionEdges: vi.fn(async () => [{ from: 'a', to: 'b' }]),
+      getExerciseSummariesByIds: vi.fn()
+    };
+    const app = createAppWithAuthBypass({ exerciseRepository });
+
+    const response = await request(app)
+      .get('/exercises/a/path')
+      .query({ to: 'z' })
+      .expect(200);
+
+    expect(response.body).toEqual({ success: true, data: null });
+  });
+
+  it('rejects a missing target with a 400', async () => {
+    const exerciseRepository = {
+      getExerciseById: vi.fn(),
+      getProgressionEdges: vi.fn()
+    };
+    const app = createAppWithAuthBypass({ exerciseRepository });
+
+    await request(app).get('/exercises/a/path').expect(400);
+    expect(exerciseRepository.getProgressionEdges).not.toHaveBeenCalled();
+  });
+});
+
 describe('POST /analyze/coverage', () => {
   it('returns a coverage report for a set of exercise ids', async () => {
     const id1 = '3f1c9b2a-0000-4000-8000-000000000001';

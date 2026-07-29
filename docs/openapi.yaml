@@ -571,6 +571,46 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /exercises/{id}/path:
+    get:
+      summary: Find the progression path from one exercise up to another
+      description: >-
+        The shortest ordered chain of progressions from `{id}` up to the target
+        exercise, walking the directed progression graph (easier → harder). The
+        returned array starts at `{id}` and ends at the target. Progressions are
+        one-directional: if the target is not reachable by progressing from the
+        start (for example it is easier, or on a different sub-ladder), `data` is
+        `null` — both exercises exist, there is simply no progression path.
+      operationId: getExercisePath
+      tags: [Analysis]
+      parameters:
+        - $ref: '#/components/parameters/ExerciseId'
+        - name: to
+          in: query
+          required: true
+          description: The id of the target exercise to reach.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: >-
+            The ordered path as exercise summaries, or `null` when no
+            progression path exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PathResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /analyze/coverage:
     post:
       summary: Analyze muscle and movement coverage for a set of exercises
@@ -1693,6 +1733,20 @@ components:
           required: [data]
           properties:
             data: { $ref: '#/components/schemas/Coverage' }
+
+    PathResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessEnvelope'
+        - type: object
+          required: [data]
+          properties:
+            data:
+              nullable: true
+              description: >-
+                The ordered progression path as summaries (start first, target
+                last), or null when no path exists.
+              type: array
+              items: { $ref: '#/components/schemas/ExerciseSummary' }
 
     CatalogMetadataResponse:
       allOf:

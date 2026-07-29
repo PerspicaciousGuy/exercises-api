@@ -10,8 +10,10 @@ import {
   buildListFilters,
   findMatchingExerciseIds,
   searchExerciseRows,
+  selectAllProgressionEdges,
   selectEquipmentSlugsByExerciseIds,
   selectExerciseDetailRowsByIds,
+  selectExerciseSummaryRowsByIds,
   selectExerciseSummaryRowsByRelation,
   selectMuscleSlugsByExerciseIds,
   selectOneExercise
@@ -56,6 +58,12 @@ export function createLazyDefaultExerciseRepository() {
     },
     getEquipmentSlugsByExerciseIds(ids) {
       return getRepository().getEquipmentSlugsByExerciseIds(ids);
+    },
+    getProgressionEdges() {
+      return getRepository().getProgressionEdges();
+    },
+    getExerciseSummariesByIds(ids) {
+      return getRepository().getExerciseSummariesByIds(ids);
     }
   };
 }
@@ -142,6 +150,15 @@ export function createExerciseRepository({ client }) {
 
     getEquipmentSlugsByExerciseIds(ids) {
       return selectEquipmentSlugsByExerciseIds(client, ids);
+    },
+
+    getProgressionEdges() {
+      return selectAllProgressionEdges(client);
+    },
+
+    async getExerciseSummariesByIds(ids) {
+      const rows = await selectExerciseSummaryRowsByIds(client, ids);
+      return rows.map(mapExerciseSummary);
     }
   };
 }

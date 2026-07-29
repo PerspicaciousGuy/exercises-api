@@ -274,7 +274,7 @@ async function selectExerciseSummaries(client, filters) {
   });
 }
 
-async function selectExerciseSummaryRowsByIds(client, ids) {
+export async function selectExerciseSummaryRowsByIds(client, ids) {
   if (ids.length === 0) {
     return [];
   }
@@ -282,6 +282,22 @@ async function selectExerciseSummaryRowsByIds(client, ids) {
   return selectExerciseSummaries(client, {
     id: `in.(${ids.join(',')})`
   });
+}
+
+/**
+ * Every progression edge in the catalog as `{ from, to }` id pairs. The graph
+ * is small (tens of edges), so pathfinding loads it whole and walks it in
+ * memory rather than issuing a recursive query per request.
+ */
+export async function selectAllProgressionEdges(client) {
+  const rows = await client.select('exercise_progressions', {
+    columns: 'exercise_id,progression_id'
+  });
+
+  return rows.map((row) => ({
+    from: row.exercise_id,
+    to: row.progression_id
+  }));
 }
 
 function intersectSets(idSets) {
