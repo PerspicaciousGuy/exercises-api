@@ -249,15 +249,17 @@ describe('createExerciseRepository', () => {
   });
 
   it('returns detailed exercises for bulk ids in request order', async () => {
+    const id1 = '3f1c9b2a-0000-4000-8000-000000000001';
+    const id2 = '3f1c9b2a-0000-4000-8000-000000000002';
     const client = {
       select: vi.fn(async () => [
         createExerciseDetailRow({
-          id: 'exercise-2',
+          id: id2,
           slug: 'barbell-bench-press',
           name: 'Barbell Bench Press'
         }),
         createExerciseDetailRow({
-          id: 'exercise-1',
+          id: id1,
           slug: 'push-up',
           name: 'Push-up'
         })
@@ -265,23 +267,17 @@ describe('createExerciseRepository', () => {
     };
     const repository = createExerciseRepository({ client });
 
-    const exercises = await repository.getExercisesByIds([
-      'exercise-1',
-      'exercise-2'
-    ]);
+    const exercises = await repository.getExercisesByIds([id1, id2]);
 
     expect(client.select).toHaveBeenCalledWith('exercises', {
       columns: expect.stringContaining('description'),
       filters: {
-        id: 'in.(exercise-1,exercise-2)',
+        id: `in.(${id1},${id2})`,
         status: 'eq.active',
         deleted_at: 'is.null'
       }
     });
-    expect(exercises.map((exercise) => exercise.id)).toEqual([
-      'exercise-1',
-      'exercise-2'
-    ]);
+    expect(exercises.map((exercise) => exercise.id)).toEqual([id1, id2]);
   });
 
   it('returns relation exercise summaries by relation type', async () => {
@@ -330,6 +326,33 @@ describe('createExerciseRepository', () => {
         updatedAt: '2026-06-15T10:00:00.000Z'
       }
     ]);
+  });
+
+  it('returns null for a malformed id without querying the client', async () => {
+    const client = { select: vi.fn() };
+    const repository = createExerciseRepository({ client });
+
+    const result = await repository.getExerciseById('not-a-uuid');
+
+    expect(result).toBeNull();
+    expect(client.select).not.toHaveBeenCalled();
+  });
+
+  it('drops malformed ids from a bulk lookup', async () => {
+    const validId = '3f1c9b2a-0000-4000-8000-000000000001';
+    const client = {
+      select: vi.fn(async () => [createExerciseDetailRow({ id: validId })])
+    };
+    const repository = createExerciseRepository({ client });
+
+    const result = await repository.getExercisesByIds([validId, 'not-a-uuid']);
+
+    // only the valid id reached the query
+    expect(client.select).toHaveBeenCalledWith('exercises', {
+      columns: expect.any(String),
+      filters: expect.objectContaining({ id: `in.(${validId})` })
+    });
+    expect(result.map((exercise) => exercise.id)).toEqual([validId]);
   });
 });
 
