@@ -22,6 +22,7 @@ export default defineConfig({
     nav: [
       { text: 'Overview', link: '/overview' },
       { text: 'Getting Started', link: '/getting-started' },
+      { text: 'Guides', link: '/guides/finding-substitutes' },
       { text: 'API Reference', link: '/api-reference' }
     ],
 
@@ -34,8 +35,18 @@ export default defineConfig({
         ]
       },
       {
+        text: 'Core Concepts',
+        items: [
+          { text: 'The Relationship Graph', link: '/concepts/relationship-graph' }
+        ]
+      },
+      {
         text: 'Guides',
         items: [
+          { text: 'Finding Substitutes', link: '/guides/finding-substitutes' },
+          { text: 'Building a Progression', link: '/guides/building-a-progression' },
+          { text: 'Analyzing Coverage', link: '/guides/analyzing-coverage' },
+          { text: 'Using the SDK', link: '/guides/using-the-sdk' },
           { text: 'Sync Guide', link: '/sync-guide' },
           { text: 'Examples', link: '/examples' },
           { text: 'Architecture', link: '/architecture' }

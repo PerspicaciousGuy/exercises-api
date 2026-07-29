@@ -18,8 +18,49 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Built the **`@exercisedb/sdk` — a typed JavaScript client** for the API, in
-`sdk/`. A DX/adoption feature (developers hand-writing fetch calls was the named
+Wrote the **V2 teaching-layer docs** — the narrative/guide pages the VitePress
+site was missing for everything V2 added. The auto-generated Scalar API reference
+(`<ApiReference />` over `openapi.yaml`) was **kept as-is** (owner's choice: it
+never drifts and has a try-it console); the gap was teaching, not reference. The
+Stripe/Twilio split — hand-written guides + generated reference.
+
+**5 new pages** (matching the existing second-person, why-and-failure-modes voice):
+- `website/concepts/relationship-graph.md` — the graph model: variations (peers)
+  vs progressions/regressions (directed ladder), why edges are curated + reciprocal,
+  why empty is honest. The conceptual foundation the guides build on.
+- `website/guides/finding-substitutes.md` — `/substitutes?equipment=`; the AND-not-OR
+  filter gotcha.
+- `website/guides/building-a-progression.md` — `/path` + `/progressions`; the three
+  honest `null` cases.
+- `website/guides/analyzing-coverage.md` — `/analyze/coverage`; reading the report,
+  unknown-ids handling.
+- `website/guides/using-the-sdk.md` — the `@exercisedb/sdk` client (the SDK had zero
+  docs before this).
+
+**Every code example is SDK-first with a raw-HTTP (`curl`) equivalent** in a VitePress
+`::: code-group`, and every response JSON was captured from the **live deployed
+endpoints** (real slugs/ids/shapes), so samples are copy-paste-correct, not
+approximated — the same anti-drift discipline `examples.md` uses.
+
+**Modified:** `website/.vitepress/config.js` — added a "Core Concepts" sidebar group,
+folded the 4 guides into "Guides", added a "Guides" nav entry. Reference tab
+untouched.
+
+**Verified:** `npm run build` (in `website/`) succeeds — VitePress fails the build on
+any dead internal link, and it passed clean, so every `/concepts/...` and
+`/guides/...` cross-link resolves and all 5 pages render (confirmed the `code-group`
+SDK/curl tabs rendered in the built HTML). Did **not** touch the Scalar reference,
+`openapi.yaml`, or the existing narrative pages (getting-started/overview/sync-guide/
+examples/architecture) — only cross-linked to them.
+
+Context: the API is **already deployed and working in production** (owner confirmed a
+real Kotlin app pulls exercises through it successfully) — so the earlier
+deploy-checklist framing is moot; the remaining checklist items (Lemon Squeezy key
+rotation, etc.) are the owner's to confirm on the host. A Kotlin/Android SDK is a
+plausible future DX step given that first integration was Kotlin, not JS.
+
+Before that: built the **`@exercisedb/sdk` — a typed JavaScript client** for the API,
+in `sdk/`. A DX/adoption feature (developers hand-writing fetch calls was the named
 growth constraint), scoped to the public catalog + V2 graph read surface. It does
 **not** touch the running API server — a self-contained package that can't
 destabilise production.
