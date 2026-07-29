@@ -49,6 +49,32 @@ export function createExerciseService({ exerciseRepository }) {
         progressions,
         regressions
       };
+    },
+
+    async getSubstitutes({ exerciseId, equipment }) {
+      await ensureExerciseExists(exerciseRepository, exerciseId);
+      const variations = await exerciseRepository.listExerciseRelations({
+        exerciseId,
+        relationType: 'variations'
+      });
+
+      if (!equipment || equipment.length === 0) {
+        return variations;
+      }
+
+      const available = new Set(equipment);
+      const equipmentByExercise =
+        await exerciseRepository.getEquipmentSlugsByExerciseIds(
+          variations.map((variation) => variation.id)
+        );
+
+      // A substitute is usable only if every piece of its equipment is on hand.
+      // Equipment-less variations (e.g. bodyweight) are always usable.
+      return variations.filter((variation) =>
+        (equipmentByExercise.get(variation.id) ?? []).every((slug) =>
+          available.has(slug)
+        )
+      );
     }
   };
 }
