@@ -18,7 +18,55 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Built **V2.1 — progression pathfinding** (additive under v1). The progression-density
+Built the **`@exercisedb/sdk` — a typed JavaScript client** for the API, in
+`sdk/`. A DX/adoption feature (developers hand-writing fetch calls was the named
+growth constraint), scoped to the public catalog + V2 graph read surface. It does
+**not** touch the running API server — a self-contained package that can't
+destabilise production.
+
+**Approach (decided with the owner):** plain ESM `.js` + JSDoc, **not** TypeScript
+source. `tsc` is used only to emit the shipped `.d.ts` from the JSDoc
+(`allowJs`/`emitDeclarationOnly`) and to type-check it in CI (`checkJs`). The
+`.d.ts` are committed so consumers get types with zero build. Recorded in
+`docs/conventions.md` ("The SDK ships TypeScript types without TypeScript source")
+and the `typescript-rules.md` row updated — the server stays plain JS; only the SDK
+touches TS tooling, and only for types.
+
+**Surface:** `createClient({ apiKey, baseUrl?, fetch? })` →
+- `exercises.*` — list, listAll (async-iterator paging), search, get, getBySlug,
+  bulk, related, variations, progressions, regressions, substitutes, path
+- `analyze.coverage`
+- `reference.*` — metadata, muscles, equipment, categories, exerciseFlags,
+  jointRegions
+
+Ergonomics: the `{ success, data }` envelope is unwrapped (methods return `data`);
+non-2xx throws `ExerciseDBError` carrying the RFC 9457 `code` + `requestId`; zero
+runtime deps (native `fetch`, injectable). **Deliberately excluded:**
+auth/keys/billing/usage/sync (dashboard flows, not app-code calls).
+
+**Verified:** SDK `typecheck` clean (checkJs + strict caught 6 real type issues
+during dev, all fixed), SDK tests 9/9 pass (mocked fetch: auth header, envelope
+unwrap, RFC 9457 error mapping, snake_case query mapping, listAll paging, POST
+coverage). A throwaway `.ts` consumer file confirmed a TS consumer resolves the full
+typed surface (e.g. `movementPattern` as the exact union, `path` as
+`Summary[] | null`, `ExerciseDBError.requestId`) — types verified end to end, not
+just emitted. Root suite still green (**205 tests** — root Vitest also runs the 9
+SDK tests; 196 API + 9 SDK), root lint clean.
+
+**Files created (all under `sdk/`):** `package.json`, `tsconfig.json`,
+`index.js`, `src/client.js`, `src/errors.js`, `src/types.js`,
+`scripts/clean-types.js` (pre-emit cleanup so `tsc` can rewrite in place),
+`test/client.test.js`, `README.md`, plus committed generated `index.d.ts` +
+`src/*.d.ts`. **Modified:** root `package.json` (`sdk:test`/`sdk:typecheck`/
+`sdk:build` passthrough scripts), `.prettierignore` (`sdk/node_modules/`,
+`sdk/**/*.d.ts`), `docs/conventions.md`, `HANDOFF.md`.
+
+**Not done (out of scope, flagged):** the SDK is built and tested but **not
+published to npm** — that needs registry credentials and is a separate release
+step. Pre-existing `format:check` failures (dashboard, docs, earlier V2 files,
+agents-guidelines) are unrelated to the SDK and untouched — see Known Issues.
+
+Before that: built **V2.1 — progression pathfinding** (additive under v1). The progression-density
 batch made this honest; the endpoint is now live.
 
 **`GET /exercises/:id/path?to={targetId}`** — the shortest ordered progression chain

@@ -14,7 +14,7 @@ Read this alongside `AGENTS.md` before any execution.
 
 | File                            | Why                                                                                                                                                        |
 | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `languages/typescript-rules.md` | This project is plain JavaScript (ESM). There is no TypeScript, no build step, no `tsconfig.json`.                                                         |
+| `languages/typescript-rules.md` | The server is plain JavaScript (ESM) — no TS source, no logic build. The `sdk/` package uses `tsc` for **types-only** emit (see "The SDK ships TypeScript types without TypeScript source" below); it is not a TypeScript codebase. |
 | `database/prisma-rules.md`      | There is no ORM. Data access goes through `src/supabase/restClient.js`, a hand-rolled PostgREST client, with raw SQL migrations in `supabase/migrations/`. |
 
 `agents-guidelines/README.md` maps every Express stack to TypeScript. There is no
@@ -59,6 +59,28 @@ envelope is a defensible and widely used style, and the benefit is cosmetic.
 **Note the asymmetry:** error responses were _not_ grandfathered. They follow
 RFC 9457 — see below. The two were decided separately because errors cost one
 file to change and success responses cost the whole surface.
+
+### The SDK ships TypeScript types without TypeScript source
+
+The server codebase is plain JavaScript with no build step, by design. The
+`sdk/` package (`@exercisedb/sdk`, a thin typed client) is the one place that
+touches TypeScript tooling — but it is **not** written in TypeScript. The source
+is plain ESM `.js` with JSDoc typedefs; `tsc` is used only to _emit_ the shipped
+`.d.ts` files from that JSDoc (`allowJs` + `emitDeclarationOnly`) and to
+type-check the JSDoc in CI (`checkJs`, via `npm run sdk:typecheck`).
+
+**Why this and not TS source:** the SDK's consumers are overwhelmingly TS/JS
+fitness-app developers, so shipping accurate types _is_ the product — but the
+types are a published artifact, not a reason to adopt a second source language
+or a logic build for a ~250-line client. JSDoc keeps the SDK the same language
+as the rest of the repo; generating the `.d.ts` from it (rather than
+hand-writing) means the types cannot silently drift from the implementation. The
+generated `.d.ts` are committed so consumers get types with zero build, and are
+in `.prettierignore` because they are emitted, not authored.
+
+**Why not TS at all:** hand-writing the `.d.ts` was the alternative; it was
+rejected because manual sync between `.js` and `.d.ts` is exactly the drift the
+generate-from-JSDoc approach removes for free.
 
 ---
 

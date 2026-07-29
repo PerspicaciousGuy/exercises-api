@@ -1,0 +1,40 @@
+{
+  "name": "@exercisedb/sdk",
+  "version": "0.1.0",
+  "description": "Typed JavaScript client for the ExerciseDB API — catalog reads and graph intelligence.",
+  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build:types": "node scripts/clean-types.js && tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "exercise",
+    "fitness",
+    "api",
+    "sdk",
+    "client"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^1.0.0"
+  }
+}

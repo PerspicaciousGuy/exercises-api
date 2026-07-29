@@ -16,7 +16,10 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "postman:generate": "node scripts/generate-postman.js"
+    "postman:generate": "node scripts/generate-postman.js",
+    "sdk:test": "npm --prefix sdk test",
+    "sdk:typecheck": "npm --prefix sdk run typecheck",
+    "sdk:build": "npm --prefix sdk run build:types"
   },
   "keywords": [
     "exercise",
