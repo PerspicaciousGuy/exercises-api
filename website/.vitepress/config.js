@@ -47,6 +47,7 @@ export default defineConfig({
           { text: 'Building a Progression', link: '/guides/building-a-progression' },
           { text: 'Analyzing Coverage', link: '/guides/analyzing-coverage' },
           { text: 'Using the SDK', link: '/guides/using-the-sdk' },
+          { text: 'Kotlin & Android', link: '/guides/kotlin-android' },
           { text: 'Sync Guide', link: '/sync-guide' },
           { text: 'Examples', link: '/examples' },
           { text: 'Architecture', link: '/architecture' }

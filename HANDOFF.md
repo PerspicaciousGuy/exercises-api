@@ -18,8 +18,35 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Wrote the **V2 teaching-layer docs** — the narrative/guide pages the VitePress
-site was missing for everything V2 added. The auto-generated Scalar API reference
+Wrote a **Kotlin & Android quickstart** docs page
+(`website/guides/kotlin-android.md`) — prompted by the owner's first real
+integration being a Kotlin app. Zero to first-request using **Retrofit + OkHttp +
+kotlinx.serialization + coroutines** (the dominant Android stack; owner's choice
+over Ktor/plain-JVM), then the `{success,data}` envelope modelling, an auth
+interceptor, RFC 9457 error handling, and a V2 substitutes call.
+
+**Deliberately Android-idiomatic, not a duplicate of the existing example.** There
+was already a complete, tested plain-JVM Kotlin client at
+`examples/kotlin/ExerciseDb.kt` (`java.net.http`, full sync loop) — but that's
+JVM/API-34+ and not how Android apps are written. This new page covers the Android
+path and **links to** the existing example for the full sync loop rather than
+rewriting it. `ExerciseDb.kt` and `examples.md` were left untouched.
+
+**Includes an honest security caveat** (up top + a closing section): an API key
+baked into a distributed APK is extractable, so the direct-from-app setup is for
+prototypes/internal builds, and production should proxy through the developer's own
+backend. Flagged rather than glossed.
+
+**Modified:** `website/.vitepress/config.js` (added "Kotlin & Android" to the Guides
+sidebar), `HANDOFF.md`.
+
+**Verified:** `npm run build` (in `website/`) passes clean — dead-link checking
+confirms every cross-link resolves, including the in-page `#production-key-handling`
+and `/getting-started#errors` anchors; the page renders with the Retrofit code and
+anchor present. Did not touch the API, the reference, or the existing examples.
+
+Before that: wrote the **V2 teaching-layer docs** — the narrative/guide pages the
+VitePress site was missing for everything V2 added. The auto-generated Scalar API reference
 (`<ApiReference />` over `openapi.yaml`) was **kept as-is** (owner's choice: it
 never drifts and has a try-it console); the gap was teaching, not reference. The
 Stripe/Twilio split — hand-written guides + generated reference.
