@@ -8,6 +8,7 @@ import { createApiKeyMiddleware } from './middleware/apiKeyAuth.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFound } from './middleware/notFound.js';
 import { requestLogger } from './middleware/requestLogger.js';
+import { responseCache } from './middleware/responseCache.js';
 import { createSessionOrApiKeyMiddleware } from './middleware/sessionAuth.js';
 import { createLazyDefaultAuthRepository } from './repositories/authRepository.js';
 import { createLazyDefaultBillingRepository } from './repositories/billingRepository.js';
@@ -56,6 +57,10 @@ export function createApp({
 } = {}) {
   const app = express();
 
+  // The response-cache middleware issues a strong, envelope-aware ETag; disable
+  // Express's built-in weak one so the two do not fight over the header.
+  app.set('etag', false);
+
   // First: every subsequent middleware, including the webhook raw-body parser
   // and anything that throws, must run inside a request context so its logs
   // and its error response carry the same request id.
@@ -87,6 +92,10 @@ export function createApp({
 
   app.use(apiKeyMiddleware);
   app.use(createSyncRouter({ syncService, syncRepository }));
+  // Conditional-request caching for the catalog and reference reads — these
+  // change rarely, so most revalidations return a cheap 304. Sync is excluded:
+  // it has its own cursor/watermark freshness model.
+  app.use(responseCache());
   app.use(createReferencesRouter({ referenceService, referenceRepository }));
   app.use(createExercisesRouter({ exerciseService, exerciseRepository }));
   app.use(createAnalysisRouter({ exerciseRepository }));
