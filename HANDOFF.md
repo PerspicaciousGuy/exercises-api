@@ -18,7 +18,58 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Wrote a **Kotlin & Android quickstart** docs page
+Added **conditional-request (ETag) caching to catalog and reference reads** — the
+highest-leverage code-side latency win, following a security/perf review + live load
+test (see below).
+
+**`src/middleware/responseCache.js`:** wraps `res.json` on GET responses to set a
+strong `ETag` (SHA-256 of the exact serialized body) + `Cache-Control: private,
+must-revalidate`, and returns `304 Not Modified` (empty body) when the request's
+`If-None-Match` matches. Body-hash ETag = automatic invalidation (any data change
+changes the hash). Only 200 GETs are tagged; errors/writes pass through.
+
+**Owner decisions:** `private, must-revalidate` (not public — every read is
+API-key-gated, so no shared-CDN caching) + scope = catalog + reference reads (not
+sync, which has its own cursor/watermark model). Express's built-in weak ETag was
+disabled (`app.set('etag', false)`) so the two don't fight.
+
+**Wiring:** `responseCache()` is mounted in `src/app.js` after the sync router and
+before the references/exercises/analysis routers. `/analyze/coverage` (POST) is
+skipped by the GET-only guard; `/exercises/{id}/path` (GET) is cached.
+
+**Verified live end to end** (app booted against the real DB): `/exercises`,
+`/muscles`, `/exercises/slug/...` each return `200` + strong ETag + the cache-control
+header on first hit, then `304` with **0 body bytes** on revalidation with
+`If-None-Match`. **212 tests pass** (was 205; +7 cache tests), lint clean. Spec
+parses; Postman regenerated (31 requests).
+
+**Files created:** `src/middleware/responseCache.js`, `tests/responseCache.test.js`.
+**Modified:** `src/app.js` (disable default etag + mount middleware),
+`docs/openapi.yaml` (caching note in `info.description`),
+`docs/conventions.md` ("Conditional-request caching" adopted subsection),
+`postman/…`, `HANDOFF.md`.
+
+### Security + performance review (preceded this)
+
+Reviewed the live API's real code (no branch diff — all on `main`). **Well-secured:**
+no PostgREST injection (`buildTableUrl` uses `URLSearchParams`, which encodes every
+filter value), no BOLA (account ops scope on `id` AND `user_id=eq.${authUserId}`,
+userId always from `apiConsumer`, never body/params), scrypt+timingSafeEqual
+passwords, SHA-256-hashed keys, no login user-enumeration, safe CORS (credentialed
+paths get an origin allowlist, public catalog `*` without credentials). **One real
+finding, low severity:** the daily-quota counter is read-then-increment-then-upsert
+(not atomic), so concurrent requests on one key can slightly exceed quota (TOCTOU).
+Fix = a Postgres atomic increment; deferred (soft limit, not a security boundary).
+
+**Live load test** (276 requests, controlled concurrency, throwaway key registered
+against prod): **zero errors / zero 5xx even at 25 concurrent** — concurrency
+handling is correct and throughput scales (2.8 → 9.7 req/s). But **p50 latency ~2.4s**
+— that's the deployment, not the code (cold starts on a scale-to-zero host + a
+cross-region Supabase round-trip on every request). The code paths are clean (search
+parallelizes via `Promise.all`, no N+1). This ETag work attacks the p50 from the code
+side; the rest is operational (warm instance, co-locate API+DB region).
+
+Before that: wrote a **Kotlin & Android quickstart** docs page
 (`website/guides/kotlin-android.md`) — prompted by the owner's first real
 integration being a Kotlin app. Zero to first-request using **Retrofit + OkHttp +
 kotlinx.serialization + coroutines** (the dominant Android stack; owner's choice

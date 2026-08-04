@@ -20,6 +20,14 @@ info:
     `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`.
 
 
+    Catalog and reference `GET` responses carry an `ETag` and
+    `Cache-Control: private, must-revalidate`. Send the `ETag` back as
+    `If-None-Match` on your next request: if the data has not changed you get
+    `304 Not Modified` with an empty body, saving bandwidth. The catalog changes
+    rarely, so revalidations are usually a `304`. (Sync endpoints are excluded —
+    they have their own cursor/watermark freshness model.)
+
+
     Every response also carries `X-Request-Id`, repeated as `requestId` in any
     error body. Send your own `X-Request-Id` to trace a call end to end.
   license:

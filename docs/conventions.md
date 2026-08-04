@@ -168,6 +168,26 @@ forced exit. The backstop is `unref`'d so it never keeps the process alive on it
 own, and it sits below the ~30 seconds Railway and Render allow between `SIGTERM`
 and `SIGKILL`.
 
+### Conditional-request caching on catalog reads
+
+`backend/api/api-caching-rules.md` requires `Cache-Control` on every endpoint and
+`ETag` on infrequently-changing resources. `src/middleware/responseCache.js` adds
+both to catalog and reference `GET` responses: a strong `ETag` (SHA-256 of the
+exact serialized body) plus `Cache-Control: private, must-revalidate`, and a
+`304 Not Modified` when the client's `If-None-Match` matches.
+
+**`private`, not `public`:** every read is behind an API key, and the rule is not
+to cache authenticated responses on shared caches. `must-revalidate` with no
+`max-age` means the client always revalidates — but the ETag makes that a cheap
+`304` on the rarely-changing catalog, which is the win. The ETag being a body hash
+means invalidation is automatic: any data change changes the hash, no version
+tracking needed.
+
+Express's built-in weak ETag is disabled (`app.set('etag', false)`) so it does not
+fight the strong, envelope-aware one. Sync endpoints are excluded — they have their
+own cursor/watermark freshness model, and two caching mechanisms on one endpoint
+would only confuse consumers.
+
 ---
 
 ## Deferred, not rejected
