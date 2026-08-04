@@ -56,6 +56,19 @@ Three relationships are first-class, and each is its own endpoint:
 `GET /exercises/{id}/related` returns all three groups in one request. This is
 what lets you build a programme that scales with a user rather than a flat list.
 
+That curated graph also powers a small set of higher-level endpoints — the things
+a flat catalog can't do:
+
+- [**Substitutes**](/guides/finding-substitutes) — variations filtered to the
+  equipment a user actually has.
+- [**Progression paths**](/guides/building-a-progression) — the shortest chain from
+  where a user is to where they want to be.
+- [**Coverage analysis**](/guides/analyzing-coverage) — what a set of exercises
+  trains, and where it's unbalanced.
+
+See [The Relationship Graph](/concepts/relationship-graph) for how the edges are
+curated and why they're reciprocal.
+
 ## Reference data is separate, and rarely changes
 
 Muscles, equipment, categories, exercise flags, and joint regions live behind
@@ -63,6 +76,11 @@ their own endpoints. Exercises reference them by slug.
 
 Fetch them once with `GET /metadata`, which returns every reference table in a
 single response, and cache the result. These change on the order of months.
+
+Catalog and reference reads carry an `ETag` and `Cache-Control: private,
+must-revalidate`. Send the `ETag` back as `If-None-Match` and an unchanged
+resource returns `304 Not Modified` with an empty body — cheap revalidation on a
+catalog that rarely moves.
 
 ## Sync, don't poll
 
