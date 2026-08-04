@@ -18,7 +18,39 @@ Migration `012_add_billing_fields.sql` has been applied to hosted Supabase and v
 
 ## Last Action
 
-Added **conditional-request (ETag) caching to catalog and reference reads** — the
+Updated the **stale docs** — the root `README.md` (the GitHub landing page) and
+`website/overview.md` predated V2, the SDK, the completed catalog, and ETag caching.
+
+**`README.md`:**
+- Intro now states the catalog is complete (157 exercises, all 8 patterns), the API
+  is **live in production** (`https://api.harshitbishnoi.dev`, docs at
+  docs.harshitbishnoi.dev), and there's a graph layer + SDK.
+- Added **graph-intelligence endpoint examples** (`/related`, `/variations`,
+  `/progressions`, `/regressions`, `/substitutes`, `/path`, `/analyze/coverage`) —
+  the endpoint list previously stopped at bulk/sync.
+- Added the **ETag / `If-None-Match` / `304`** caching note by the rate-limit
+  headers.
+- Added an **SDK section** (`@exercisedb/sdk`, pointing at `sdk/`).
+- Fixed the seed section: it claimed "12 sample exercises" and implied
+  `data/exercises/sample-exercises.json` is tracked — corrected to describe the
+  **git-excluded** private catalog (one file per pattern batch) and the
+  format→validate→seed pipeline.
+- Rewrote **Current Status** from the old "Phase 0–5" list to reflect: backend
+  complete (Phases 0–6), catalog complete, V2 graph layer, SDK, docs site, ETag
+  caching, and the security + load-test pass.
+
+**`website/overview.md`:** the relationships section now links out to the three V2
+guides + the graph concept page; the reference-data section now mentions the ETag
+caching mechanism.
+
+**Verified:** `npm run build` (in `website/`) passes clean — dead-link checking
+confirms the new overview cross-links resolve. Swept all tracked docs: no stale
+catalog counts remain; `examples/README.md` was already accurate (all 5 languages
+incl. Kotlin). Did not touch the private catalog data, the SDK/guide pages (already
+current), or governance docs (`AGENTS.md`/`CLAUDE.md`/`conventions.md`).
+
+Before that: added **conditional-request (ETag) caching to catalog and reference
+reads** — the
 highest-leverage code-side latency win, following a security/perf review + live load
 test (see below).
 

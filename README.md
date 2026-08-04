@@ -2,6 +2,15 @@
 
 Production-grade public exercise catalog API for fitness app developers.
 
+The catalog is complete and the API is **live in production** at
+`https://api.harshitbishnoi.dev`, with full documentation at
+[docs.harshitbishnoi.dev](https://docs.harshitbishnoi.dev). It serves a curated
+catalog of **157 exercises** across all eight movement patterns, each with
+human-reviewed relationships (variations, progressions, regressions) that power a
+graph-intelligence layer — equipment-aware substitutes, workout coverage analysis,
+and progression pathfinding. A typed JavaScript/TypeScript client ships in
+[`sdk/`](sdk/).
+
 Version 1 focuses on a public exercise catalog that client apps can sync and cache locally. Private user-created exercises, food data, workout generation, and a full custom admin panel are future expansions.
 
 ## Tech Stack
@@ -112,6 +121,33 @@ curl http://localhost:3000/equipment -H "x-api-key: $EXERCISEDB_API_KEY"
 curl http://localhost:3000/categories -H "x-api-key: $EXERCISEDB_API_KEY"
 ```
 
+Walk an exercise's relationship graph — variations, progressions, and regressions:
+
+```bash
+curl http://localhost:3000/exercises/{id}/related      -H "x-api-key: $EXERCISEDB_API_KEY"
+curl http://localhost:3000/exercises/{id}/variations   -H "x-api-key: $EXERCISEDB_API_KEY"
+curl http://localhost:3000/exercises/{id}/progressions -H "x-api-key: $EXERCISEDB_API_KEY"
+curl http://localhost:3000/exercises/{id}/regressions  -H "x-api-key: $EXERCISEDB_API_KEY"
+```
+
+Graph intelligence — the endpoints a flat catalog can't offer:
+
+```bash
+# Equipment-aware substitutes: variations the caller can actually perform
+curl "http://localhost:3000/exercises/{id}/substitutes?equipment=dumbbell,bench" \
+  -H "x-api-key: $EXERCISEDB_API_KEY"
+
+# Shortest progression path from one exercise up to another (or null)
+curl "http://localhost:3000/exercises/{id}/path?to={targetId}" \
+  -H "x-api-key: $EXERCISEDB_API_KEY"
+
+# Stateless coverage analysis of a set of exercises (a workout)
+curl -X POST http://localhost:3000/analyze/coverage \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: $EXERCISEDB_API_KEY" \
+  -d "{\"exerciseIds\":[\"id-1\",\"id-2\"]}"
+```
+
 Fetch sync metadata:
 
 ```bash
@@ -139,6 +175,8 @@ curl http://localhost:3000/me/usage -H "x-api-key: $EXERCISEDB_API_KEY"
 ```
 
 Protected responses include `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` headers.
+
+Catalog and reference `GET` responses carry an `ETag` and `Cache-Control: private, must-revalidate`. Send the `ETag` back as `If-None-Match` on the next request; if the data is unchanged you get `304 Not Modified` with an empty body. The catalog changes rarely, so revalidations are usually a cheap `304`.
 
 ## Client Sync Strategy
 
@@ -288,6 +326,24 @@ On `SIGTERM` the server stops accepting connections, lets in-flight requests
 finish, and exits — with a 10-second backstop so a hung request cannot hold a
 deploy open forever.
 
+## SDK
+
+[`sdk/`](sdk/) is `@exercisedb/sdk`, a thin typed JavaScript/TypeScript client with
+zero runtime dependencies. It wraps the public catalog and graph-intelligence
+endpoints, unwraps the `{ success, data }` envelope, and throws a typed
+`ExerciseDBError` carrying the RFC 9457 `code` and `requestId`.
+
+```js
+import { createClient } from '@exercisedb/sdk';
+
+const client = createClient({ apiKey: process.env.EXERCISEDB_API_KEY });
+const { exercises } = await client.exercises.list({ muscle: 'chest' });
+const subs = await client.exercises.substitutes(id, { equipment: ['dumbbell'] });
+```
+
+The client is plain JavaScript with JSDoc; its shipped `.d.ts` types are generated
+from that JSDoc. See [sdk/README.md](sdk/README.md).
+
 ## Client Examples
 
 `examples/` holds a complete client in JavaScript, Python, Swift, Dart, and
@@ -331,10 +387,14 @@ every origin.
 
 ## Seed And Import Fixtures
 
-Phase 2 fixture data lives under `data/`:
+Fixture data lives under `data/`:
 
-- `data/reference/` - muscles, equipment, categories, flags, and joint regions
-- `data/exercises/sample-exercises.json` - 12 sample exercises for pipeline validation
+- `data/reference/` - muscles, equipment, categories, flags, and joint regions (tracked)
+- `data/exercises/*.json` - the curated exercise catalog, one file per movement-pattern
+  batch. These files are **git-excluded**: the catalog is private and lives only in
+  Supabase. The pipeline is `npm run fixtures:format` → `npm run fixtures:validate`
+  → `npm run seed:sample`, with each batch reviewed for relationship correctness
+  before seeding.
 
 Hosted Supabase import scripts require these `.env` values:
 
@@ -405,4 +465,18 @@ docs/
 
 ## Current Status
 
-Phase 0 is the backend foundation. Phase 1 created and applied the hosted Supabase schema. Phase 2 adds validated fixture data and repeatable seed/import scripts. Phase 3 public catalog read endpoints are implemented. Phase 4 sync endpoints are implemented for metadata, incremental exercise sync, tombstones, and cursor pagination. Phase 5 protects catalog/sync/reference endpoints with API keys, tracks usage, exposes developer account/key endpoints, returns rate limit headers, and gates premium exercise rows by tier.
+**Live in production** and integrated by real clients. The backend (Phases 0–6) is
+complete: hosted Supabase schema, validated fixture pipeline, public catalog read
+endpoints, incremental sync (metadata, tombstones, cursor pagination), API-key auth
+with per-key daily quotas and usage tracking, premium tier gating, and
+provider-neutral billing (Lemon Squeezy).
+
+The **catalog is complete** — 157 exercises across all eight movement patterns, each
+with human-reviewed, fully reciprocal relationships. On top of it sits a **V2
+graph-intelligence layer** (all additive, no breaking changes): equipment-aware
+substitutes, stateless workout coverage analysis, and progression pathfinding.
+
+Also shipped: a typed JavaScript/TypeScript SDK ([`sdk/`](sdk/)), a VitePress
+documentation site with concept and task guides, conditional-request (ETag) caching
+on catalog reads, and a security + load-test pass (no injection/BOLA; correct
+concurrency handling under load).
