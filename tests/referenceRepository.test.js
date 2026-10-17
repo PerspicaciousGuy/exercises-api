@@ -100,7 +100,8 @@ describe('createReferenceRepository', () => {
         'pull',
         'carry',
         'rotation',
-        'gait'
+        'gait',
+        'core'
       ],
       forceTypes: ['push', 'pull', 'static', 'compound']
     });
