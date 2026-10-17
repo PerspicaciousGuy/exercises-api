@@ -78,6 +78,12 @@
     "displayOrder": 120
   },
   {
+    "name": "Assisted Dip/Pull-up Machine",
+    "slug": "assisted-dip-pull-up-machine",
+    "equipmentGroup": "machine",
+    "displayOrder": 125
+  },
+  {
     "name": "Resistance Band",
     "slug": "resistance-band",
     "equipmentGroup": "band",
@@ -96,6 +102,12 @@
     "displayOrder": 150
   },
   {
+    "name": "Captain's Chair",
+    "slug": "captains-chair",
+    "equipmentGroup": "station",
+    "displayOrder": 155
+  },
+  {
     "name": "Landmine",
     "slug": "landmine",
     "equipmentGroup": "station",
@@ -106,6 +118,12 @@
     "slug": "suspension-trainer",
     "equipmentGroup": "station",
     "displayOrder": 170
+  },
+  {
+    "name": "Glute-Ham Developer",
+    "slug": "glute-ham-developer",
+    "equipmentGroup": "station",
+    "displayOrder": 175
   },
   {
     "name": "Bench",
@@ -136,6 +154,12 @@
     "slug": "ab-wheel",
     "equipmentGroup": "implement",
     "displayOrder": 220
+  },
+  {
+    "name": "Sliders",
+    "slug": "sliders",
+    "equipmentGroup": "implement",
+    "displayOrder": 225
   },
   {
     "name": "Treadmill",
@@ -184,5 +208,17 @@
     "slug": "battle-ropes",
     "equipmentGroup": "implement",
     "displayOrder": 300
+  },
+  {
+    "name": "Bicycle",
+    "slug": "bicycle",
+    "equipmentGroup": "implement",
+    "displayOrder": 310
+  },
+  {
+    "name": "Swimming Pool",
+    "slug": "swimming-pool",
+    "equipmentGroup": "facility",
+    "displayOrder": 320
   }
 ]
