@@ -5,7 +5,7 @@ Production-grade public exercise catalog API for fitness app developers.
 The catalog is complete and the API is **live in production** at
 `https://api.harshitbishnoi.dev`, with full documentation at
 [docs.harshitbishnoi.dev](https://docs.harshitbishnoi.dev). It serves a curated
-catalog of **157 exercises** across all eight movement patterns, each with
+catalog of **221 exercises** across all eight movement patterns, each with
 human-reviewed relationships (variations, progressions, regressions) that power a
 graph-intelligence layer — equipment-aware substitutes, workout coverage analysis,
 and progression pathfinding. A typed JavaScript/TypeScript client ships in
@@ -185,7 +185,7 @@ Mobile and web clients should treat the API as a public catalog source of truth 
 Recommended flow:
 
 1. For a first sync, call `GET /sync/exercises?limit=100` until `pagination.hasMore` is false, following `pagination.nextCursor`. `pagination` is a top-level sibling of `data`, not inside it.
-2. Upsert returned `data.exercises` keyed on `id`, applying pages in order. Sync replays change events, so an exercise changed more than once can appear on more than one page of the same sync (a full sync of 157 exercises returns 175 records); the last copy wins.
+2. Upsert returned `data.exercises` keyed on `id`, applying pages in order. Sync replays change events, so an exercise changed more than once can appear on more than one page of the same sync (at catalog v6, a full sync of 157 exercises returned 175 records); the last copy wins.
 3. Apply `data.tombstones`: `changeType: "deleted"` means remove the local record, `"deprecated"` means flag it.
 4. After the final page, save `data.latestChangeAt` as your watermark, in the same local transaction as the records.
 5. For future syncs, call `GET /sync/exercises?updated_since=<watermark>&limit=100`.
@@ -522,7 +522,7 @@ endpoints, incremental sync (metadata, tombstones, cursor pagination), API-key a
 with per-key daily quotas and usage tracking, premium tier gating, and
 provider-neutral billing (Lemon Squeezy).
 
-The **catalog is complete** — 157 exercises across all eight movement patterns, each
+The **catalog is complete** — 221 exercises across all eight movement patterns, each
 with human-reviewed, fully reciprocal relationships. On top of it sits a **V2
 graph-intelligence layer** (all additive, no breaking changes): equipment-aware
 substitutes, stateless workout coverage analysis, and progression pathfinding.

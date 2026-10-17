@@ -97,7 +97,7 @@ last committed will not redeliver that change. No overlap between syncs.
 ::: warning Within one sync, dedupe by `id`
 Sync replays change events, and one exercise can have several. A record appears
 at most once per page, but an exercise changed twice can come back on two pages
-of the same sync — a full sync of 157 exercises has returned 175 records. Upsert
+of the same sync — at catalog v6 a full sync of 157 exercises returned 175 records. Upsert
 keyed on `id`, applying pages in order, so the last copy wins. The client below
 does exactly that.
 :::

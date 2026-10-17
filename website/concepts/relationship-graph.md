@@ -1,7 +1,7 @@
 # The Relationship Graph
 
 Every exercise in the catalog is connected to others by curated relationships.
-This graph is what turns a flat list of 157 exercises into something you can
+This graph is what turns a flat list of 221 exercises into something you can
 reason about — "what can I do instead", "what comes next", "am I training this
 evenly". The V2 endpoints ([substitutes](/guides/finding-substitutes),
 [coverage](/guides/analyzing-coverage), [progression paths](/guides/building-a-progression))
