@@ -184,8 +184,8 @@ Mobile and web clients should treat the API as a public catalog source of truth 
 
 Recommended flow:
 
-1. For a first sync, call `GET /sync/exercises?limit=100` until `pagination.hasMore` is false, following `pagination.nextCursor`.
-2. Store returned `data.exercises` by `id`.
+1. For a first sync, call `GET /sync/exercises?limit=100` until `pagination.hasMore` is false, following `pagination.nextCursor`. `pagination` is a top-level sibling of `data`, not inside it.
+2. Upsert returned `data.exercises` keyed on `id`, applying pages in order. Sync replays change events, so an exercise changed more than once can appear on more than one page of the same sync (a full sync of 157 exercises returns 175 records); the last copy wins.
 3. Apply `data.tombstones`: `changeType: "deleted"` means remove the local record, `"deprecated"` means flag it.
 4. After the final page, save `data.latestChangeAt` as your watermark, in the same local transaction as the records.
 5. For future syncs, call `GET /sync/exercises?updated_since=<watermark>&limit=100`.
@@ -200,6 +200,56 @@ than being skipped.
 Use `include_deprecated=true` only when the client needs deprecated exercise records for migration or cleanup UI. Deprecated records are then returned in `data.exercises` with `status: "deprecated"` and are not tombstoned.
 
 The full walkthrough is in [the sync guide](website/sync-guide.md).
+
+Every sync and detail record is the full exercise: the text fields plus
+`primaryMuscles`, `secondaryMuscles`, `stabilizerMuscles`, `equipment` (all of
+it is required to perform the exercise), `aliases`, `variations` /
+`progressions` / `regressions` as `{ id, slug }`, and `media`. `media` is empty
+for every exercise today; its shape (`type`, `url`, `thumbnailUrl`, `angle`,
+`caption`, `isPrimary`, `sortOrder`, `width`, `height`, `durationSeconds`) is
+fixed, so images and videos can be added later without a schema change. Any
+change to a record, including only a muscle, alias or link, produces a change
+event and comes back through `updated_since`.
+
+## Shipping A Starting Catalog In A Mobile App
+
+Apps that should work offline from the first launch bundle the catalog instead
+of running a first sync. Produce the bundle with:
+
+```bash
+npm run export:catalog -- --out exports/exercise-catalog.json
+```
+
+It reads Supabase (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`) and writes one
+JSON file:
+
+```json
+{
+  "catalogVersion": 7,
+  "exportedAt": "2026-10-17T12:00:00.000Z",
+  "latestChangeAt": "2026-10-17T11:58:02.114Z",
+  "muscles": [], "equipment": [], "categories": [], "exerciseFlags": [], "jointRegions": [],
+  "enums": {},
+  "exercises": []
+}
+```
+
+- `exercises` holds every **active** exercise as a full record; drafts and
+  deprecated records are left out.
+- Exercises are sorted by slug, reference rows by display order, and keys always
+  come in the same order, so two exports of the same data differ only in
+  `exportedAt` and diff cleanly.
+- `latestChangeAt` is read before the exercises. Save it as the sync watermark
+  when the app loads the bundle; the first `GET /sync/exercises?updated_since=`
+  then continues exactly where the export ended.
+- The file is validated against `src/validation/catalogExport.js` before it is
+  written, and the export fails rather than writing an invalid bundle.
+- `exports/` is git-ignored: the bundle contains the private catalog.
+
+To resolve exercise names a client already stores, compare them on
+`normalizeExerciseName` (`src/utils/slugs.js`): lowercase, keeping only letters
+and digits. Every name and alias is unique across the catalog on that key, which
+the fixture validator enforces.
 
 ## Billing
 
@@ -380,6 +430,7 @@ every origin.
 - `npm run fixtures:validate` - validate Phase 2 reference and sample exercise fixtures
 - `npm run seed:reference` - upsert reference fixtures into Supabase
 - `npm run seed:sample` - upsert reference fixtures and sample exercises into Supabase
+- `npm run export:catalog` - write the bundled starting catalog for mobile apps (see above)
 - `npm test` - run the test suite
 - `npm run lint` - run ESLint
 - `npm run format` - format files with Prettier

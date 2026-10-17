@@ -335,7 +335,9 @@ paths:
           schema: { type: string, example: bodyweight }
         - name: search
           in: query
-          description: Free-text match against name, aliases, and tags.
+          description: >
+            Free-text match against name, aliases, and tags. Case-insensitive;
+            spaces and hyphens match each other, so `push up` finds Push-up.
           schema: { type: string, example: push }
         - $ref: '#/components/parameters/UpdatedSince'
         - $ref: '#/components/parameters/IncludeDeprecated'
@@ -823,6 +825,10 @@ paths:
         `data.latestChangeAt` and send it as `updated_since` next time.
         `limit` bounds change events, not exercises, so a full page may return
         fewer than `limit` records — never page on `exercises.length`.
+        An exercise changed more than once appears once per page but can
+        appear again on a later page of the same sync; apply records in
+        order, keyed on `id`, so the last copy wins.
+        `pagination` is a sibling of `data`, not inside it.
       operationId: syncExercises
       tags: [Sync]
       parameters:

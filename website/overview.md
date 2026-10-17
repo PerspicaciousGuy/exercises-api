@@ -29,7 +29,23 @@ Fetching a single exercise returns the **detail**, which adds everything a coach
 would need: `description`, ordered `instructions`, `tips`, `breathingCues`,
 `contraindications`, `mechanics`, `forceType`, `position`, `planeOfMotion`,
 `laterality`, `loadType`, `skillType`, `jointRegions`, `flags`, and a free-form
-`programming` object.
+`programming` object. It also carries the muscles and links, so a client never
+has to rebuild them from filters:
+
+| Field | Shape |
+| --- | --- |
+| `primaryMuscles`, `secondaryMuscles`, `stabilizerMuscles` | muscle slugs, in `/muscles` display order |
+| `equipment` | equipment slugs; **all** of them are needed to perform the exercise |
+| `aliases` | other names, sorted |
+| `variations`, `progressions`, `regressions` | `{ id, slug }` links to active exercises |
+| `media` | images and videos (`type`, `url`, `thumbnailUrl`, `angle`, `caption`, `isPrimary`, `sortOrder`, `width`, `height`, `durationSeconds`); **empty for every exercise today** |
+
+`breathingCues` is set only where breathing is load-bearing — bracing under the
+main barbell lifts — and is `null` everywhere else.
+
+Every name and alias is unique across the catalog once case, spaces and
+punctuation are ignored, so "Push-Up", "push up" and "Pushup" all name one
+exercise. Search treats spaces and hyphens alike: `q=push up` finds Push-up.
 
 This split is why `GET /exercises` stays fast. Ask for details only when a user
 opens something.

@@ -58,6 +58,9 @@ One pass gives you everything you need to render an exercise offline.
 
 ## 2. Paging
 
+`pagination` sits next to `data` in the envelope, not inside it:
+`page.pagination.nextCursor` and `page.pagination.hasMore`.
+
 Pass `nextCursor` back as `cursor` until `hasMore` is `false`.
 
 ```bash
@@ -89,7 +92,15 @@ curl 'https://api.harshitbishnoi.dev/sync/exercises?updated_since=2026-07-02T09:
 ```
 
 The comparison is strictly greater than, so passing back the exact timestamp you
-last committed will not redeliver that change. No overlap, no duplicates.
+last committed will not redeliver that change. No overlap between syncs.
+
+::: warning Within one sync, dedupe by `id`
+Sync replays change events, and one exercise can have several. A record appears
+at most once per page, but an exercise changed twice can come back on two pages
+of the same sync — a full sync of 157 exercises has returned 175 records. Upsert
+keyed on `id`, applying pages in order, so the last copy wins. The client below
+does exactly that.
+:::
 
 To check whether a sync is worth running at all, call `GET /sync/metadata` — a
 single cheap request. If its `latestChangeAt` equals your stored watermark,
@@ -201,8 +212,21 @@ for a catalog that changes monthly.
 ## Reference data
 
 Muscles, equipment, categories, and flags are not part of the exercise sync.
-Fetch them once from `GET /metadata` and cache them. `catalogVersion` in
-`/sync/metadata` moves when they change, which is your cue to refetch.
+Fetch them once from `GET /metadata` and cache them. Exercise records reference
+them by slug (`primaryMuscles`, `equipment`), and slugs never change.
+
+`catalogVersion` in `/sync/metadata` moves with exercise changes, not with
+reference rows on their own, so refetch `/metadata` whenever a sync returns a
+muscle or equipment slug you do not have, and otherwise on a slow schedule.
+
+## Shipping a starting catalog in an app
+
+A mobile app does not need a first sync over the network. Bundle the export
+from `npm run export:catalog` (see the README): it holds every active exercise as
+a full record, the reference lists, and a `latestChangeAt`. Store that value as
+the watermark when the app first loads the bundle, and the first
+`/sync/exercises?updated_since=` call continues exactly where the export left
+off.
 
 ## Where next
 
