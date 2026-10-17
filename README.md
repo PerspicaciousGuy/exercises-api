@@ -234,8 +234,8 @@ JSON file:
 }
 ```
 
-- `exercises` holds every **active** exercise as a full record; drafts and
-  deprecated records are left out.
+- `exercises` holds every **active**, non-premium exercise as a full record;
+  drafts, deprecated and premium records are left out.
 - Exercises are sorted by slug, reference rows by display order, and keys always
   come in the same order, so two exports of the same data differ only in
   `exportedAt` and diff cleanly.

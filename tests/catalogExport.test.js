@@ -253,6 +253,16 @@ describe('catalog export', () => {
     );
   });
 
+  it('rejects a premium record', async () => {
+    const { syncRepository, referenceRepository } = fakeRepositories([
+      exercise({ regressions: [], isPremium: true })
+    ]);
+
+    await expect(
+      buildCatalogExport({ syncRepository, referenceRepository })
+    ).rejects.toThrow(/Invalid catalog export/);
+  });
+
   it('rejects a record with a field the schema does not know', async () => {
     const { syncRepository, referenceRepository } = fakeRepositories([
       exercise({ regressions: [], surprise: true })
@@ -288,6 +298,7 @@ describe('listActiveExercises', () => {
       filters: {
         status: 'eq.active',
         deleted_at: 'is.null',
+        is_premium: 'is.false',
         order: 'slug.asc',
         limit: '100',
         offset: '100'

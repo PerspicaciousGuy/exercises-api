@@ -54,7 +54,7 @@ const exercise = z
     skillType: z.enum(ENUMS.skillTypes).nullable(),
     flags: slugs,
     programming: z.record(z.unknown()),
-    isPremium: z.boolean(),
+    isPremium: z.literal(false),
     catalogVersion: z.number().int().positive(),
     primaryMuscles: slugs.min(1),
     secondaryMuscles: slugs,

@@ -143,6 +143,8 @@ export function createSyncRepository({ client }) {
           filters: {
             status: 'eq.active',
             deleted_at: 'is.null',
+            // The bundle ships inside public apps, so premium records stay out.
+            is_premium: 'is.false',
             order: 'slug.asc',
             limit: String(EXPORT_PAGE_SIZE),
             offset: String(offset)
