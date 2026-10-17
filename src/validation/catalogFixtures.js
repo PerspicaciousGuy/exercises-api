@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+import {
+  CATALOG_ENUM_VALUES as ENUMS,
+  CATEGORY_TYPES,
+  EXERCISE_STATUSES,
+  MEDIA_STATUSES
+} from '../constants/catalogEnums.js';
 import { createSlug } from '../utils/slugs.js';
 
 const slugSchema = z
@@ -25,13 +31,7 @@ const equipmentSchema = namedReferenceSchema.extend({
 });
 
 const categorySchema = namedReferenceSchema.extend({
-  category: z.enum([
-    'strength',
-    'cardio',
-    'flexibility',
-    'plyometrics',
-    'mobility'
-  ]),
+  category: z.enum(CATEGORY_TYPES),
   description: z.string().min(1)
 });
 
@@ -44,7 +44,7 @@ const jointRegionSchema = namedReferenceSchema.extend({
 });
 
 const mediaSchema = z.object({
-  type: z.enum(['image', 'video', 'gif', 'thumbnail']),
+  type: z.enum(ENUMS.mediaTypes),
   url: z.string().url(),
   thumbnailUrl: z.string().url().optional(),
   angle: z.string().min(1).optional(),
@@ -56,64 +56,29 @@ const mediaSchema = z.object({
   source: z.string().min(1).optional(),
   isPrimary: z.boolean().default(false),
   sortOrder: z.number().int().nonnegative().default(0),
-  status: z.enum(['draft', 'active', 'archived']).default('active')
+  status: z.enum(MEDIA_STATUSES).default('active')
 });
 
 const exerciseSchema = z.object({
   name: z.string().min(1),
   slug: slugSchema,
-  status: z.enum(['draft', 'active', 'deprecated']).default('active'),
+  status: z.enum(EXERCISE_STATUSES).default('active'),
   description: z.string().min(1),
   instructions: z.array(z.string().min(1)).min(1),
   tips: z.array(z.string().min(1)).default([]),
   breathingCues: z.string().min(1).optional(),
   contraindications: z.array(z.string().min(1)).default([]),
   categorySlug: slugSchema,
-  difficulty: z.enum(['beginner', 'intermediate', 'advanced']),
-  movementPattern: z.enum([
-    'squat',
-    'hinge',
-    'push',
-    'pull',
-    'carry',
-    'rotation',
-    'gait',
-    'core'
-  ]),
-  forceType: z.enum(['push', 'pull', 'static', 'compound']).optional(),
-  mechanics: z.enum(['compound', 'isolation']),
-  position: z
-    .enum(['standing', 'seated', 'lying', 'kneeling', 'other'])
-    .optional(),
-  planeOfMotion: z
-    .enum(['sagittal', 'frontal', 'transverse', 'multi_planar'])
-    .optional(),
+  difficulty: z.enum(ENUMS.difficulties),
+  movementPattern: z.enum(ENUMS.movementPatterns),
+  forceType: z.enum(ENUMS.forceTypes).optional(),
+  mechanics: z.enum(ENUMS.mechanics),
+  position: z.enum(ENUMS.positions).optional(),
+  planeOfMotion: z.enum(ENUMS.planesOfMotion).optional(),
   jointRegionSlugs: z.array(slugSchema).default([]),
-  laterality: z
-    .enum(['bilateral', 'unilateral', 'alternating', 'single_side'])
-    .optional(),
-  loadType: z
-    .enum([
-      'bodyweight',
-      'free_weight',
-      'machine',
-      'cable',
-      'band',
-      'cardio_machine',
-      'assisted',
-      'other'
-    ])
-    .optional(),
-  skillType: z
-    .enum([
-      'strength',
-      'power',
-      'endurance',
-      'mobility',
-      'balance',
-      'coordination'
-    ])
-    .optional(),
+  laterality: z.enum(ENUMS.lateralities).optional(),
+  loadType: z.enum(ENUMS.loadTypes).optional(),
+  skillType: z.enum(ENUMS.skillTypes).optional(),
   flagSlugs: z.array(slugSchema).default([]),
   programming: z.record(z.unknown()).default({}),
   tags: z.array(slugSchema).default([]),

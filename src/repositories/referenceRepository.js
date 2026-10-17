@@ -1,42 +1,8 @@
 import { parseSupabaseScriptEnv } from '../config/supabaseEnv.js';
 import { SupabaseRestClient } from '../supabase/restClient.js';
+import { CATALOG_ENUM_VALUES } from '../constants/catalogEnums.js';
 
-export const CATALOG_ENUM_VALUES = {
-  difficulties: ['beginner', 'intermediate', 'advanced'],
-  movementPatterns: [
-    'squat',
-    'hinge',
-    'push',
-    'pull',
-    'carry',
-    'rotation',
-    'gait'
-  ],
-  forceTypes: ['push', 'pull', 'static', 'compound'],
-  mechanics: ['compound', 'isolation'],
-  positions: ['standing', 'seated', 'lying', 'kneeling', 'other'],
-  planesOfMotion: ['sagittal', 'frontal', 'transverse', 'multi_planar'],
-  lateralities: ['bilateral', 'unilateral', 'alternating', 'single_side'],
-  loadTypes: [
-    'bodyweight',
-    'free_weight',
-    'machine',
-    'cable',
-    'band',
-    'cardio_machine',
-    'assisted',
-    'other'
-  ],
-  skillTypes: [
-    'strength',
-    'power',
-    'endurance',
-    'mobility',
-    'balance',
-    'coordination'
-  ],
-  mediaTypes: ['image', 'video', 'gif', 'thumbnail']
-};
+export { CATALOG_ENUM_VALUES };
 
 export function createDefaultReferenceRepository() {
   const env = parseSupabaseScriptEnv(process.env);
@@ -100,8 +66,7 @@ export function createReferenceRepository({ client }) {
     async listMuscles() {
       const rows = await selectReferenceRows(client, {
         table: 'muscles',
-        columns:
-          'id,slug,name,region,muscle_group,display_order,updated_at'
+        columns: 'id,slug,name,region,muscle_group,display_order,updated_at'
       });
 
       return rows.map(mapMuscle);
