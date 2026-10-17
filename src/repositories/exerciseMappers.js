@@ -27,8 +27,25 @@ export const DETAIL_COLUMNS = [
   'is_premium',
   'catalog_version',
   'updated_at',
-  'categories(slug,name)'
+  'categories(slug,name)',
+  'exercise_aliases(alias)',
+  'exercise_primary_muscles(muscles(slug,display_order))',
+  'exercise_secondary_muscles(muscles(slug,display_order))',
+  'exercise_stabilizer_muscles(muscles(slug,display_order))',
+  'exercise_equipment(equipment(slug,display_order))',
+  relationEmbed('variations', 'variation_id'),
+  relationEmbed('progressions', 'progression_id'),
+  relationEmbed('regressions', 'regression_id'),
+  'exercise_media(type,url,thumbnail_url,angle,caption,is_primary,sort_order,width,height,duration_seconds,status)'
 ].join(',');
+
+// The relation tables hold two foreign keys to `exercises`, so each embed names
+// the one to follow: rows owned by this exercise, pointing at the related one.
+function relationEmbed(key, relatedColumn) {
+  const table = `exercise_${key}`;
+
+  return `${key}:${table}!${table}_exercise_id_fkey(exercises!${table}_${relatedColumn}_fkey(id,slug,status))`;
+}
 
 export function mapExerciseSummary(row) {
   return {
@@ -63,6 +80,66 @@ export function mapExerciseDetail(row) {
     flags: row.flags,
     programming: row.programming,
     isPremium: row.is_premium,
-    catalogVersion: row.catalog_version
+    catalogVersion: row.catalog_version,
+    primaryMuscles: slugsByDisplayOrder(
+      row.exercise_primary_muscles,
+      'muscles'
+    ),
+    secondaryMuscles: slugsByDisplayOrder(
+      row.exercise_secondary_muscles,
+      'muscles'
+    ),
+    stabilizerMuscles: slugsByDisplayOrder(
+      row.exercise_stabilizer_muscles,
+      'muscles'
+    ),
+    equipment: slugsByDisplayOrder(row.exercise_equipment, 'equipment'),
+    aliases: (row.exercise_aliases ?? []).map((item) => item.alias).sort(),
+    variations: activeExerciseRefs(row.variations),
+    progressions: activeExerciseRefs(row.progressions),
+    regressions: activeExerciseRefs(row.regressions),
+    media: (row.exercise_media ?? [])
+      .filter((item) => item.status === 'active')
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map(mapMedia)
   };
+}
+
+// Embedded join rows arrive in no particular order; sort them so the same
+// record always serialises the same way.
+function slugsByDisplayOrder(rows = [], referenceKey) {
+  return rows
+    .map((item) => item[referenceKey])
+    .sort(
+      (a, b) => a.display_order - b.display_order || compare(a.slug, b.slug)
+    )
+    .map((reference) => reference.slug);
+}
+
+// Matches the relation endpoints: links to inactive exercises are not shown.
+function activeExerciseRefs(rows = []) {
+  return rows
+    .map((item) => item.exercises)
+    .filter((exercise) => exercise?.status === 'active')
+    .sort((a, b) => compare(a.slug, b.slug))
+    .map(({ id, slug }) => ({ id, slug }));
+}
+
+function mapMedia(item) {
+  return {
+    type: item.type,
+    url: item.url,
+    thumbnailUrl: item.thumbnail_url,
+    angle: item.angle,
+    caption: item.caption,
+    isPrimary: item.is_primary,
+    sortOrder: item.sort_order,
+    width: item.width,
+    height: item.height,
+    durationSeconds: item.duration_seconds
+  };
+}
+
+function compare(a, b) {
+  return a < b ? -1 : a > b ? 1 : 0;
 }

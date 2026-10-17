@@ -41,8 +41,39 @@
  *   flags: string[],
  *   programming: Record<string, unknown>,
  *   isPremium: boolean,
- *   catalogVersion: number
+ *   catalogVersion: number,
+ *   primaryMuscles: string[],
+ *   secondaryMuscles: string[],
+ *   stabilizerMuscles: string[],
+ *   equipment: string[],
+ *   aliases: string[],
+ *   variations: ExerciseRef[],
+ *   progressions: ExerciseRef[],
+ *   regressions: ExerciseRef[],
+ *   media: ExerciseMedia[]
  * }} Exercise
+ */
+
+/**
+ * A link to another exercise; look the full record up by `id`.
+ * @typedef {object} ExerciseRef
+ * @property {string} id
+ * @property {string} slug
+ */
+
+/**
+ * An image or video attached to an exercise. No exercise has media yet.
+ * @typedef {object} ExerciseMedia
+ * @property {'image' | 'video' | 'gif' | 'thumbnail'} type
+ * @property {string} url
+ * @property {string | null} thumbnailUrl
+ * @property {string | null} angle
+ * @property {string | null} caption - Text alternative.
+ * @property {boolean} isPrimary
+ * @property {number} sortOrder
+ * @property {number | null} width
+ * @property {number | null} height
+ * @property {number | null} durationSeconds
  */
 
 /**

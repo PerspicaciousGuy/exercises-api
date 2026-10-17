@@ -183,7 +183,16 @@ describe('createExerciseRepository', () => {
       tags: ['bodyweight'],
       isPremium: false,
       catalogVersion: 1,
-      updatedAt: '2026-06-15T10:00:00.000Z'
+      updatedAt: '2026-06-15T10:00:00.000Z',
+      primaryMuscles: [],
+      secondaryMuscles: [],
+      stabilizerMuscles: [],
+      equipment: [],
+      aliases: [],
+      variations: [],
+      progressions: [],
+      regressions: [],
+      media: []
     });
   });
 

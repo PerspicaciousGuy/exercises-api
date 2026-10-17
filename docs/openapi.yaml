@@ -1130,7 +1130,16 @@ components:
               flags,
               programming,
               isPremium,
-              catalogVersion
+              catalogVersion,
+              primaryMuscles,
+              secondaryMuscles,
+              stabilizerMuscles,
+              equipment,
+              aliases,
+              variations,
+              progressions,
+              regressions,
+              media
             ]
           properties:
             description: { type: string }
@@ -1144,6 +1153,9 @@ components:
             breathingCues:
               type: string
               nullable: true
+              description: >
+                Set only where breathing is load-bearing — bracing under the main
+                barbell and heavy compound lifts. Null for most exercises.
             contraindications:
               type: array
               items: { type: string }
@@ -1197,6 +1209,86 @@ components:
               description: Free-form programming guidance, such as set and rep ranges.
             isPremium: { type: boolean }
             catalogVersion: { type: integer, minimum: 1 }
+            primaryMuscles:
+              type: array
+              items: { type: string }
+              description: Muscle slugs that limit the movement, in `/muscles` display order.
+              example: [quadriceps, glutes]
+            secondaryMuscles:
+              type: array
+              items: { type: string }
+              description: Muscle slugs that contribute meaningfully.
+              example: [adductors, hamstrings, calves]
+            stabilizerMuscles:
+              type: array
+              items: { type: string }
+              description: Muscle slugs that work isometrically to hold position.
+              example: [abs, lower-back]
+            equipment:
+              type: array
+              items: { type: string }
+              description: >
+                Equipment slugs. Every listed item is needed to perform the
+                exercise as written (the same rule `/exercises/{id}/substitutes`
+                applies).
+              example: [barbell]
+            aliases:
+              type: array
+              items: { type: string }
+              description: Other names for the exercise, sorted.
+              example: [Back Squat, Barbell Squat]
+            variations:
+              type: array
+              items: { $ref: '#/components/schemas/ExerciseRef' }
+              description: Active variations, sorted by slug.
+            progressions:
+              type: array
+              items: { $ref: '#/components/schemas/ExerciseRef' }
+              description: Active progressions, sorted by slug.
+            regressions:
+              type: array
+              items: { $ref: '#/components/schemas/ExerciseRef' }
+              description: Active regressions, sorted by slug.
+            media:
+              type: array
+              items: { $ref: '#/components/schemas/ExerciseMedia' }
+              description: >
+                Active images and videos, by `sortOrder`. Empty for every
+                exercise today; the shape is fixed so media can be added without
+                a schema change.
+
+    ExerciseRef:
+      type: object
+      description: A link to another exercise. Look the full record up by `id`.
+      required: [id, slug]
+      properties:
+        id: { type: string, format: uuid }
+        slug: { type: string, example: barbell-front-squat }
+
+    ExerciseMedia:
+      type: object
+      required: [type, url, isPrimary, sortOrder]
+      properties:
+        type:
+          type: string
+          enum: [image, video, gif, thumbnail]
+        url: { type: string, format: uri }
+        thumbnailUrl: { type: string, format: uri, nullable: true }
+        angle:
+          type: string
+          nullable: true
+          example: front
+        caption:
+          type: string
+          nullable: true
+          description: Text alternative for the image or video.
+        isPrimary:
+          type: boolean
+          description: At most one primary item per `type`.
+        sortOrder: { type: integer, minimum: 0 }
+        width: { type: integer, minimum: 1, nullable: true }
+        height: { type: integer, minimum: 1, nullable: true }
+        durationSeconds: { type: integer, minimum: 1, nullable: true }
 
     RelatedExercises:
       type: object

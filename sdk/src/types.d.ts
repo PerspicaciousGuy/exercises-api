@@ -42,6 +42,40 @@ export type Exercise = ExerciseSummary & {
     programming: Record<string, unknown>;
     isPremium: boolean;
     catalogVersion: number;
+    primaryMuscles: string[];
+    secondaryMuscles: string[];
+    stabilizerMuscles: string[];
+    equipment: string[];
+    aliases: string[];
+    variations: ExerciseRef[];
+    progressions: ExerciseRef[];
+    regressions: ExerciseRef[];
+    media: ExerciseMedia[];
+};
+/**
+ * A link to another exercise; look the full record up by `id`.
+ */
+export type ExerciseRef = {
+    id: string;
+    slug: string;
+};
+/**
+ * An image or video attached to an exercise. No exercise has media yet.
+ */
+export type ExerciseMedia = {
+    type: "image" | "video" | "gif" | "thumbnail";
+    url: string;
+    thumbnailUrl: string | null;
+    angle: string | null;
+    /**
+     * - Text alternative.
+     */
+    caption: string | null;
+    isPrimary: boolean;
+    sortOrder: number;
+    width: number | null;
+    height: number | null;
+    durationSeconds: number | null;
 };
 export type Pagination = {
     limit: number;
