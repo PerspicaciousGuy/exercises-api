@@ -46,3 +46,29 @@ function sortReferences(rows) {
 function compare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0;
 }
+
+/**
+ * Serialises an export. When `previousText` is the last file and nothing but
+ * `exportedAt` differs, the previous timestamp is kept, so re-exporting
+ * unchanged data writes a byte-identical file.
+ */
+export function serializeCatalogExport(catalog, previousText) {
+  const text = (value) => `${JSON.stringify(value, null, 2)}\n`;
+  let previous;
+
+  try {
+    previous = previousText ? JSON.parse(previousText) : undefined;
+  } catch {
+    previous = undefined;
+  }
+
+  if (
+    previous?.exportedAt &&
+    text({ ...previous, exportedAt: null }) ===
+      text({ ...catalog, exportedAt: null })
+  ) {
+    return text({ ...catalog, exportedAt: previous.exportedAt });
+  }
+
+  return text(catalog);
+}
