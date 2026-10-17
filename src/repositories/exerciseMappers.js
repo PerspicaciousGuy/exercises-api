@@ -21,6 +21,7 @@ export const DETAIL_COLUMNS = [
   'laterality',
   'load_type',
   'skill_type',
+  'tracking_type',
   'flags',
   'programming',
   'tags',
@@ -33,6 +34,7 @@ export const DETAIL_COLUMNS = [
   'exercise_secondary_muscles(muscles(slug,display_order))',
   'exercise_stabilizer_muscles(muscles(slug,display_order))',
   'exercise_equipment(equipment(slug,display_order))',
+  'exercise_optional_equipment(equipment(slug,display_order))',
   relationEmbed('variations', 'variation_id'),
   relationEmbed('progressions', 'progression_id'),
   relationEmbed('regressions', 'regression_id'),
@@ -94,6 +96,11 @@ export function mapExerciseDetail(row) {
       'muscles'
     ),
     equipment: slugsByDisplayOrder(row.exercise_equipment, 'equipment'),
+    optionalEquipment: slugsByDisplayOrder(
+      row.exercise_optional_equipment,
+      'equipment'
+    ),
+    trackingType: row.tracking_type ?? null,
     aliases: (row.exercise_aliases ?? []).map((item) => item.alias).sort(),
     variations: activeExerciseRefs(row.variations),
     progressions: activeExerciseRefs(row.progressions),

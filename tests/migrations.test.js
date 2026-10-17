@@ -24,7 +24,8 @@ describe('Supabase migrations', () => {
       '012_add_billing_fields.sql',
       '013_create_api_sessions.sql',
       '014_add_core_movement_pattern.sql',
-      '015_unique_exercise_media_url.sql'
+      '015_unique_exercise_media_url.sql',
+      '016_tracking_optional_equipment_search_keys.sql'
     ]);
   });
 

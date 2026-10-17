@@ -25,6 +25,7 @@ const ENUM_TYPES = {
   load_type: CATALOG_ENUM_VALUES.loadTypes,
   skill_type: CATALOG_ENUM_VALUES.skillTypes,
   media_type: CATALOG_ENUM_VALUES.mediaTypes,
+  tracking_type: CATALOG_ENUM_VALUES.trackingTypes,
   exercise_status: EXERCISE_STATUSES,
   exercise_category: CATEGORY_TYPES,
   media_status: MEDIA_STATUSES

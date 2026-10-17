@@ -59,6 +59,24 @@ const mediaSchema = z.object({
   status: z.enum(MEDIA_STATUSES).default('active')
 });
 
+const count = z.number().int().positive();
+
+// Structured defaults sit next to the free-text `defaultReps`; see
+// assertProgrammingAgrees for how the two must match.
+const programmingSchema = z
+  .object({
+    defaultSets: count.optional(),
+    defaultReps: z.union([z.string().min(1), count]).optional(),
+    defaultRepsMin: count.optional(),
+    defaultRepsMax: count.optional(),
+    perSide: z.boolean(),
+    defaultDistanceMetersMin: count.optional(),
+    defaultDistanceMetersMax: count.optional(),
+    defaultDurationSeconds: count.optional(),
+    defaultDurationMinutes: count.optional()
+  })
+  .strict();
+
 const exerciseSchema = z.object({
   name: z.string().min(1),
   slug: slugSchema,
@@ -80,7 +98,8 @@ const exerciseSchema = z.object({
   loadType: z.enum(ENUMS.loadTypes).optional(),
   skillType: z.enum(ENUMS.skillTypes).optional(),
   flagSlugs: z.array(slugSchema).default([]),
-  programming: z.record(z.unknown()).default({}),
+  programming: programmingSchema,
+  trackingType: z.enum(ENUMS.trackingTypes),
   tags: z.array(slugSchema).default([]),
   isPremium: z.boolean().default(false),
   catalogVersion: z.number().int().positive().default(1),
@@ -89,6 +108,7 @@ const exerciseSchema = z.object({
   secondaryMuscleSlugs: z.array(slugSchema).default([]),
   stabilizerMuscleSlugs: z.array(slugSchema).default([]),
   equipmentSlugs: z.array(slugSchema).default([]),
+  optionalEquipmentSlugs: z.array(slugSchema).default([]),
   variationSlugs: z.array(slugSchema).default([]),
   progressionSlugs: z.array(slugSchema).default([]),
   regressionSlugs: z.array(slugSchema).default([]),
@@ -130,6 +150,10 @@ export function parseExerciseFixtures(source) {
 
   assertUniqueSlugs('exercises', exercises);
   assertUniqueNames(exercises);
+
+  for (const exercise of exercises) {
+    assertProgrammingAgrees(exercise);
+  }
 
   return exercises;
 }
@@ -185,6 +209,50 @@ function assertUniqueSlugs(label, items) {
   }
 }
 
+const REPS_TEXT = /^(\d+)(?:-(\d+))?( each side)?$/;
+const METRES_TEXT = /^(\d+)-(\d+) metres( each side)?$/;
+
+/**
+ * The structured programming fields must say the same thing as the text:
+ * "8-12 each side" is defaultRepsMin 8, defaultRepsMax 12, perSide true;
+ * "15-25 metres" is a distance range; minutes and seconds must agree.
+ */
+export function assertProgrammingAgrees({ slug, programming: p }) {
+  const fail = (message) => {
+    throw new Error(`Invalid programming on "${slug}": ${message}`);
+  };
+  const text = p.defaultReps === undefined ? undefined : String(p.defaultReps);
+  const metres = text?.match(METRES_TEXT);
+  const reps = metres ? null : text?.match(REPS_TEXT);
+  const expected = {
+    defaultRepsMin: reps ? Number(reps[1]) : undefined,
+    defaultRepsMax: reps ? Number(reps[2] ?? reps[1]) : undefined,
+    defaultDistanceMetersMin: metres ? Number(metres[1]) : undefined,
+    defaultDistanceMetersMax: metres ? Number(metres[2]) : undefined
+  };
+
+  if (text !== undefined && !metres && !reps) {
+    fail(`unrecognised defaultReps "${text}"`);
+  }
+  for (const [key, value] of Object.entries(expected)) {
+    if (p[key] !== value) {
+      fail(`${key} is ${p[key]}, expected ${value} from "${text}"`);
+    }
+  }
+  if (text !== undefined && text.endsWith('each side') !== p.perSide) {
+    fail(`perSide is ${p.perSide} but defaultReps is "${text}"`);
+  }
+  if (
+    p.defaultDurationMinutes !== undefined &&
+    p.defaultDurationSeconds !== p.defaultDurationMinutes * 60
+  ) {
+    fail('defaultDurationSeconds must equal defaultDurationMinutes * 60');
+  }
+  if (text === undefined && p.defaultDurationSeconds === undefined) {
+    fail('needs defaultReps or defaultDurationSeconds');
+  }
+}
+
 // Every name and alias must resolve to one exercise, ignoring case and
 // punctuation, or a client looking a name up cannot tell which record it means.
 function assertUniqueNames(exercises) {
@@ -224,9 +292,16 @@ function assertExerciseReferences(references, exercises) {
     assertKnownSlugs(referenceSets.muscles, allMuscleSlugs(exercise), 'muscle');
     assertKnownSlugs(
       referenceSets.equipment,
-      exercise.equipmentSlugs,
+      [...exercise.equipmentSlugs, ...exercise.optionalEquipmentSlugs],
       'equipment'
     );
+    for (const slug of exercise.optionalEquipmentSlugs) {
+      if (exercise.equipmentSlugs.includes(slug)) {
+        throw new Error(
+          `"${exercise.slug}" lists "${slug}" as both required and optional equipment`
+        );
+      }
+    }
     assertKnownSlugs(
       referenceSets.exercises,
       allRelatedExerciseSlugs(exercise),

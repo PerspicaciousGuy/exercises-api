@@ -2,7 +2,10 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { CATALOG_ENUM_VALUES } from '../src/constants/catalogEnums.js';
 import { createSyncRepository } from '../src/repositories/syncRepository.js';
-import { buildCatalogExport } from '../src/services/catalogExportService.js';
+import {
+  buildCatalogExport,
+  serializeCatalogExport
+} from '../src/services/catalogExportService.js';
 import { catalogExportSchema } from '../src/validation/catalogExport.js';
 
 const SQUAT_ID = '00000000-0000-4000-8000-000000000001';
@@ -34,6 +37,8 @@ function exercise(overrides) {
     skillType: 'strength',
     flags: ['compound'],
     programming: { defaultSets: 4, defaultReps: '5-10' },
+    trackingType: 'weight_reps',
+    optionalEquipment: [],
     isPremium: false,
     catalogVersion: 7,
     primaryMuscles: ['quadriceps', 'glutes'],
@@ -304,5 +309,50 @@ describe('listActiveExercises', () => {
         offset: '100'
       }
     });
+  });
+});
+
+describe('serializeCatalogExport', () => {
+  const catalog = (exportedAt, extra = {}) => ({
+    catalogVersion: 8,
+    exportedAt,
+    latestChangeAt: '2026-10-17T10:00:00+00:00',
+    exercises: [],
+    ...extra
+  });
+
+  it('keeps the previous exportedAt when nothing else changed', () => {
+    const previous = serializeCatalogExport(
+      catalog('2026-10-01T00:00:00.000Z')
+    );
+    const next = serializeCatalogExport(
+      catalog('2026-10-17T12:00:00.000Z'),
+      previous
+    );
+
+    expect(next).toBe(previous);
+  });
+
+  it('writes the new exportedAt when the data changed', () => {
+    const previous = serializeCatalogExport(
+      catalog('2026-10-01T00:00:00.000Z')
+    );
+    const next = serializeCatalogExport(
+      catalog('2026-10-17T12:00:00.000Z', { catalogVersion: 9 }),
+      previous
+    );
+
+    expect(JSON.parse(next).exportedAt).toBe('2026-10-17T12:00:00.000Z');
+  });
+
+  it('ignores a missing or unreadable previous file', () => {
+    const fresh = catalog('2026-10-17T12:00:00.000Z');
+
+    expect(JSON.parse(serializeCatalogExport(fresh)).exportedAt).toBe(
+      fresh.exportedAt
+    );
+    expect(
+      JSON.parse(serializeCatalogExport(fresh, 'not json')).exportedAt
+    ).toBe(fresh.exportedAt);
   });
 });

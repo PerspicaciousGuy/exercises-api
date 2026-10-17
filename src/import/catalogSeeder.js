@@ -34,6 +34,11 @@ const EXERCISE_LINK_TABLES = [
     planKey: 'equipment'
   },
   {
+    table: 'exercise_optional_equipment',
+    relatedColumn: 'equipment_id',
+    planKey: 'optionalEquipment'
+  },
+  {
     table: 'exercise_variations',
     relatedColumn: 'variation_id',
     planKey: 'variations'
@@ -172,6 +177,9 @@ async function upsertExercisePlan(client, plan) {
     onConflict: 'exercise_id,muscle_id'
   });
   await client.upsert('exercise_equipment', plan.equipment, {
+    onConflict: 'exercise_id,equipment_id'
+  });
+  await client.upsert('exercise_optional_equipment', plan.optionalEquipment, {
     onConflict: 'exercise_id,equipment_id'
   });
   await client.upsert('exercise_variations', plan.variations, {

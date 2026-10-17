@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  createSlug,
-  normalizeExerciseName,
-  toNameSearchPattern
-} from '../src/utils/slugs.js';
+import { createSlug, normalizeExerciseName } from '../src/utils/slugs.js';
 
 describe('createSlug', () => {
   it('normalizes names to lowercase kebab-case slugs', () => {
@@ -25,11 +21,5 @@ describe('exercise name matching', () => {
     expect(normalizeExerciseName('Incline Bench Press (Barbell)')).toBe(
       'inclinebenchpressbarbell'
     );
-  });
-
-  it('builds a search pattern that matches across spaces and hyphens', () => {
-    expect(toNameSearchPattern('push up')).toBe('*push*up*');
-    expect(toNameSearchPattern(' Pull-Up ')).toBe('*Pull*Up*');
-    expect(toNameSearchPattern('press')).toBe('*press*');
   });
 });

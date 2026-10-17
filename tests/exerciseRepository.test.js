@@ -46,7 +46,7 @@ describe('createExerciseRepository', () => {
         deleted_at: 'is.null',
         difficulty: 'eq.beginner',
         'categories.slug': 'eq.strength',
-        name: 'ilike.*push*',
+        search_name: 'ilike.*push*',
         updated_at: 'gt.2026-06-15T10:00:00.000Z',
         order: 'name.asc',
         limit: '10',
@@ -188,6 +188,8 @@ describe('createExerciseRepository', () => {
       secondaryMuscles: [],
       stabilizerMuscles: [],
       equipment: [],
+      optionalEquipment: [],
+      trackingType: null,
       aliases: [],
       variations: [],
       progressions: [],
@@ -203,7 +205,7 @@ describe('createExerciseRepository', () => {
           return [{ exercise_id: 'exercise-2' }];
         }
 
-        if (table === 'exercises' && options.filters.name) {
+        if (table === 'exercises' && options.filters.search_name) {
           return [
             createExerciseSummaryRow({
               id: 'exercise-1',
@@ -247,7 +249,7 @@ describe('createExerciseRepository', () => {
     expect(client.select).toHaveBeenCalledWith('exercise_aliases', {
       columns: 'exercise_id',
       filters: {
-        alias: 'ilike.*press*'
+        search_alias: 'ilike.*press*'
       }
     });
     expect(result.exercises.map((exercise) => exercise.id)).toEqual([
@@ -257,25 +259,36 @@ describe('createExerciseRepository', () => {
     ]);
   });
 
-  it('matches names and aliases across spaces and hyphens', async () => {
+  it.each(['pushup', 'push up', 'Push-Up', 'push - up'])(
+    'matches "%s" on the normalized name and alias keys',
+    async (query) => {
+      const client = { select: vi.fn(async () => []) };
+      const repository = createExerciseRepository({ client });
+
+      await repository.searchExercises({ query, limit: 10, offset: 0 });
+
+      expect(client.select).toHaveBeenCalledWith('exercise_aliases', {
+        columns: 'exercise_id',
+        filters: { search_alias: 'ilike.*pushup*' }
+      });
+      expect(client.select).toHaveBeenCalledWith(
+        'exercises',
+        expect.objectContaining({
+          filters: expect.objectContaining({ search_name: 'ilike.*pushup*' })
+        })
+      );
+    }
+  );
+
+  it('matches no name for a query without letters or digits', async () => {
     const client = { select: vi.fn(async () => []) };
     const repository = createExerciseRepository({ client });
 
-    await repository.searchExercises({
-      query: 'push up',
-      limit: 10,
-      offset: 0
-    });
+    await repository.searchExercises({ query: '--', limit: 10, offset: 0 });
 
-    expect(client.select).toHaveBeenCalledWith('exercise_aliases', {
-      columns: 'exercise_id',
-      filters: { alias: 'ilike.*push*up*' }
-    });
-    expect(client.select).toHaveBeenCalledWith(
-      'exercises',
-      expect.objectContaining({
-        filters: expect.objectContaining({ name: 'ilike.*push*up*' })
-      })
+    expect(client.select).not.toHaveBeenCalledWith(
+      'exercise_aliases',
+      expect.anything()
     );
   });
 

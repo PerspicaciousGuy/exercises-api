@@ -38,7 +38,17 @@ export const CATALOG_ENUM_VALUES = {
     'balance',
     'coordination'
   ],
-  mediaTypes: ['image', 'video', 'gif', 'thumbnail']
+  mediaTypes: ['image', 'video', 'gif', 'thumbnail'],
+  trackingTypes: [
+    'weight_reps',
+    'reps',
+    'assisted_reps',
+    'band_reps',
+    'duration',
+    'weight_duration',
+    'distance_duration',
+    'weight_distance'
+  ]
 };
 
 // Enums the fixtures use that the API does not publish under `enums`.

@@ -28,7 +28,10 @@ export function buildExerciseImportPlan({
       mapMuscleRows(exercise, exercise.stabilizerMuscleSlugs, lookups)
     ),
     equipment: flatMap(exercises, (exercise) =>
-      mapEquipmentRows(exercise, lookups)
+      mapEquipmentRows(exercise, exercise.equipmentSlugs, lookups)
+    ),
+    optionalEquipment: flatMap(exercises, (exercise) =>
+      mapEquipmentRows(exercise, exercise.optionalEquipmentSlugs, lookups)
     ),
     variations: flatMap(exercises, (exercise) =>
       mapRelatedExerciseRows(
@@ -134,6 +137,7 @@ function mapExerciseRow(exercise, lookups) {
     laterality: exercise.laterality ?? null,
     load_type: exercise.loadType ?? null,
     skill_type: exercise.skillType ?? null,
+    tracking_type: exercise.trackingType,
     flags: exercise.flagSlugs,
     programming: exercise.programming,
     tags: exercise.tags,
@@ -168,14 +172,14 @@ function mapMuscleRows(exercise, muscleSlugs, lookups) {
   }));
 }
 
-function mapEquipmentRows(exercise, lookups) {
+function mapEquipmentRows(exercise, equipmentSlugs, lookups) {
   const exerciseId = requiredLookup(
     lookups.exerciseIdsBySlug,
     exercise.slug,
     'exercise'
   );
 
-  return exercise.equipmentSlugs.map((equipmentSlug) => ({
+  return equipmentSlugs.map((equipmentSlug) => ({
     exercise_id: exerciseId,
     equipment_id: requiredLookup(
       lookups.equipmentIdsBySlug,

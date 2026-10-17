@@ -54,6 +54,8 @@ const exercise = z
     skillType: z.enum(ENUMS.skillTypes).nullable(),
     flags: slugs,
     programming: z.record(z.unknown()),
+    trackingType: z.enum(ENUMS.trackingTypes),
+    optionalEquipment: slugs,
     isPremium: z.literal(false),
     catalogVersion: z.number().int().positive(),
     primaryMuscles: slugs.min(1),
@@ -112,7 +114,10 @@ export const catalogExportSchema = z
           ...item.secondaryMuscles,
           ...item.stabilizerMuscles
         ].map((slug) => ['muscle', slug]),
-        ...item.equipment.map((slug) => ['equipment', slug])
+        ...[...item.equipment, ...item.optionalEquipment].map((slug) => [
+          'equipment',
+          slug
+        ])
       ];
 
       for (const [kind, slug] of checks) {

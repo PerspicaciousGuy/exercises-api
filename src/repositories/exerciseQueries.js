@@ -1,4 +1,4 @@
-import { toNameSearchPattern } from '../utils/slugs.js';
+import { normalizeExerciseName } from '../utils/slugs.js';
 import {
   DETAIL_COLUMNS,
   SUMMARY_COLUMNS,
@@ -29,7 +29,7 @@ export function buildListFilters(filters, exerciseIds) {
       ? { 'categories.slug': `eq.${filters.category}` }
       : {}),
     ...(filters.search
-      ? { name: `ilike.${toNameSearchPattern(filters.search)}` }
+      ? { search_name: toSearchKeyFilter(filters.search) }
       : {}),
     ...(filters.updatedSince
       ? { updated_at: `gt.${filters.updatedSince}` }
@@ -55,19 +55,31 @@ export async function findMatchingExerciseIds(client, filters) {
   return idSets.length > 0 ? intersectSets(idSets) : undefined;
 }
 
+/**
+ * Names and aliases are matched on their stored search keys (lowercase,
+ * letters and digits only), so "pushup", "push up" and "Push-Up" are the same
+ * query. A query with no letters or digits matches no name.
+ */
+function toSearchKeyFilter(query) {
+  return `ilike.*${normalizeExerciseName(query)}*`;
+}
+
 export async function searchExerciseRows(client, { query, limit, offset }) {
   const searchLimit = limit + offset;
+  const hasKey = normalizeExerciseName(query) !== '';
   const [aliasRows, nameRows, tagRows] = await Promise.all([
-    client.select('exercise_aliases', {
-      columns: 'exercise_id',
-      filters: {
-        alias: `ilike.${toNameSearchPattern(query)}`
-      }
-    }),
-    selectExerciseSummaries(client, {
-      name: `ilike.${toNameSearchPattern(query)}`,
-      limit: String(searchLimit)
-    }),
+    hasKey
+      ? client.select('exercise_aliases', {
+          columns: 'exercise_id',
+          filters: { search_alias: toSearchKeyFilter(query) }
+        })
+      : [],
+    hasKey
+      ? selectExerciseSummaries(client, {
+          search_name: toSearchKeyFilter(query),
+          limit: String(searchLimit)
+        })
+      : [],
     selectExerciseSummaries(client, {
       tags: `cs.${toPostgrestArrayLiteral(query)}`,
       limit: String(searchLimit)
@@ -234,12 +246,23 @@ async function findExerciseIdsByEquipment(client, slug) {
     return [];
   }
 
-  return selectExerciseIds(
-    client,
-    'exercise_equipment',
-    'equipment_id',
-    equipment.id
-  );
+  // ?equipment= matches exercises that need the item or can use it.
+  const relationRows = await Promise.all([
+    selectExerciseIds(
+      client,
+      'exercise_equipment',
+      'equipment_id',
+      equipment.id
+    ),
+    selectExerciseIds(
+      client,
+      'exercise_optional_equipment',
+      'equipment_id',
+      equipment.id
+    )
+  ]);
+
+  return unique(relationRows.flat());
 }
 
 async function selectOneBySlug(client, table, slug) {

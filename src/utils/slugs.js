@@ -15,11 +15,3 @@ export function createSlug(value) {
 export function normalizeExerciseName(value) {
   return value.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
-
-/**
- * An ilike pattern that matches across spaces and hyphens: "push up" finds
- * "Push-up". PostgREST reads `*` as the SQL `%` wildcard.
- */
-export function toNameSearchPattern(query) {
-  return `*${query.trim().replace(/[\s-]+/g, '*')}*`;
-}
