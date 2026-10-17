@@ -218,4 +218,34 @@ describe('catalog fixture validation', () => {
       })
     ).toThrow(/unknown category slug "strength"/);
   });
+
+  it('rejects a name or alias that matches another exercise, ignoring case and hyphens', () => {
+    const record = (slug, name, aliases) => ({
+      name,
+      slug,
+      description: 'A movement.',
+      instructions: ['Move.'],
+      categorySlug: 'strength',
+      difficulty: 'beginner',
+      movementPattern: 'push',
+      mechanics: 'compound',
+      aliases,
+      primaryMuscleSlugs: ['chest']
+    });
+
+    expect(() =>
+      parseExerciseFixtures([
+        record('push-up', 'Push-up', []),
+        record('wide-push-up', 'Wide Push-Up', ['push up'])
+      ])
+    ).toThrow(
+      /"push up" on "wide-push-up" matches a name or alias of "push-up"/
+    );
+    expect(() =>
+      parseExerciseFixtures([
+        record('push-up', 'Push-up', ['Pushup', 'Press-up']),
+        record('wide-push-up', 'Wide Push-Up', [])
+      ])
+    ).not.toThrow();
+  });
 });

@@ -22,8 +22,7 @@ describe('createReferenceRepository', () => {
     const muscles = await repository.listMuscles();
 
     expect(client.select).toHaveBeenCalledWith('muscles', {
-      columns:
-        'id,slug,name,region,muscle_group,display_order,updated_at',
+      columns: 'id,slug,name,region,muscle_group,display_order,updated_at',
       filters: {
         order: 'display_order.asc'
       }

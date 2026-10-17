@@ -257,6 +257,28 @@ describe('createExerciseRepository', () => {
     ]);
   });
 
+  it('matches names and aliases across spaces and hyphens', async () => {
+    const client = { select: vi.fn(async () => []) };
+    const repository = createExerciseRepository({ client });
+
+    await repository.searchExercises({
+      query: 'push up',
+      limit: 10,
+      offset: 0
+    });
+
+    expect(client.select).toHaveBeenCalledWith('exercise_aliases', {
+      columns: 'exercise_id',
+      filters: { alias: 'ilike.*push*up*' }
+    });
+    expect(client.select).toHaveBeenCalledWith(
+      'exercises',
+      expect.objectContaining({
+        filters: expect.objectContaining({ name: 'ilike.*push*up*' })
+      })
+    );
+  });
+
   it('returns detailed exercises for bulk ids in request order', async () => {
     const id1 = '3f1c9b2a-0000-4000-8000-000000000001';
     const id2 = '3f1c9b2a-0000-4000-8000-000000000002';

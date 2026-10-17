@@ -1,3 +1,4 @@
+import { toNameSearchPattern } from '../utils/slugs.js';
 import {
   DETAIL_COLUMNS,
   SUMMARY_COLUMNS,
@@ -27,7 +28,9 @@ export function buildListFilters(filters, exerciseIds) {
     ...(filters.category
       ? { 'categories.slug': `eq.${filters.category}` }
       : {}),
-    ...(filters.search ? { name: `ilike.*${filters.search}*` } : {}),
+    ...(filters.search
+      ? { name: `ilike.${toNameSearchPattern(filters.search)}` }
+      : {}),
     ...(filters.updatedSince
       ? { updated_at: `gt.${filters.updatedSince}` }
       : {}),
@@ -58,11 +61,11 @@ export async function searchExerciseRows(client, { query, limit, offset }) {
     client.select('exercise_aliases', {
       columns: 'exercise_id',
       filters: {
-        alias: `ilike.*${query}*`
+        alias: `ilike.${toNameSearchPattern(query)}`
       }
     }),
     selectExerciseSummaries(client, {
-      name: `ilike.*${query}*`,
+      name: `ilike.${toNameSearchPattern(query)}`,
       limit: String(searchLimit)
     }),
     selectExerciseSummaries(client, {

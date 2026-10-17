@@ -14,7 +14,10 @@ const EDGES = [
   { from: 'c', to: 'd' }
 ];
 
-function buildRepository({ edges = EDGES, exists = ['a', 'b', 'c', 'd', 'e'] } = {}) {
+function buildRepository({
+  edges = EDGES,
+  exists = ['a', 'b', 'c', 'd', 'e']
+} = {}) {
   return {
     getExerciseById: vi.fn(async (id) => (exists.includes(id) ? { id } : null)),
     getProgressionEdges: vi.fn(async () => edges),
@@ -30,7 +33,10 @@ describe('createPathfindingService.findProgressionPath', () => {
       exerciseRepository: buildRepository()
     });
 
-    const result = await service.findProgressionPath({ fromId: 'a', toId: 'd' });
+    const result = await service.findProgressionPath({
+      fromId: 'a',
+      toId: 'd'
+    });
 
     expect(result.found).toBe(true);
     // a -> b -> d and a -> c -> d are both length 3; BFS returns one shortest.
@@ -44,7 +50,10 @@ describe('createPathfindingService.findProgressionPath', () => {
       exerciseRepository: buildRepository()
     });
 
-    const result = await service.findProgressionPath({ fromId: 'a', toId: 'a' });
+    const result = await service.findProgressionPath({
+      fromId: 'a',
+      toId: 'a'
+    });
 
     expect(result.found).toBe(true);
     expect(result.path.map((p) => p.id)).toEqual(['a']);
@@ -56,7 +65,10 @@ describe('createPathfindingService.findProgressionPath', () => {
     });
 
     // e is isolated; d does not progress anywhere; no a->e path.
-    const result = await service.findProgressionPath({ fromId: 'a', toId: 'e' });
+    const result = await service.findProgressionPath({
+      fromId: 'a',
+      toId: 'e'
+    });
 
     expect(result.found).toBe(false);
     expect(result.path).toBeNull();
@@ -73,7 +85,10 @@ describe('createPathfindingService.findProgressionPath', () => {
       })
     });
 
-    const result = await service.findProgressionPath({ fromId: 'a', toId: 'z' });
+    const result = await service.findProgressionPath({
+      fromId: 'a',
+      toId: 'z'
+    });
 
     expect(result.found).toBe(false);
     expect(result.path).toBeNull();

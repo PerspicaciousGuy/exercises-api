@@ -6,7 +6,7 @@ import {
   EXERCISE_STATUSES,
   MEDIA_STATUSES
 } from '../constants/catalogEnums.js';
-import { createSlug } from '../utils/slugs.js';
+import { createSlug, normalizeExerciseName } from '../utils/slugs.js';
 
 const slugSchema = z
   .string()
@@ -129,6 +129,7 @@ export function parseExerciseFixtures(source) {
   );
 
   assertUniqueSlugs('exercises', exercises);
+  assertUniqueNames(exercises);
 
   return exercises;
 }
@@ -181,6 +182,27 @@ function assertUniqueSlugs(label, items) {
     }
 
     seen.add(item.slug);
+  }
+}
+
+// Every name and alias must resolve to one exercise, ignoring case and
+// punctuation, or a client looking a name up cannot tell which record it means.
+function assertUniqueNames(exercises) {
+  const ownerByKey = new Map();
+
+  for (const exercise of exercises) {
+    for (const name of [exercise.name, ...exercise.aliases]) {
+      const key = normalizeExerciseName(name);
+      const owner = ownerByKey.get(key);
+
+      if (owner && owner !== exercise.slug) {
+        throw new Error(
+          `Invalid exercises: "${name}" on "${exercise.slug}" matches a name or alias of "${owner}"`
+        );
+      }
+
+      ownerByKey.set(key, exercise.slug);
+    }
   }
 }
 

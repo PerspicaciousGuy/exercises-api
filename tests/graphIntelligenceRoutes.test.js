@@ -41,7 +41,9 @@ describe('GET /exercises/:id/substitutes', () => {
       .expect(200);
 
     expect(response.body.data).toHaveLength(1);
-    expect(exerciseRepository.getEquipmentSlugsByExerciseIds).not.toHaveBeenCalled();
+    expect(
+      exerciseRepository.getEquipmentSlugsByExerciseIds
+    ).not.toHaveBeenCalled();
   });
 
   it('keeps only variations whose equipment is available', async () => {
