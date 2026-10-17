@@ -87,7 +87,11 @@ export function createExerciseRepository({ client }) {
       }
 
       const rows = await client.select('exercises', {
-        columns: SUMMARY_COLUMNS,
+        // A filter on an embedded table only blanks the embed unless the join
+        // is inner; !inner makes ?category= drop the non-matching exercises.
+        columns: filters.category
+          ? SUMMARY_COLUMNS.replace('categories(', 'categories!inner(')
+          : SUMMARY_COLUMNS,
         filters: buildListFilters(filters, matchingExerciseIds)
       });
 

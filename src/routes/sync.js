@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 
 import { AppError } from '../errors/AppError.js';
+import { filterPremiumExercises } from '../security/premiumAccess.js';
 import { createSyncService } from '../services/syncService.js';
 
 const syncExercisesQuerySchema = z.object({
@@ -38,7 +39,8 @@ export function createSyncRouter({ syncRepository, syncService }) {
       response.status(200).json({
         success: true,
         data: {
-          exercises: syncResult.exercises,
+          // Same tier gate as the catalog endpoints.
+          exercises: filterPremiumExercises(syncResult.exercises, request),
           tombstones: syncResult.tombstones,
           latestChangeAt: syncResult.latestChangeAt
         },

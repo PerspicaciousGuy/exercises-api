@@ -129,3 +129,46 @@ function createAppWithAuthBypass(options) {
 function allowApiKey(_request, _response, next) {
   next();
 }
+
+describe('sync premium gate', () => {
+  const syncService = {
+    syncExercises: vi.fn(async () => ({
+      exercises: [
+        { id: 'free-1', slug: 'push-up', isPremium: false },
+        { id: 'paid-1', slug: 'secret-lift', isPremium: true }
+      ],
+      tombstones: [],
+      latestChangeAt: '2026-10-17T10:00:00.000Z',
+      pagination: { limit: 100, nextCursor: null, hasMore: false }
+    }))
+  };
+  const appForTier = (tier) =>
+    createApp({
+      syncService,
+      apiKeyMiddleware: (request, _response, next) => {
+        request.apiConsumer = { user: { tier } };
+        next();
+      }
+    });
+
+  it('withholds premium records from the free tier', async () => {
+    const response = await request(appForTier('free'))
+      .get('/sync/exercises')
+      .expect(200);
+
+    expect(response.body.data.exercises.map((item) => item.id)).toEqual([
+      'free-1'
+    ]);
+  });
+
+  it('returns premium records to a premium tier', async () => {
+    const response = await request(appForTier('pro'))
+      .get('/sync/exercises')
+      .expect(200);
+
+    expect(response.body.data.exercises.map((item) => item.id)).toEqual([
+      'free-1',
+      'paid-1'
+    ]);
+  });
+});

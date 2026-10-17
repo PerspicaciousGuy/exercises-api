@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import { z } from 'zod';
 
-import { PREMIUM_ACCESS_TIERS } from '../constants/rateLimits.js';
 import { AppError } from '../errors/AppError.js';
+import {
+  canAccessPremium,
+  filterPremiumExercises
+} from '../security/premiumAccess.js';
 import { createExerciseService } from '../services/exerciseService.js';
 import { createPathfindingService } from '../services/pathfindingService.js';
 
@@ -202,22 +205,10 @@ function filterPremiumRelationGroups(relationGroups, request) {
   );
 }
 
-function filterPremiumExercises(exercises, request) {
-  if (canAccessPremium(request)) {
-    return exercises;
-  }
-
-  return exercises.filter((exercise) => !exercise.isPremium);
-}
-
 function requirePremiumAccess(exercise, request) {
   if (exercise.isPremium && !canAccessPremium(request)) {
     throw new AppError(PREMIUM_ACCESS_ERROR);
   }
-}
-
-function canAccessPremium(request) {
-  return PREMIUM_ACCESS_TIERS.has(request.apiConsumer?.user?.tier);
 }
 
 function parseListFilters(query) {

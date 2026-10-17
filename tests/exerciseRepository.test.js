@@ -40,7 +40,7 @@ describe('createExerciseRepository', () => {
 
     expect(client.select).toHaveBeenCalledWith('exercises', {
       columns:
-        'id,slug,name,status,difficulty,movement_pattern,tags,updated_at,categories(slug,name)',
+        'id,slug,name,status,difficulty,movement_pattern,tags,updated_at,categories!inner(slug,name)',
       filters: {
         status: 'in.(active,deprecated)',
         deleted_at: 'is.null',

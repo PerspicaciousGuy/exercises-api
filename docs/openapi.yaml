@@ -829,6 +829,8 @@ paths:
         appear again on a later page of the same sync; apply records in
         order, keyed on `id`, so the last copy wins.
         `pagination` is a sibling of `data`, not inside it.
+        Premium records are returned only to pro and enterprise keys, as on
+        the catalog endpoints.
       operationId: syncExercises
       tags: [Sync]
       parameters:

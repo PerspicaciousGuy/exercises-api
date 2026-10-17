@@ -177,3 +177,36 @@ describe('POST /analyze/coverage', () => {
     expect(exerciseRepository.getExercisesByIds).not.toHaveBeenCalled();
   });
 });
+
+describe('GET /exercises/:id/substitutes with bodyweight variations', () => {
+  it('keeps bodyweight variations without the caller sending bodyweight', async () => {
+    const exerciseRepository = {
+      getExerciseById: vi.fn(async () => ({ id: 'e1' })),
+      listExerciseRelations: vi.fn(async () => [
+        summary('v1', 'dumbbell-bench-press'),
+        summary('v2', 'push-up'),
+        summary('v3', 'incline-push-up')
+      ]),
+      getEquipmentSlugsByExerciseIds: vi.fn(
+        async () =>
+          new Map([
+            ['v1', ['dumbbell', 'bench']],
+            ['v2', ['bodyweight']],
+            ['v3', ['bodyweight', 'bench']]
+          ])
+      )
+    };
+    const app = createApp({
+      exerciseRepository,
+      apiKeyMiddleware: (_request, _response, next) => next()
+    });
+
+    const response = await request(app)
+      .get('/exercises/e1/substitutes')
+      .query({ equipment: 'dumbbell' })
+      .expect(200);
+
+    // push-up needs nothing; the other two still need a bench.
+    expect(response.body.data.map((item) => item.id)).toEqual(['v2']);
+  });
+});

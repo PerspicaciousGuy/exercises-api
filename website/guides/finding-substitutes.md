@@ -58,7 +58,9 @@ machine, chest press machine, dumbbell, close grip). With only `dumbbell` and
 ## How the filter decides
 
 A variation is kept only when **every** piece of its equipment is in the list you
-sent. Equipment-free (bodyweight) variations are always kept.
+sent. `bodyweight` counts as always on hand, so you never need to send it: a push-up
+survives `equipment=dumbbell`, but an incline push-up (`bodyweight` + `bench`) still
+needs `bench` in the list.
 
 That "every" matters and trips people up. Ask for substitutes with only
 `equipment=dumbbell` and you get **nothing** back — because `dumbbell-bench-press`

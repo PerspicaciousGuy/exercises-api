@@ -62,14 +62,14 @@ export function createExerciseService({ exerciseRepository }) {
         return variations;
       }
 
-      const available = new Set(equipment);
+      // Bodyweight needs nothing, so it is always on hand.
+      const available = new Set([...equipment, 'bodyweight']);
       const equipmentByExercise =
         await exerciseRepository.getEquipmentSlugsByExerciseIds(
           variations.map((variation) => variation.id)
         );
 
       // A substitute is usable only if every piece of its equipment is on hand.
-      // Equipment-less variations (e.g. bodyweight) are always usable.
       return variations.filter((variation) =>
         (equipmentByExercise.get(variation.id) ?? []).every((slug) =>
           available.has(slug)
