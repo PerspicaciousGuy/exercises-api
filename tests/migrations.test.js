@@ -23,7 +23,8 @@ describe('Supabase migrations', () => {
       '011_revoke_public_helper_execution.sql',
       '012_add_billing_fields.sql',
       '013_create_api_sessions.sql',
-      '014_add_core_movement_pattern.sql'
+      '014_add_core_movement_pattern.sql',
+      '015_unique_exercise_media_url.sql'
     ]);
   });
 

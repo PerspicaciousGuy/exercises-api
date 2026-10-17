@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { hashExercise } from '../src/import/catalogImportPlans.js';
 import {
   importExerciseData,
   seedReferenceData
@@ -185,6 +186,149 @@ describe('catalog seeder', () => {
       filters: { exercise_id: 'eq.exercise-1' },
       select: 'equipment_id'
     });
+  });
+
+  it('writes a change event when only a link changed, and skips an unchanged record', async () => {
+    const referenceLookups = {
+      categoryIdsBySlug: new Map([['strength', 1]]),
+      muscleIdsBySlug: new Map([
+        ['chest', 10],
+        ['triceps', 11]
+      ]),
+      equipmentIdsBySlug: new Map([['bodyweight', 20]])
+    };
+    const exercise = baseExercise();
+    const seededHash = hashExercise(exercise);
+    const clientWithLatestHash = (contentHash) => ({
+      select: vi.fn(async (table) =>
+        table === 'exercise_change_events'
+          ? [{ payload: { slug: 'push-up', contentHash } }]
+          : []
+      ),
+      upsert: vi.fn(async (table, rows) => rows),
+      insert: vi.fn(async (table, rows) => rows),
+      delete: vi.fn(async () => [])
+    });
+
+    const unchanged = clientWithLatestHash(seededHash);
+    await importExerciseData({
+      client: unchanged,
+      idFactory: () => 'exercise-1',
+      referenceLookups,
+      exercises: [exercise]
+    });
+    expect(unchanged.insert).toHaveBeenCalledWith('exercise_change_events', []);
+
+    // Same catalogVersion, one extra secondary muscle: still a change.
+    const edited = clientWithLatestHash(seededHash);
+    await importExerciseData({
+      client: edited,
+      idFactory: () => 'exercise-1',
+      referenceLookups,
+      exercises: [baseExercise({ secondaryMuscleSlugs: ['triceps'] })]
+    });
+    expect(edited.insert).toHaveBeenCalledWith('exercise_change_events', [
+      expect.objectContaining({
+        exercise_id: 'exercise-1',
+        catalog_version: 1,
+        payload: expect.objectContaining({
+          contentHash: expect.not.stringMatching(seededHash)
+        })
+      })
+    ]);
+  });
+
+  it('deletes aliases and media the fixture no longer lists, by row id', async () => {
+    const client = {
+      select: vi.fn(async (table) => {
+        if (table === 'exercise_aliases') {
+          return [
+            { id: 1, exercise_id: 'exercise-1', alias: 'Press-up' },
+            { id: 2, exercise_id: 'exercise-1', alias: 'Old Name' }
+          ];
+        }
+        if (table === 'exercise_media') {
+          return [
+            {
+              id: 'm-1',
+              exercise_id: 'exercise-1',
+              url: 'https://x.test/a.png'
+            }
+          ];
+        }
+        return [];
+      }),
+      upsert: vi.fn(async (table, rows) => rows),
+      insert: vi.fn(async (table, rows) => rows),
+      delete: vi.fn(async () => [])
+    };
+
+    await importExerciseData({
+      client,
+      idFactory: () => 'exercise-1',
+      referenceLookups: {
+        categoryIdsBySlug: new Map([['strength', 1]]),
+        muscleIdsBySlug: new Map([['chest', 10]]),
+        equipmentIdsBySlug: new Map([['bodyweight', 20]])
+      },
+      exercises: [baseExercise({ aliases: ['Press-up'] })]
+    });
+
+    expect(client.delete).toHaveBeenCalledWith('exercise_aliases', {
+      filters: { id: 'in.(2)' },
+      select: 'id'
+    });
+    expect(client.delete).toHaveBeenCalledWith('exercise_media', {
+      filters: { id: 'in.(m-1)' },
+      select: 'id'
+    });
+  });
+
+  it('upserts media on exercise and url instead of inserting duplicates', async () => {
+    const client = {
+      select: vi.fn(async () => []),
+      upsert: vi.fn(async (table, rows) => rows),
+      insert: vi.fn(async (table, rows) => rows),
+      delete: vi.fn(async () => [])
+    };
+
+    await importExerciseData({
+      client,
+      idFactory: () => 'exercise-1',
+      referenceLookups: {
+        categoryIdsBySlug: new Map([['strength', 1]]),
+        muscleIdsBySlug: new Map([['chest', 10]]),
+        equipmentIdsBySlug: new Map([['bodyweight', 20]])
+      },
+      exercises: [
+        baseExercise({
+          media: [
+            {
+              type: 'image',
+              url: 'https://x.test/a.png',
+              isPrimary: true,
+              sortOrder: 0,
+              status: 'active'
+            }
+          ]
+        })
+      ]
+    });
+
+    expect(client.upsert).toHaveBeenCalledWith(
+      'exercise_media',
+      [
+        expect.objectContaining({
+          exercise_id: 'exercise-1',
+          url: 'https://x.test/a.png'
+        })
+      ],
+      { onConflict: 'exercise_id,url' }
+    );
+    expect(client.insert).not.toHaveBeenCalledWith(
+      'exercise_media',
+      expect.anything()
+    );
   });
 
   it('reconciles only after every upsert, so a mid-run failure leaves a superset', async () => {

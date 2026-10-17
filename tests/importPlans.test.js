@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildExerciseImportPlan,
-  buildReferenceSeedRows
+  buildReferenceSeedRows,
+  hashExercise
 } from '../src/import/catalogImportPlans.js';
 
 describe('catalog import plans', () => {
@@ -102,5 +103,28 @@ describe('catalog import plans', () => {
         equipment_id: 20
       }
     ]);
+  });
+
+  it('hashes a record independently of key order and sensitive to any link', () => {
+    const exercise = {
+      slug: 'push-up',
+      aliases: ['Press-up'],
+      primaryMuscleSlugs: ['chest'],
+      programming: { defaultSets: 3, defaultReps: '8-15' }
+    };
+    const reordered = {
+      programming: { defaultReps: '8-15', defaultSets: 3 },
+      primaryMuscleSlugs: ['chest'],
+      aliases: ['Press-up'],
+      slug: 'push-up'
+    };
+
+    expect(hashExercise(reordered)).toBe(hashExercise(exercise));
+    expect(
+      hashExercise({ ...exercise, aliases: ['Press-up', 'Pushup'] })
+    ).not.toBe(hashExercise(exercise));
+    expect(
+      hashExercise({ ...exercise, equipmentSlugs: ['bodyweight'] })
+    ).not.toBe(hashExercise(exercise));
   });
 });

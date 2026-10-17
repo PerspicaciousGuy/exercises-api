@@ -36,6 +36,11 @@ describe('createSyncRepository', () => {
         limit: '1'
       }
     });
+    // The catalog version is the highest event version, not the newest event's.
+    expect(client.select).toHaveBeenCalledWith('exercise_change_events', {
+      columns: 'catalog_version',
+      filters: { order: 'catalog_version.desc', limit: '1' }
+    });
     expect(metadata).toEqual({
       catalogVersion: 4,
       latestExerciseUpdatedAt: '2026-06-15T10:00:00.000Z',

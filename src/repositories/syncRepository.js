@@ -36,30 +36,37 @@ export function createLazyDefaultSyncRepository() {
 export function createSyncRepository({ client }) {
   return {
     async getSyncMetadata() {
-      const [catalogVersionRows, exerciseUpdateRows, changeEventRows] =
-        await Promise.all([
-          client.select('exercises', {
-            columns: 'catalog_version',
-            filters: {
-              order: 'catalog_version.desc',
-              limit: '1'
-            }
-          }),
-          client.select('exercises', {
-            columns: 'updated_at',
-            filters: {
-              order: 'updated_at.desc',
-              limit: '1'
-            }
-          }),
-          client.select('exercise_change_events', {
-            columns: 'changed_at,catalog_version',
-            filters: {
-              order: 'changed_at.desc',
-              limit: '1'
-            }
-          })
-        ]);
+      const [
+        catalogVersionRows,
+        exerciseUpdateRows,
+        changeEventRows,
+        latestChangeAt
+      ] = await Promise.all([
+        client.select('exercises', {
+          columns: 'catalog_version',
+          filters: {
+            order: 'catalog_version.desc',
+            limit: '1'
+          }
+        }),
+        client.select('exercises', {
+          columns: 'updated_at',
+          filters: {
+            order: 'updated_at.desc',
+            limit: '1'
+          }
+        }),
+        // Highest version, not the newest event's: one seed run writes many
+        // events in a single statement, all with the same changed_at.
+        client.select('exercise_change_events', {
+          columns: 'catalog_version',
+          filters: {
+            order: 'catalog_version.desc',
+            limit: '1'
+          }
+        }),
+        this.getLatestChangeAt()
+      ]);
 
       return {
         catalogVersion:
@@ -67,7 +74,7 @@ export function createSyncRepository({ client }) {
           catalogVersionRows[0]?.catalog_version ??
           1,
         latestExerciseUpdatedAt: exerciseUpdateRows[0]?.updated_at ?? null,
-        latestChangeAt: changeEventRows[0]?.changed_at ?? null
+        latestChangeAt
       };
     },
 

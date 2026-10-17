@@ -48,7 +48,10 @@ async function loadExerciseFixtures(rootDir) {
   const exercises = [];
 
   for (const fileName of jsonFiles) {
-    const records = await readJsonFile(rootDir, path.join(EXERCISES_DIR, fileName));
+    const records = await readJsonFile(
+      rootDir,
+      path.join(EXERCISES_DIR, fileName)
+    );
 
     exercises.push(...records);
   }

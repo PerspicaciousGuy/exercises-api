@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+
 export function buildReferenceSeedRows(references) {
   return {
     muscles: references.muscles.map(mapMuscleRow),
@@ -232,9 +234,37 @@ function mapChangeEventRow(exercise, lookups) {
     catalog_version: exercise.catalogVersion,
     payload: {
       slug: exercise.slug,
-      fixtureImport: true
+      fixtureImport: true,
+      contentHash: hashExercise(exercise)
     }
   };
+}
+
+/**
+ * A digest of everything the API publishes from a fixture record, links and
+ * aliases included. The seeder writes a change event whenever it differs from
+ * the exercise's last event, so editing only a muscle, an alias or a
+ * relationship still reaches `/sync/exercises`.
+ */
+export function hashExercise(exercise) {
+  return createHash('sha256').update(stableStringify(exercise)).digest('hex');
+}
+
+function stableStringify(value) {
+  if (Array.isArray(value)) {
+    return `[${value.map(stableStringify).join(',')}]`;
+  }
+
+  if (value && typeof value === 'object') {
+    const entries = Object.keys(value)
+      .filter((key) => value[key] !== undefined)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${stableStringify(value[key])}`);
+
+    return `{${entries.join(',')}}`;
+  }
+
+  return JSON.stringify(value);
 }
 
 function flatMap(items, mapper) {
