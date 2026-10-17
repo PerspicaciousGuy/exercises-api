@@ -61,7 +61,10 @@ export async function findMatchingExerciseIds(client, filters) {
  * query. A query with no letters or digits matches no name.
  */
 function toSearchKeyFilter(query) {
-  return `ilike.*${normalizeExerciseName(query)}*`;
+  const key = normalizeExerciseName(query);
+
+  // Every stored key has letters or digits, so eq. (empty) never matches.
+  return key ? `ilike.*${key}*` : 'eq.';
 }
 
 export async function searchExerciseRows(client, { query, limit, offset }) {

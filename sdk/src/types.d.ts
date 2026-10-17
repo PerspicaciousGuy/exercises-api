@@ -20,6 +20,7 @@ export type ExerciseSummary = {
      * - ISO 8601 timestamp.
      */
     updatedAt: string;
+    isPremium?: boolean | undefined;
 };
 /**
  * A full exercise record, including coaching and programming data.

@@ -1,5 +1,5 @@
 export const SUMMARY_COLUMNS =
-  'id,slug,name,status,difficulty,movement_pattern,tags,updated_at,categories(slug,name)';
+  'id,slug,name,status,difficulty,movement_pattern,tags,updated_at,is_premium,categories(slug,name)';
 
 export const DETAIL_COLUMNS = [
   'id',
@@ -59,7 +59,8 @@ export function mapExerciseSummary(row) {
     difficulty: row.difficulty,
     movementPattern: row.movement_pattern,
     tags: row.tags,
-    updatedAt: row.updated_at
+    updatedAt: row.updated_at,
+    isPremium: row.is_premium
   };
 }
 

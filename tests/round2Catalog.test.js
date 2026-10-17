@@ -126,6 +126,40 @@ describe('structured programming defaults', () => {
   });
 });
 
+describe('security fixes', () => {
+  it('?search= with no letters or digits matches nothing', async () => {
+    const client = { select: vi.fn(async () => []) };
+
+    await createExerciseRepository({ client }).listExercises({
+      limit: 20,
+      offset: 0,
+      search: '--'
+    });
+
+    expect(client.select).toHaveBeenCalledWith(
+      'exercises',
+      expect.objectContaining({
+        filters: expect.objectContaining({ search_name: 'eq.' })
+      })
+    );
+  });
+
+  it('summaries carry isPremium so list and search can hide premium rows', async () => {
+    const client = {
+      select: vi.fn(async () => [
+        { id: 'e1', slug: 'paid', is_premium: true, categories: null }
+      ])
+    };
+
+    const { exercises } = await createExerciseRepository({
+      client
+    }).listExercises({ limit: 20, offset: 0 });
+
+    expect(exercises[0].isPremium).toBe(true);
+    expect(client.select.mock.calls[0][1].columns).toContain('is_premium');
+  });
+});
+
 describe('optional equipment and trackingType', () => {
   const record = (overrides) => ({
     name: 'Walking Lunge',

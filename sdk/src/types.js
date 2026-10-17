@@ -20,6 +20,7 @@
  * @property {MovementPattern} movementPattern
  * @property {string[]} tags
  * @property {string} updatedAt - ISO 8601 timestamp.
+ * @property {boolean} [isPremium]
  */
 
 /**

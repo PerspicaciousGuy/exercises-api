@@ -1127,6 +1127,9 @@ components:
           items: { type: string }
           example: [compound, lower-body]
         updatedAt: { type: string, format: date-time }
+        isPremium:
+          type: boolean
+          description: Premium records are returned only to pro and enterprise keys.
 
     Exercise:
       description: A full exercise record, including coaching and programming data.
