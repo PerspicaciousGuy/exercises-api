@@ -10,7 +10,11 @@ export function buildReferenceSeedRows(references) {
   };
 }
 
-export function buildExerciseImportPlan({ exercises, lookups }) {
+export function buildExerciseImportPlan({
+  exercises,
+  lookups,
+  referenceDigest = null
+}) {
   return {
     exercises: exercises.map((exercise) => mapExerciseRow(exercise, lookups)),
     aliases: flatMap(exercises, (exercise) => mapAliasRows(exercise, lookups)),
@@ -52,7 +56,7 @@ export function buildExerciseImportPlan({ exercises, lookups }) {
     ),
     media: flatMap(exercises, (exercise) => mapMediaRows(exercise, lookups)),
     changeEvents: exercises.map((exercise) =>
-      mapChangeEventRow(exercise, lookups)
+      mapChangeEventRow(exercise, lookups, referenceDigest)
     )
   };
 }
@@ -223,7 +227,7 @@ function mapMediaRows(exercise, lookups) {
   }));
 }
 
-function mapChangeEventRow(exercise, lookups) {
+function mapChangeEventRow(exercise, lookups, referenceDigest) {
   return {
     exercise_id: requiredLookup(
       lookups.exerciseIdsBySlug,
@@ -235,16 +239,18 @@ function mapChangeEventRow(exercise, lookups) {
     payload: {
       slug: exercise.slug,
       fixtureImport: true,
-      contentHash: hashExercise(exercise)
+      contentHash: hashExercise({ exercise, referenceDigest })
     }
   };
 }
 
 /**
- * A digest of everything the API publishes from a fixture record, links and
- * aliases included. The seeder writes a change event whenever it differs from
- * the exercise's last event, so editing only a muscle, an alias or a
- * relationship still reaches `/sync/exercises`.
+ * A stable sha256 of any fixture value. The seeder hashes each exercise record
+ * (links and aliases included) together with a digest of the reference
+ * fixtures, and writes a change event whenever that differs from the
+ * exercise's last event. So editing only a muscle, an alias, a relationship or
+ * a reference display order still reaches `/sync/exercises`. An edit made in
+ * the database by hand, outside the fixtures, is not detected.
  */
 export function hashExercise(exercise) {
   return createHash('sha256').update(stableStringify(exercise)).digest('hex');

@@ -198,7 +198,7 @@ describe('catalog seeder', () => {
       equipmentIdsBySlug: new Map([['bodyweight', 20]])
     };
     const exercise = baseExercise();
-    const seededHash = hashExercise(exercise);
+    const seededHash = hashExercise({ exercise, referenceDigest: null });
     const clientWithLatestHash = (contentHash) => ({
       select: vi.fn(async (table) =>
         table === 'exercise_change_events'
@@ -227,6 +227,20 @@ describe('catalog seeder', () => {
       referenceLookups,
       exercises: [baseExercise({ secondaryMuscleSlugs: ['triceps'] })]
     });
+    // Same record, but the reference fixtures changed: re-emit.
+    const referencesEdited = clientWithLatestHash(seededHash);
+    await importExerciseData({
+      client: referencesEdited,
+      idFactory: () => 'exercise-1',
+      referenceLookups,
+      referenceDigest: 'new-reference-digest',
+      exercises: [exercise]
+    });
+    expect(referencesEdited.insert).toHaveBeenCalledWith(
+      'exercise_change_events',
+      [expect.objectContaining({ exercise_id: 'exercise-1' })]
+    );
+
     expect(edited.insert).toHaveBeenCalledWith('exercise_change_events', [
       expect.objectContaining({
         exercise_id: 'exercise-1',
