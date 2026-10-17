@@ -2,6 +2,8 @@ import { parseSupabaseScriptEnv } from '../config/supabaseEnv.js';
 import { SupabaseRestClient } from '../supabase/restClient.js';
 import { DETAIL_COLUMNS, mapExerciseDetail } from './exerciseMappers.js';
 
+const EXPORT_PAGE_SIZE = 100;
+
 export function createDefaultSyncRepository() {
   const env = parseSupabaseScriptEnv(process.env);
   const client = new SupabaseRestClient(env);
@@ -29,6 +31,9 @@ export function createLazyDefaultSyncRepository() {
     },
     getSyncExercisesByIds(input) {
       return getRepository().getSyncExercisesByIds(input);
+    },
+    listActiveExercises() {
+      return getRepository().listActiveExercises();
     }
   };
 }
@@ -123,6 +128,33 @@ export function createSyncRepository({ client }) {
       );
 
       return ids.map((id) => exercisesById.get(id)).filter(Boolean);
+    },
+
+    // Every active exercise as a full record, paged so the result never hits
+    // PostgREST's max-rows cap.
+    // shortcut: offset paging can skip a row if an exercise is deleted while
+    // the export runs; export when no seed is running, or page by keyset.
+    async listActiveExercises() {
+      const exercises = [];
+
+      for (let offset = 0; ; offset += EXPORT_PAGE_SIZE) {
+        const rows = await client.select('exercises', {
+          columns: DETAIL_COLUMNS,
+          filters: {
+            status: 'eq.active',
+            deleted_at: 'is.null',
+            order: 'slug.asc',
+            limit: String(EXPORT_PAGE_SIZE),
+            offset: String(offset)
+          }
+        });
+
+        exercises.push(...rows.map(mapExerciseDetail));
+
+        if (rows.length < EXPORT_PAGE_SIZE) {
+          return exercises;
+        }
+      }
     }
   };
 }

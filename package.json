@@ -11,6 +11,7 @@
     "fixtures:format": "node scripts/format-fixtures.js",
     "seed:reference": "node scripts/seed-reference-data.js",
     "seed:sample": "node scripts/import-sample-exercises.js",
+    "export:catalog": "node scripts/export-catalog.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
