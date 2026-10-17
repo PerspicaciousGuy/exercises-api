@@ -331,13 +331,15 @@ paths:
           schema: { type: string, example: chest }
         - name: equipment
           in: query
-          description: Equipment slug.
+          description: >
+            Equipment slug. Matches exercises that need the item
+            (`equipment`) or can use it (`optionalEquipment`).
           schema: { type: string, example: bodyweight }
         - name: search
           in: query
           description: >
-            Free-text match against name, aliases, and tags. Case-insensitive;
-            spaces and hyphens match each other, so `push up` finds Push-up.
+            Case-insensitive match against names, ignoring spaces, hyphens and
+            punctuation, so `pushup`, `push up` and `push-up` all find Push-up.
           schema: { type: string, example: push }
         - $ref: '#/components/parameters/UpdatedSince'
         - $ref: '#/components/parameters/IncludeDeprecated'
@@ -374,6 +376,10 @@ paths:
         - name: q
           in: query
           required: true
+          description: >
+            Matched against names and aliases ignoring case, spaces, hyphens
+            and punctuation (pushup, push up and push-up are the same query),
+            and against tags exactly.
           schema: { type: string, minLength: 1, example: press }
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Offset'
@@ -1212,9 +1218,36 @@ components:
               type: array
               items: { type: string }
             programming:
-              type: object
-              additionalProperties: true
-              description: Free-form programming guidance, such as set and rep ranges.
+              $ref: '#/components/schemas/Programming'
+            trackingType:
+              type: string
+              nullable: true
+              enum:
+                [
+                  weight_reps,
+                  reps,
+                  assisted_reps,
+                  band_reps,
+                  duration,
+                  weight_duration,
+                  distance_duration,
+                  weight_distance
+                ]
+              description: >
+                Which inputs a logged set takes. weight_reps: load and reps.
+                reps: bodyweight reps, optionally with added load.
+                assisted_reps: assistance load (subtracted) and reps.
+                band_reps: band resistance and reps. duration: time.
+                weight_duration: load and time. distance_duration: distance
+                and time. weight_distance: load and distance. Set on every
+                catalog exercise.
+            optionalEquipment:
+              type: array
+              items: { type: string }
+              description: >
+                Equipment slugs the exercise can use but does not need:
+                alternatives and add-ons, such as dumbbells for a lunge.
+              example: [dumbbell]
             isPremium: { type: boolean }
             catalogVersion: { type: integer, minimum: 1 }
             primaryMuscles:
@@ -1236,9 +1269,11 @@ components:
               type: array
               items: { type: string }
               description: >
-                Equipment slugs. Every listed item is needed to perform the
-                exercise as written (the same rule `/exercises/{id}/substitutes`
-                applies).
+                Equipment slugs, all required: every listed item is needed to
+                perform the exercise as written (the rule
+                `/exercises/{id}/substitutes` applies). Alternatives and add-ons
+                are in `optionalEquipment`. Barbell lifts that start from a
+                rack assume one; racks are not listed.
               example: [barbell]
             aliases:
               type: array
@@ -1264,6 +1299,41 @@ components:
                 Active images and videos, by `sortOrder`. Empty for every
                 exercise today; the shape is fixed so media can be added without
                 a schema change.
+
+    Programming:
+      type: object
+      description: >
+        Default set and rep guidance. `defaultReps` is the original free text;
+        the other fields are the same values, structured. Clients should read
+        the structured fields.
+      required: [perSide]
+      additionalProperties: true
+      properties:
+        defaultSets: { type: integer, minimum: 1 }
+        defaultReps:
+          oneOf:
+            - { type: string }
+            - { type: integer }
+          example: 8-12 each side
+        defaultRepsMin: { type: integer, minimum: 1, example: 8 }
+        defaultRepsMax:
+          type: integer
+          minimum: 1
+          description: Equal to defaultRepsMin when the reps are one number.
+          example: 12
+        perSide:
+          type: boolean
+          description: True when reps, distance or duration count each side.
+        defaultDistanceMetersMin: { type: integer, minimum: 1, example: 20 }
+        defaultDistanceMetersMax: { type: integer, minimum: 1, example: 40 }
+        defaultDurationSeconds:
+          type: integer
+          minimum: 1
+          description: Set on every timed and cardio exercise.
+        defaultDurationMinutes:
+          type: integer
+          minimum: 1
+          description: Kept for existing clients; always defaultDurationSeconds / 60.
 
     ExerciseRef:
       type: object

@@ -39,7 +39,9 @@
  *   loadType: 'bodyweight' | 'free_weight' | 'machine' | 'cable' | 'band' | 'cardio_machine' | 'assisted' | 'other' | null,
  *   skillType: 'strength' | 'power' | 'endurance' | 'mobility' | 'balance' | 'coordination' | null,
  *   flags: string[],
- *   programming: Record<string, unknown>,
+ *   programming: Programming,
+ *   trackingType: TrackingType | null,
+ *   optionalEquipment: string[],
  *   isPremium: boolean,
  *   catalogVersion: number,
  *   primaryMuscles: string[],
@@ -52,6 +54,26 @@
  *   regressions: ExerciseRef[],
  *   media: ExerciseMedia[]
  * }} Exercise
+ */
+
+/**
+ * Which inputs a logged set takes.
+ * @typedef {'weight_reps' | 'reps' | 'assisted_reps' | 'band_reps' | 'duration' | 'weight_duration' | 'distance_duration' | 'weight_distance'} TrackingType
+ */
+
+/**
+ * Default programming. `defaultReps` is the original text; the other fields
+ * are the same values, structured.
+ * @typedef {object} Programming
+ * @property {number} [defaultSets]
+ * @property {string | number} [defaultReps]
+ * @property {number} [defaultRepsMin]
+ * @property {number} [defaultRepsMax]
+ * @property {boolean} perSide - Reps, distance or duration count each side.
+ * @property {number} [defaultDistanceMetersMin]
+ * @property {number} [defaultDistanceMetersMax]
+ * @property {number} [defaultDurationSeconds]
+ * @property {number} [defaultDurationMinutes]
  */
 
 /**
@@ -101,9 +123,9 @@
  * @property {number} [offset] - default 0.
  * @property {string} [category] - Category slug.
  * @property {Difficulty} [difficulty]
- * @property {string} [equipment] - Equipment slug.
+ * @property {string} [equipment] - Equipment slug; matches required or optional equipment.
  * @property {string} [muscle] - Muscle slug.
- * @property {string} [search] - Case-insensitive name match.
+ * @property {string} [search] - Name match ignoring case, spaces and hyphens.
  * @property {string} [updatedSince] - ISO 8601; only records updated after this.
  * @property {boolean} [includeDeprecated] - default false.
  * @property {string} [fields] - Comma-separated sparse fieldset.

@@ -36,6 +36,8 @@ has to rebuild them from filters:
 | --- | --- |
 | `primaryMuscles`, `secondaryMuscles`, `stabilizerMuscles` | muscle slugs, in `/muscles` display order |
 | `equipment` | equipment slugs; **all** of them are needed to perform the exercise |
+| `optionalEquipment` | equipment it can use but does not need: alternatives and add-ons |
+| `trackingType` | which inputs a logged set takes (see below) |
 | `aliases` | other names, sorted |
 | `variations`, `progressions`, `regressions` | `{ id, slug }` links to active exercises |
 | `media` | images and videos (`type`, `url`, `thumbnailUrl`, `angle`, `caption`, `isPrimary`, `sortOrder`, `width`, `height`, `durationSeconds`); **empty for every exercise today** |
@@ -45,7 +47,31 @@ main barbell lifts — and is `null` everywhere else.
 
 Every name and alias is unique across the catalog once case, spaces and
 punctuation are ignored, so "Push-Up", "push up" and "Pushup" all name one
-exercise. Search treats spaces and hyphens alike: `q=push up` finds Push-up.
+exercise, and search compares names the same way: `pushup`, `push up` and
+`push-up` all find Push-up.
+
+## Logging a set: `trackingType`
+
+| Value | A logged set records |
+| --- | --- |
+| `weight_reps` | load × reps (barbell, dumbbell, machine, cable) |
+| `reps` | reps, optionally with added load (bodyweight work) |
+| `assisted_reps` | assistance load, which is subtracted, × reps |
+| `band_reps` | band resistance × reps |
+| `duration` | time (holds, timed work) |
+| `weight_duration` | load × time (loaded holds) |
+| `distance_duration` | distance and time (runs, rides, rows, swims) |
+| `weight_distance` | load × distance (carries, sleds) |
+
+`category` describes the training effect and is independent of how a set is
+logged: Wall Ball is `cardio` but logged as `weight_reps`.
+
+## Programming defaults
+
+`programming.defaultReps` is the original text ("8-12 each side"). Read the
+structured fields instead: `defaultSets`, `defaultRepsMin`, `defaultRepsMax`,
+`perSide`, `defaultDistanceMetersMin`/`Max` and `defaultDurationSeconds`. The
+fixture validator rejects any record where the two disagree.
 
 This split is why `GET /exercises` stays fast. Ask for details only when a user
 opens something.

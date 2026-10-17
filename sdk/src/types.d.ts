@@ -39,7 +39,9 @@ export type Exercise = ExerciseSummary & {
     loadType: "bodyweight" | "free_weight" | "machine" | "cable" | "band" | "cardio_machine" | "assisted" | "other" | null;
     skillType: "strength" | "power" | "endurance" | "mobility" | "balance" | "coordination" | null;
     flags: string[];
-    programming: Record<string, unknown>;
+    programming: Programming;
+    trackingType: TrackingType | null;
+    optionalEquipment: string[];
     isPremium: boolean;
     catalogVersion: number;
     primaryMuscles: string[];
@@ -51,6 +53,28 @@ export type Exercise = ExerciseSummary & {
     progressions: ExerciseRef[];
     regressions: ExerciseRef[];
     media: ExerciseMedia[];
+};
+/**
+ * Which inputs a logged set takes.
+ */
+export type TrackingType = "weight_reps" | "reps" | "assisted_reps" | "band_reps" | "duration" | "weight_duration" | "distance_duration" | "weight_distance";
+/**
+ * Default programming. `defaultReps` is the original text; the other fields
+ * are the same values, structured.
+ */
+export type Programming = {
+    defaultSets?: number | undefined;
+    defaultReps?: string | number | undefined;
+    defaultRepsMin?: number | undefined;
+    defaultRepsMax?: number | undefined;
+    /**
+     * - Reps, distance or duration count each side.
+     */
+    perSide: boolean;
+    defaultDistanceMetersMin?: number | undefined;
+    defaultDistanceMetersMax?: number | undefined;
+    defaultDurationSeconds?: number | undefined;
+    defaultDurationMinutes?: number | undefined;
 };
 /**
  * A link to another exercise; look the full record up by `id`.
@@ -105,7 +129,7 @@ export type ListExercisesParams = {
     category?: string | undefined;
     difficulty?: Difficulty | undefined;
     /**
-     * - Equipment slug.
+     * - Equipment slug; matches required or optional equipment.
      */
     equipment?: string | undefined;
     /**
@@ -113,7 +137,7 @@ export type ListExercisesParams = {
      */
     muscle?: string | undefined;
     /**
-     * - Case-insensitive name match.
+     * - Name match ignoring case, spaces and hyphens.
      */
     search?: string | undefined;
     /**

@@ -203,8 +203,12 @@ The full walkthrough is in [the sync guide](website/sync-guide.md).
 
 Every sync and detail record is the full exercise: the text fields plus
 `primaryMuscles`, `secondaryMuscles`, `stabilizerMuscles`, `equipment` (all of
-it is required to perform the exercise), `aliases`, `variations` /
-`progressions` / `regressions` as `{ id, slug }`, and `media`. `media` is empty
+it is required to perform the exercise), `optionalEquipment` (alternatives and
+add-ons it can use), `trackingType` (which inputs a logged set takes), `aliases`,
+`variations` / `progressions` / `regressions` as `{ id, slug }`, and `media`.
+`programming` carries structured defaults next to the original text:
+`defaultRepsMin`, `defaultRepsMax`, `perSide`, `defaultDistanceMetersMin`/`Max`
+and `defaultDurationSeconds` (on every timed and cardio exercise). `media` is empty
 for every exercise today; its shape (`type`, `url`, `thumbnailUrl`, `angle`,
 `caption`, `isPrimary`, `sortOrder`, `width`, `height`, `durationSeconds`) is
 fixed, so images and videos can be added later without a schema change. Any
@@ -239,6 +243,8 @@ JSON file:
 - Exercises are sorted by slug, reference rows by display order, and keys always
   come in the same order, so two exports of the same data differ only in
   `exportedAt` and diff cleanly.
+- Re-exporting unchanged data keeps the previous `exportedAt`, so the file is
+  byte-identical. Pass `--exported-at <iso>` to set the timestamp yourself.
 - `latestChangeAt` is read before the exercises. Save it as the sync watermark
   when the app loads the bundle; the first `GET /sync/exercises?updated_since=`
   then continues exactly where the export ended.
