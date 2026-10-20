@@ -29,9 +29,6 @@ export function createLazyDefaultSessionRepository() {
     revokeSession(input) {
       return getRepository().revokeSession(input);
     },
-    revokeSessionsForUser(userId) {
-      return getRepository().revokeSessionsForUser(userId);
-    },
     markSessionSeen(input) {
       return getRepository().markSessionSeen(input);
     }
@@ -83,20 +80,6 @@ export function createSessionRepository({ client }) {
       );
 
       return rows[0] ?? null;
-    },
-
-    async revokeSessionsForUser({ userId, revokedAt }) {
-      await client.update(
-        'api_sessions',
-        { revoked_at: revokedAt },
-        {
-          filters: {
-            user_id: `eq.${userId}`,
-            revoked_at: 'is.null'
-          },
-          select: 'id'
-        }
-      );
     },
 
     async markSessionSeen({ sessionId, seenAt }) {

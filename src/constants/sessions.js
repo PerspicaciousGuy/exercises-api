@@ -1,4 +1,4 @@
-export const SESSION_TTL_DAYS = 14;
+const SESSION_TTL_DAYS = 14;
 export const SESSION_TTL_SECONDS = SESSION_TTL_DAYS * 24 * 60 * 60;
 
 // Sessions authenticate a human in a browser, so the cookie must survive a

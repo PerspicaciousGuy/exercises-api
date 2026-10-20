@@ -68,14 +68,10 @@ export async function seedReferenceData({ client, references }) {
   const equipment = await client.upsert('equipment', rows.equipment, {
     onConflict: 'slug'
   });
-  const exerciseFlags = await client.upsert(
-    'exercise_flags',
-    rows.exerciseFlags,
-    {
-      onConflict: 'slug'
-    }
-  );
-  const jointRegions = await client.upsert('joint_regions', rows.jointRegions, {
+  await client.upsert('exercise_flags', rows.exerciseFlags, {
+    onConflict: 'slug'
+  });
+  await client.upsert('joint_regions', rows.jointRegions, {
     onConflict: 'slug'
   });
   const muscles = await client.upsert('muscles', rows.muscles, {
@@ -85,8 +81,6 @@ export async function seedReferenceData({ client, references }) {
   return {
     categoryIdsBySlug: mapIdsBySlug(categories),
     equipmentIdsBySlug: mapIdsBySlug(equipment),
-    exerciseFlagIdsBySlug: mapIdsBySlug(exerciseFlags),
-    jointRegionIdsBySlug: mapIdsBySlug(jointRegions),
     muscleIdsBySlug: mapIdsBySlug(muscles)
   };
 }

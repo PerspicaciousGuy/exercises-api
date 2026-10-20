@@ -3,7 +3,7 @@
 A complete client in five languages. Each authenticates, handles an error, and
 runs the full sync loop.
 
-These are the real files from [`examples/`](https://github.com/PerspicaciousGuy/exercisedb-api/tree/main/examples),
+These are the real files from [`examples/`](https://github.com/PerspicaciousGuy/exercises-api/tree/main/examples),
 included at build time rather than pasted, so they cannot drift from the code
 you can actually run.
 

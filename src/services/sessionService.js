@@ -83,13 +83,6 @@ export function createSessionService({
         tokenHash: hashSessionToken(token),
         revokedAt: now().toISOString()
       });
-    },
-
-    async revokeAllSessions(userId) {
-      await sessionRepository.revokeSessionsForUser({
-        userId,
-        revokedAt: now().toISOString()
-      });
     }
   };
 }
