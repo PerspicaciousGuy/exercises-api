@@ -15,7 +15,5 @@ const lookups = await seedReferenceData({ client, references });
 console.info(
   `Seeded reference data: ${lookups.muscleIdsBySlug.size} muscles, ` +
     `${lookups.equipmentIdsBySlug.size} equipment records, ` +
-    `${lookups.categoryIdsBySlug.size} categories, ` +
-    `${lookups.exerciseFlagIdsBySlug.size} exercise flags, and ` +
-    `${lookups.jointRegionIdsBySlug.size} joint regions.`
+    `${lookups.categoryIdsBySlug.size} categories.`
 );

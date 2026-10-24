@@ -23,17 +23,17 @@ export function createPathfindingService({ exerciseRepository }) {
         const [summary] = await exerciseRepository.getExerciseSummariesByIds([
           fromId
         ]);
-        return { path: summary ? [summary] : [], found: true };
+        return { path: summary ? [summary] : [] };
       }
 
       const edges = await exerciseRepository.getProgressionEdges();
       const pathIds = shortestPath(edges, fromId, toId);
 
       if (!pathIds) {
-        return { path: null, found: false };
+        return { path: null };
       }
 
-      return { path: await hydratePath(exerciseRepository, pathIds), found: true };
+      return { path: await hydratePath(exerciseRepository, pathIds) };
     }
   };
 }

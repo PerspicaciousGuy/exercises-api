@@ -1,7 +1,4 @@
-import {
-  DAILY_REQUEST_LIMITS_BY_TIER,
-  PREMIUM_ACCESS_TIERS
-} from '../constants/rateLimits.js';
+import { DAILY_REQUEST_LIMITS_BY_TIER } from '../constants/rateLimits.js';
 import { AppError } from '../errors/AppError.js';
 import {
   generateApiKey,
@@ -172,10 +169,6 @@ export function createAuthService({ authRepository, now = () => new Date() }) {
 
     async logUsage(input) {
       await authRepository.logUsage(input);
-    },
-
-    canAccessPremium(user) {
-      return PREMIUM_ACCESS_TIERS.has(user.tier);
     }
   };
 }

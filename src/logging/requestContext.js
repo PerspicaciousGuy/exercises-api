@@ -11,10 +11,6 @@ export function runWithRequestContext(context, callback) {
   return storage.run(context, callback);
 }
 
-export function getRequestContext() {
-  return storage.getStore() ?? null;
-}
-
 export function getRequestId() {
   return storage.getStore()?.requestId ?? null;
 }

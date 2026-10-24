@@ -42,15 +42,10 @@ async function logout() {
   state.user = null;
 }
 
-function setUser(user) {
-  state.user = user;
-}
-
 export const session = {
   state: readonly(state),
   resolve,
   login,
   register,
-  logout,
-  setUser
+  logout
 };

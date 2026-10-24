@@ -37,10 +37,6 @@ code,
   font-size: var(--ex-text-sm);
 }
 
-.muted {
-  color: var(--ex-color-text-muted);
-}
-
 /* -----------------------------------------------------------------------
  * App shell — sidebar + main column
  * -------------------------------------------------------------------- */
@@ -441,33 +437,6 @@ code,
   width: 100%;
 }
 
-/* Small square button, used for the theme toggle. */
-.icon-button {
-  display: grid;
-  place-items: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  padding: 0;
-  color: var(--ex-color-text-muted);
-  background: transparent;
-  border: 1px solid var(--ex-color-border-strong);
-  border-radius: var(--ex-radius-md);
-  cursor: pointer;
-  transition:
-    background var(--ex-duration-fast) var(--ex-ease-standard),
-    color var(--ex-duration-fast) var(--ex-ease-standard);
-}
-
-.icon-button:hover {
-  background: var(--ex-color-surface-sunken);
-  color: var(--ex-color-text);
-}
-
-.icon-button svg {
-  width: 1.125rem;
-  height: 1.125rem;
-}
-
 /* -----------------------------------------------------------------------
  * Alerts
  * -------------------------------------------------------------------- */
@@ -493,12 +462,6 @@ code,
   color: var(--ex-color-danger);
   background: var(--ex-color-danger-subtle);
   border-color: var(--ex-color-danger);
-}
-
-.alert--success {
-  color: var(--ex-color-success);
-  background: var(--ex-color-success-subtle);
-  border-color: var(--ex-color-success);
 }
 
 .alert--warning {
@@ -616,24 +579,6 @@ code,
   font-weight: var(--ex-weight-bold);
   letter-spacing: var(--ex-tracking-tight);
   line-height: var(--ex-leading-tight);
-}
-
-.metric__value--mono {
-  font-size: var(--ex-text-base);
-  font-family: var(--ex-font-mono);
-  font-weight: var(--ex-weight-regular);
-  word-break: break-all;
-}
-
-/* Backwards-compatible aliases retained for any un-migrated markup. */
-.stat {
-  font-size: var(--ex-text-3xl);
-  font-weight: var(--ex-weight-bold);
-}
-
-.stat__label {
-  color: var(--ex-color-text-subtle);
-  font-size: var(--ex-text-sm);
 }
 
 /* -----------------------------------------------------------------------
@@ -878,10 +823,6 @@ code,
  * Utilities — thin, token-backed spacing helpers so views need no inline
  * styles. Kept minimal by design.
  * -------------------------------------------------------------------- */
-
-.stack > * + * {
-  margin-top: var(--ex-space-4);
-}
 
 .row {
   display: flex;

@@ -149,7 +149,6 @@ function createSessionRepositoryStub(overrides = {}) {
       ...overrides
     })),
     revokeSession: vi.fn(async () => ({ id: 'session-1' })),
-    revokeSessionsForUser: vi.fn(async () => undefined),
     markSessionSeen: vi.fn(async () => undefined)
   };
 }

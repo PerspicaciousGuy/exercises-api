@@ -6,7 +6,7 @@ Deliberate deviations from `agents-guidelines/`, and the reasoning behind each.
 projects. It is not edited to accommodate any single project. Where this project
 knowingly departs from it, the departure is recorded here instead.
 
-Read this alongside `AGENTS.md` before any execution.
+`AGENTS.md` and `agents-guidelines/` are git-excluded (see `.gitignore`) and are not part of this repository; the references to them below point at your local copies.
 
 ---
 

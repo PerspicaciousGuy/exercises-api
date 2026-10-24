@@ -63,7 +63,7 @@ export default defineConfig({
 
     editLink: {
       pattern:
-        'https://github.com/PerspicaciousGuy/exercisedb-api/edit/main/website/:path',
+        'https://github.com/PerspicaciousGuy/exercises-api/edit/main/website/:path',
       text: 'Edit this page on GitHub'
     },
 

@@ -51,11 +51,6 @@ export function initTheme() {
   });
 }
 
-/** Flip between light and dark, persisting the explicit choice. */
-export function toggleTheme() {
-  setThemePreference(theme.resolved === THEME_DARK ? THEME_LIGHT : THEME_DARK);
-}
-
 /**
  * Set the theme explicitly. 'system' clears the stored choice so the theme
  * follows the OS again; 'light'/'dark' persist the override.

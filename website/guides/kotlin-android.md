@@ -6,7 +6,7 @@ using Retrofit, OkHttp, and coroutines — the stack most Android apps already r
 If you're on Kotlin Multiplatform, [Ktor](https://ktor.io/docs/client-create-and-configure.html)
 is the equivalent and the ideas here map directly. For a plain-JVM (non-Android)
 client with the full sync loop, see the complete
-[`ExerciseDb.kt`](https://github.com/PerspicaciousGuy/exercisedb-api/tree/main/examples/kotlin)
+[`ExerciseDb.kt`](https://github.com/PerspicaciousGuy/exercises-api/tree/main/examples/kotlin)
 example.
 
 ::: warning Don't ship your API key in the app
@@ -233,7 +233,7 @@ so on the same way — they all return the summary envelope.
 For a real app, sync the catalog into a local database (Room) once and refresh
 only what changed — don't hit the network each time a screen opens. The
 [Sync Guide](/sync-guide) explains the loop, and the full
-[`ExerciseDb.kt`](https://github.com/PerspicaciousGuy/exercisedb-api/tree/main/examples/kotlin)
+[`ExerciseDb.kt`](https://github.com/PerspicaciousGuy/exercises-api/tree/main/examples/kotlin)
 example implements it end to end, including the two failure modes that silently
 corrupt a local copy.
 

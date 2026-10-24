@@ -38,7 +38,6 @@ describe('createPathfindingService.findProgressionPath', () => {
       toId: 'd'
     });
 
-    expect(result.found).toBe(true);
     // a -> b -> d and a -> c -> d are both length 3; BFS returns one shortest.
     expect(result.path).toHaveLength(3);
     expect(result.path[0].id).toBe('a');
@@ -55,7 +54,6 @@ describe('createPathfindingService.findProgressionPath', () => {
       toId: 'a'
     });
 
-    expect(result.found).toBe(true);
     expect(result.path.map((p) => p.id)).toEqual(['a']);
   });
 
@@ -70,7 +68,6 @@ describe('createPathfindingService.findProgressionPath', () => {
       toId: 'e'
     });
 
-    expect(result.found).toBe(false);
     expect(result.path).toBeNull();
   });
 
@@ -90,7 +87,6 @@ describe('createPathfindingService.findProgressionPath', () => {
       toId: 'z'
     });
 
-    expect(result.found).toBe(false);
     expect(result.path).toBeNull();
   });
 
