@@ -37,6 +37,16 @@ function exercise(overrides) {
     skillType: 'strength',
     flags: ['compound'],
     programming: { defaultSets: 4, defaultReps: '5-10' },
+    progressionRule: {
+      model: 'load_then_reps',
+      loadStepKg: 5,
+      loadStepLb: 10,
+      durationStepSeconds: null,
+      distanceStepMeters: null,
+      stallSessions: 3,
+      resetPercent: 10,
+      note: null
+    },
     trackingType: 'weight_reps',
     optionalEquipment: [],
     isPremium: false,
@@ -265,6 +275,26 @@ describe('catalog export', () => {
 
     await expect(
       buildCatalogExport({ syncRepository, referenceRepository })
+    ).rejects.toThrow(/Invalid catalog export/);
+  });
+
+  it('rejects a record without a progressionRule or with an unknown model', async () => {
+    const build = (overrides) => {
+      const { syncRepository, referenceRepository } = fakeRepositories([
+        exercise({ regressions: [], ...overrides })
+      ]);
+      return buildCatalogExport({ syncRepository, referenceRepository });
+    };
+    const rule = exercise().progressionRule;
+
+    await expect(build({ progressionRule: null })).rejects.toThrow(
+      /Invalid catalog export/
+    );
+    await expect(
+      build({ progressionRule: { ...rule, model: 'linear' } })
+    ).rejects.toThrow(/Invalid catalog export/);
+    await expect(
+      build({ progressionRule: { ...rule, extra: 1 } })
     ).rejects.toThrow(/Invalid catalog export/);
   });
 

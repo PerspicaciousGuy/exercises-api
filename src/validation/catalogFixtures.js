@@ -77,6 +77,24 @@ const programmingSchema = z
   })
   .strict();
 
+const step = z.number().positive().nullable();
+
+// The facts the app's progression logic reads (FitTrackV2
+// docs/PROGRESSION.md). Every key is always present, null when unused; see
+// assertProgressionRuleAgrees for which keys each model needs.
+const progressionRuleSchema = z
+  .object({
+    model: z.enum(ENUMS.progressionModels),
+    loadStepKg: step,
+    loadStepLb: step,
+    durationStepSeconds: z.number().int().positive().nullable(),
+    distanceStepMeters: step,
+    stallSessions: count.nullable(),
+    resetPercent: z.number().positive().max(50).nullable(),
+    note: z.string().min(1).nullable()
+  })
+  .strict();
+
 const exerciseSchema = z.object({
   name: z.string().min(1),
   slug: slugSchema,
@@ -99,6 +117,7 @@ const exerciseSchema = z.object({
   skillType: z.enum(ENUMS.skillTypes).optional(),
   flagSlugs: z.array(slugSchema).default([]),
   programming: programmingSchema,
+  progressionRule: progressionRuleSchema,
   trackingType: z.enum(ENUMS.trackingTypes),
   tags: z.array(slugSchema).default([]),
   isPremium: z.boolean().default(false),
@@ -153,6 +172,7 @@ export function parseExerciseFixtures(source) {
 
   for (const exercise of exercises) {
     assertProgrammingAgrees(exercise);
+    assertProgressionRuleAgrees(exercise);
   }
 
   return exercises;
@@ -250,6 +270,39 @@ export function assertProgrammingAgrees({ slug, programming: p }) {
   }
   if (text === undefined && p.defaultDurationSeconds === undefined) {
     fail('needs defaultReps or defaultDurationSeconds');
+  }
+}
+
+/**
+ * Each model carries exactly the steps it uses: `double` and `load_then_reps`
+ * a kg and lb load step, `duration` a seconds step, `distance` a metres step.
+ * `reps` may not take load (a harder variant is a progressions link). A reset
+ * is a percentage of load, so resetPercent is set exactly when load steps are.
+ * `none` has no steps, stall or reset at all.
+ */
+export function assertProgressionRuleAgrees({ slug, progressionRule: r }) {
+  const fail = (message) => {
+    throw new Error(`Invalid progressionRule on "${slug}": ${message}`);
+  };
+  const needs = {
+    loadStepKg: ['double', 'load_then_reps'],
+    loadStepLb: ['double', 'load_then_reps'],
+    durationStepSeconds: ['duration'],
+    distanceStepMeters: ['distance']
+  };
+
+  for (const [key, models] of Object.entries(needs)) {
+    if (models.includes(r.model) !== (r[key] !== null)) {
+      fail(
+        `${key} must be ${models.includes(r.model) ? 'set' : 'null'} for ${r.model}`
+      );
+    }
+  }
+  if ((r.model === 'none') !== (r.stallSessions === null)) {
+    fail(`stallSessions must be null exactly when model is none`);
+  }
+  if ((r.loadStepKg === null) !== (r.resetPercent === null)) {
+    fail('resetPercent must be set exactly when the load steps are');
   }
 }
 

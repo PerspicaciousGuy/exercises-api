@@ -7,6 +7,17 @@ import {
   parseReferenceFixtures
 } from '../src/validation/catalogFixtures.js';
 
+const REPS_RULE = {
+  model: 'reps',
+  loadStepKg: null,
+  loadStepLb: null,
+  durationStepSeconds: null,
+  distanceStepMeters: null,
+  stallSessions: 3,
+  resetPercent: null,
+  note: null
+};
+
 describe('catalog fixture validation', () => {
   it('accepts the checked-in catalog fixture dataset', async () => {
     const fixtures = await loadCatalogFixtures();
@@ -97,6 +108,7 @@ describe('catalog fixture validation', () => {
         jointRegionSlugs: [],
         flagSlugs: [],
         programming: { perSide: false, defaultDurationSeconds: 30 },
+        progressionRule: REPS_RULE,
         trackingType: 'reps',
         tags: [],
         aliases: [],
@@ -164,6 +176,7 @@ describe('catalog fixture validation', () => {
           defaultRepsMax: 15,
           perSide: false
         },
+        progressionRule: REPS_RULE,
         trackingType: 'reps',
         tags: ['bodyweight', 'push'],
         isPremium: false,
@@ -210,6 +223,7 @@ describe('catalog fixture validation', () => {
             jointRegionSlugs: [],
             flagSlugs: [],
             programming: { perSide: false, defaultDurationSeconds: 30 },
+            progressionRule: REPS_RULE,
             trackingType: 'reps',
             tags: [],
             aliases: [],
@@ -239,6 +253,7 @@ describe('catalog fixture validation', () => {
       movementPattern: 'push',
       mechanics: 'compound',
       programming: { perSide: false, defaultDurationSeconds: 30 },
+      progressionRule: REPS_RULE,
       trackingType: 'reps',
       aliases,
       primaryMuscleSlugs: ['chest']

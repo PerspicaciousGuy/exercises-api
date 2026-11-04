@@ -1222,6 +1222,8 @@ components:
               items: { type: string }
             programming:
               $ref: '#/components/schemas/Programming'
+            progressionRule:
+              $ref: '#/components/schemas/ProgressionRule'
             trackingType:
               type: string
               nullable: true
@@ -1337,6 +1339,64 @@ components:
           type: integer
           minimum: 1
           description: Kept for existing clients; always defaultDurationSeconds / 60.
+
+    ProgressionRule:
+      type: object
+      nullable: true
+      description: >
+        How the exercise progresses from session to session: the facts a
+        client's progression logic reads. Every key is always present and null
+        when it does not apply. Set on every catalog exercise.
+      required:
+        [
+          model,
+          loadStepKg,
+          loadStepLb,
+          durationStepSeconds,
+          distanceStepMeters,
+          stallSessions,
+          resetPercent,
+          note
+        ]
+      properties:
+        model:
+          type: string
+          enum: [load_then_reps, double, reps, duration, distance, none]
+          description: >
+            load_then_reps: fixed target reps (or carry distance or hold time),
+            add a load step when every set hits it. double: build to the top of
+            the rep range, then add a load step. reps: build reps, then move to
+            a `progressions` link. duration / distance: add a time or distance
+            step. none: cardio, no automatic progression.
+        loadStepKg:
+          type: number
+          nullable: true
+          description: >
+            Smallest sensible load jump in kg. Per dumbbell or kettlebell when
+            the equipment has one, else the total on the bar or stack. For
+            assisted exercises, a step is that much less assistance.
+          example: 2.5
+        loadStepLb:
+          type: number
+          nullable: true
+          description: The same jump in pounds (a round plate step, not a conversion).
+          example: 5
+        durationStepSeconds: { type: integer, nullable: true, example: 10 }
+        distanceStepMeters: { type: number, nullable: true }
+        stallSessions:
+          type: integer
+          nullable: true
+          description: Sessions without progress before a reset. Null for `none`.
+          example: 3
+        resetPercent:
+          type: number
+          nullable: true
+          description: How much lighter a reset goes. Null when nothing is loaded.
+          example: 10
+        note:
+          type: string
+          nullable: true
+          description: Why the exercise is set up this way, for reviewers.
 
     ExerciseRef:
       type: object

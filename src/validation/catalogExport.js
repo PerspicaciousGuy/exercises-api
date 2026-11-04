@@ -27,6 +27,23 @@ const media = z
   })
   .strict();
 
+const nullableStep = z.number().positive().nullable();
+
+// Agreed with the Frevo app in FitTrackV2 docs/EXERCISES-API-SYNC.md: all
+// eight keys on every exported exercise, null when unused.
+const progressionRule = z
+  .object({
+    model: z.enum(ENUMS.progressionModels),
+    loadStepKg: nullableStep,
+    loadStepLb: nullableStep,
+    durationStepSeconds: nullableStep,
+    distanceStepMeters: nullableStep,
+    stallSessions: z.number().int().positive().nullable(),
+    resetPercent: nullableStep,
+    note: nullableString
+  })
+  .strict();
+
 const exercise = z
   .object({
     id: z.string().uuid(),
@@ -54,6 +71,7 @@ const exercise = z
     skillType: z.enum(ENUMS.skillTypes).nullable(),
     flags: slugs,
     programming: z.record(z.unknown()),
+    progressionRule,
     trackingType: z.enum(ENUMS.trackingTypes),
     optionalEquipment: slugs,
     isPremium: z.literal(false),

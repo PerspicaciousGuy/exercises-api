@@ -73,6 +73,20 @@ structured fields instead: `defaultSets`, `defaultRepsMin`, `defaultRepsMax`,
 `perSide`, `defaultDistanceMetersMin`/`Max` and `defaultDurationSeconds`. The
 fixture validator rejects any record where the two disagree.
 
+## Progression: `progressionRule`
+
+Every exercise says how it progresses from one session to the next. All keys
+are always present and `null` when they don't apply.
+
+| Field | Meaning |
+| --- | --- |
+| `model` | `double` (fill the rep range, then add load), `load_then_reps` (fixed target, add load), `reps` (build reps, then move to a `progressions` link), `duration`, `distance`, or `none` (cardio) |
+| `loadStepKg`, `loadStepLb` | smallest sensible jump; per dumbbell or kettlebell, else the total on the bar or stack |
+| `durationStepSeconds`, `distanceStepMeters` | step for the `duration` and `distance` models |
+| `stallSessions` | sessions without progress before a reset |
+| `resetPercent` | how much lighter a reset goes; `null` when nothing is loaded |
+| `note` | why the exercise is set up this way |
+
 This split is why `GET /exercises` stays fast. Ask for details only when a user
 opens something.
 

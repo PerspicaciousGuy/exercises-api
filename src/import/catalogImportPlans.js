@@ -140,6 +140,7 @@ function mapExerciseRow(exercise, lookups) {
     tracking_type: exercise.trackingType,
     flags: exercise.flagSlugs,
     programming: exercise.programming,
+    progression_rule: exercise.progressionRule,
     tags: exercise.tags,
     is_premium: exercise.isPremium,
     catalog_version: exercise.catalogVersion

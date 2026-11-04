@@ -41,6 +41,7 @@
  *   skillType: 'strength' | 'power' | 'endurance' | 'mobility' | 'balance' | 'coordination' | null,
  *   flags: string[],
  *   programming: Programming,
+ *   progressionRule: ProgressionRule | null,
  *   trackingType: TrackingType | null,
  *   optionalEquipment: string[],
  *   isPremium: boolean,
@@ -75,6 +76,19 @@
  * @property {number} [defaultDistanceMetersMax]
  * @property {number} [defaultDurationSeconds]
  * @property {number} [defaultDurationMinutes]
+ */
+
+/**
+ * How the exercise progresses. Every key is present, null when unused.
+ * @typedef {object} ProgressionRule
+ * @property {'load_then_reps' | 'double' | 'reps' | 'duration' | 'distance' | 'none'} model
+ * @property {number | null} loadStepKg - Per dumbbell or kettlebell, else the total.
+ * @property {number | null} loadStepLb
+ * @property {number | null} durationStepSeconds
+ * @property {number | null} distanceStepMeters
+ * @property {number | null} stallSessions
+ * @property {number | null} resetPercent - Null when nothing is loaded.
+ * @property {string | null} note
  */
 
 /**

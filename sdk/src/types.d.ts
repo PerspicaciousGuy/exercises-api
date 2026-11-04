@@ -41,6 +41,7 @@ export type Exercise = ExerciseSummary & {
     skillType: "strength" | "power" | "endurance" | "mobility" | "balance" | "coordination" | null;
     flags: string[];
     programming: Programming;
+    progressionRule: ProgressionRule | null;
     trackingType: TrackingType | null;
     optionalEquipment: string[];
     isPremium: boolean;
@@ -76,6 +77,25 @@ export type Programming = {
     defaultDistanceMetersMax?: number | undefined;
     defaultDurationSeconds?: number | undefined;
     defaultDurationMinutes?: number | undefined;
+};
+/**
+ * How the exercise progresses. Every key is present, null when unused.
+ */
+export type ProgressionRule = {
+    model: "load_then_reps" | "double" | "reps" | "duration" | "distance" | "none";
+    /**
+     * - Per dumbbell or kettlebell, else the total.
+     */
+    loadStepKg: number | null;
+    loadStepLb: number | null;
+    durationStepSeconds: number | null;
+    distanceStepMeters: number | null;
+    stallSessions: number | null;
+    /**
+     * - Null when nothing is loaded.
+     */
+    resetPercent: number | null;
+    note: string | null;
 };
 /**
  * A link to another exercise; look the full record up by `id`.

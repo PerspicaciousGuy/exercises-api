@@ -180,6 +180,7 @@ describe('createExerciseRepository', () => {
       skillType: 'strength',
       flags: ['beginner-friendly'],
       programming: { defaultSets: 3 },
+      progressionRule: null,
       tags: ['bodyweight'],
       isPremium: false,
       catalogVersion: 1,

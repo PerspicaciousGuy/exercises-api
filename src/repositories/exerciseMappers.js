@@ -24,6 +24,7 @@ export const DETAIL_COLUMNS = [
   'tracking_type',
   'flags',
   'programming',
+  'progression_rule',
   'tags',
   'is_premium',
   'catalog_version',
@@ -82,6 +83,7 @@ export function mapExerciseDetail(row) {
     skillType: row.skill_type,
     flags: row.flags,
     programming: row.programming,
+    progressionRule: row.progression_rule ?? null,
     isPremium: row.is_premium,
     catalogVersion: row.catalog_version,
     primaryMuscles: slugsByDisplayOrder(

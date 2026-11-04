@@ -1,7 +1,8 @@
 // The one list of catalog enum values. The fixture validator, `/metadata` and
 // `/sync/metadata` all read it, and tests/catalogEnums.test.js checks it against
 // the Postgres enum types in supabase/migrations, so a value added to the
-// database cannot go missing from the API again.
+// database cannot go missing from the API again. progressionModels has no
+// Postgres type; the fixture validator is its only gate.
 
 export const CATALOG_ENUM_VALUES = {
   difficulties: ['beginner', 'intermediate', 'advanced'],
@@ -48,6 +49,15 @@ export const CATALOG_ENUM_VALUES = {
     'weight_duration',
     'distance_duration',
     'weight_distance'
+  ],
+  // Stored inside the progression_rule jsonb column, not a Postgres enum.
+  progressionModels: [
+    'load_then_reps',
+    'double',
+    'reps',
+    'duration',
+    'distance',
+    'none'
   ]
 };
 

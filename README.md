@@ -5,7 +5,7 @@ Production-grade public exercise catalog API for fitness app developers.
 The catalog is complete and the API is **live in production** at
 `https://api.harshitbishnoi.dev`, with full documentation at
 [docs.harshitbishnoi.dev](https://docs.harshitbishnoi.dev). It serves a curated
-catalog of **221 exercises** across all eight movement patterns, each with
+catalog of **224 exercises** across all eight movement patterns, each with
 human-reviewed relationships (variations, progressions, regressions) that power a
 graph-intelligence layer — equipment-aware substitutes, workout coverage analysis,
 and progression pathfinding. A typed JavaScript/TypeScript client ships in
@@ -208,7 +208,11 @@ add-ons it can use), `trackingType` (which inputs a logged set takes), `aliases`
 `variations` / `progressions` / `regressions` as `{ id, slug }`, and `media`.
 `programming` carries structured defaults next to the original text:
 `defaultRepsMin`, `defaultRepsMax`, `perSide`, `defaultDistanceMetersMin`/`Max`
-and `defaultDurationSeconds` (on every timed and cardio exercise). `media` is empty
+and `defaultDurationSeconds` (on every timed and cardio exercise).
+`progressionRule` says how the exercise progresses: `model` (`load_then_reps`,
+`double`, `reps`, `duration`, `distance`, `none`), `loadStepKg` / `loadStepLb`,
+`durationStepSeconds`, `distanceStepMeters`, `stallSessions`, `resetPercent` and
+`note`, every key present and `null` when unused. `media` is empty
 for every exercise today; its shape (`type`, `url`, `thumbnailUrl`, `angle`,
 `caption`, `isPrimary`, `sortOrder`, `width`, `height`, `durationSeconds`) is
 fixed, so images and videos can be added later without a schema change. Any
@@ -528,7 +532,7 @@ endpoints, incremental sync (metadata, tombstones, cursor pagination), API-key a
 with per-key daily quotas and usage tracking, premium tier gating, and
 provider-neutral billing (Lemon Squeezy).
 
-The **catalog is complete** — 221 exercises across all eight movement patterns, each
+The **catalog is complete** — 224 exercises across all eight movement patterns, each
 with human-reviewed, fully reciprocal relationships. On top of it sits a **V2
 graph-intelligence layer** (all additive, no breaking changes): equipment-aware
 substitutes, stateless workout coverage analysis, and progression pathfinding.

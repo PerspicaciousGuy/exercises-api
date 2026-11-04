@@ -176,6 +176,16 @@ describe('optional equipment and trackingType', () => {
       defaultRepsMax: 12,
       perSide: true
     },
+    progressionRule: {
+      model: 'reps',
+      loadStepKg: null,
+      loadStepLb: null,
+      durationStepSeconds: null,
+      distanceStepMeters: null,
+      stallSessions: 3,
+      resetPercent: null,
+      note: null
+    },
     trackingType: 'reps',
     primaryMuscleSlugs: ['quadriceps'],
     equipmentSlugs: ['bodyweight'],
