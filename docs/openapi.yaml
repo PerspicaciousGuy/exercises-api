@@ -340,6 +340,8 @@ paths:
           description: >
             Case-insensitive match against names, ignoring spaces, hyphens and
             punctuation, so `pushup`, `push up` and `push-up` all find Push-up.
+            A filter: results stay in name order. Use `/exercises/search` for
+            ranked results.
           schema: { type: string, example: push }
         - $ref: '#/components/parameters/UpdatedSince'
         - $ref: '#/components/parameters/IncludeDeprecated'
@@ -379,7 +381,10 @@ paths:
           description: >
             Matched against names and aliases ignoring case, spaces, hyphens
             and punctuation (pushup, push up and push-up are the same query),
-            and against tags exactly.
+            and against tags exactly. Results are ranked before paging: the
+            exact name first, then an exact alias, a name that starts with the
+            query, a name that contains it, an alias that contains it, and a
+            tag, alphabetically within each rank.
           schema: { type: string, minLength: 1, example: press }
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Offset'

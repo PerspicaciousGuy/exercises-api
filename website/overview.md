@@ -48,7 +48,9 @@ main barbell lifts — and is `null` everywhere else.
 Every name and alias is unique across the catalog once case, spaces and
 punctuation are ignored, so "Push-Up", "push up" and "Pushup" all name one
 exercise, and search compares names the same way: `pushup`, `push up` and
-`push-up` all find Push-up.
+`push-up` all find Push-up. `/exercises/search` ranks what it finds: the exact
+name first, then an exact alias, names that start with the query, names that
+contain it, aliases that contain it, and tags.
 
 ## Logging a set: `trackingType`
 

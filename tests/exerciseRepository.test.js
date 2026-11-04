@@ -248,7 +248,7 @@ describe('createExerciseRepository', () => {
     });
 
     expect(client.select).toHaveBeenCalledWith('exercise_aliases', {
-      columns: 'exercise_id',
+      columns: 'exercise_id,search_alias',
       filters: {
         search_alias: 'ilike.*press*'
       }
@@ -260,6 +260,61 @@ describe('createExerciseRepository', () => {
     ]);
   });
 
+  it('ranks exact names, then exact aliases, prefixes, contains and tags', async () => {
+    const row = (id, name) => createExerciseSummaryRow({ id, slug: id, name });
+    const client = {
+      select: vi.fn(async (table, options) => {
+        if (table === 'exercise_aliases') {
+          return [
+            { exercise_id: 'front-plank', search_alias: 'plank' },
+            { exercise_id: 'copenhagen', search_alias: 'copenhagenplank' }
+          ];
+        }
+        if (table === 'exercises' && options.filters.search_name) {
+          // PostgREST returns name matches alphabetically.
+          return [
+            row('plank-jack', 'Plank Jack'),
+            row('reverse-plank', 'Reverse Plank'),
+            row('side-plank', 'Side Plank'),
+            row('plank', 'Plank')
+          ];
+        }
+        if (table === 'exercises' && options.filters.tags) {
+          return [row('bird-dog', 'Bird Dog'), row('plank', 'Plank')];
+        }
+        if (table === 'exercises' && options.filters.id) {
+          return [
+            row('copenhagen', 'Copenhagen Adduction'),
+            row('front-plank', 'Forearm Hold')
+          ];
+        }
+        return [];
+      })
+    };
+    const repository = createExerciseRepository({ client });
+    const search = (offset, limit) =>
+      repository
+        .searchExercises({ query: 'Plank', limit, offset })
+        .then((result) => result.exercises.map((exercise) => exercise.id));
+
+    expect(await search(0, 10)).toEqual([
+      'plank',
+      'front-plank',
+      'plank-jack',
+      'reverse-plank',
+      'side-plank',
+      'copenhagen',
+      'bird-dog'
+    ]);
+    expect(await search(1, 2)).toEqual(['front-plank', 'plank-jack']);
+    expect(client.select).not.toHaveBeenCalledWith(
+      'exercises',
+      expect.objectContaining({
+        filters: expect.objectContaining({ limit: expect.anything() })
+      })
+    );
+  });
+
   it.each(['pushup', 'push up', 'Push-Up', 'push - up'])(
     'matches "%s" on the normalized name and alias keys',
     async (query) => {
@@ -269,7 +324,7 @@ describe('createExerciseRepository', () => {
       await repository.searchExercises({ query, limit: 10, offset: 0 });
 
       expect(client.select).toHaveBeenCalledWith('exercise_aliases', {
-        columns: 'exercise_id',
+        columns: 'exercise_id,search_alias',
         filters: { search_alias: 'ilike.*pushup*' }
       });
       expect(client.select).toHaveBeenCalledWith(

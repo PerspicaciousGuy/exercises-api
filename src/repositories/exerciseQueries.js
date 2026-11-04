@@ -67,37 +67,81 @@ function toSearchKeyFilter(query) {
   return key ? `ilike.*${key}*` : 'eq.';
 }
 
+// Search rank, best first: the exact name, an exact alias, a name that starts
+// with the query, a name that contains it, an alias that contains it, a tag.
+const RANK = {
+  exactName: 0,
+  exactAlias: 1,
+  namePrefix: 2,
+  nameContains: 3,
+  aliasContains: 4,
+  tag: 5
+};
+
+/**
+ * Ranks every match before paging (see RANK), alphabetically within a rank,
+ * so "Plank" comes before "Side Plank" on any page. Each source returns all
+ * its matches: ranking needs them, and the catalog is a few hundred rows.
+ */
 export async function searchExerciseRows(client, { query, limit, offset }) {
-  const searchLimit = limit + offset;
-  const hasKey = normalizeExerciseName(query) !== '';
+  const key = normalizeExerciseName(query);
   const [aliasRows, nameRows, tagRows] = await Promise.all([
-    hasKey
+    key
       ? client.select('exercise_aliases', {
-          columns: 'exercise_id',
+          columns: 'exercise_id,search_alias',
           filters: { search_alias: toSearchKeyFilter(query) }
         })
       : [],
-    hasKey
+    key
       ? selectExerciseSummaries(client, {
-          search_name: toSearchKeyFilter(query),
-          limit: String(searchLimit)
+          search_name: toSearchKeyFilter(query)
         })
       : [],
     selectExerciseSummaries(client, {
-      tags: `cs.${toPostgrestArrayLiteral(query)}`,
-      limit: String(searchLimit)
+      tags: `cs.${toPostgrestArrayLiteral(query)}`
     })
   ]);
   const aliasExerciseRows = await selectExerciseSummaryRowsByIds(
     client,
     unique(aliasRows.map((row) => row.exercise_id))
   );
+  const exactAliasIds = new Set(
+    aliasRows
+      .filter((row) => row.search_alias === key)
+      .map((row) => row.exercise_id)
+  );
+  const rankById = new Map();
+  const rank = (row, value) =>
+    rankById.set(row.id, Math.min(value, rankById.get(row.id) ?? value));
 
-  return uniqueExerciseRows([
-    ...nameRows,
-    ...aliasExerciseRows,
-    ...tagRows
-  ]).slice(offset, offset + limit);
+  for (const row of nameRows) {
+    const nameKey = normalizeExerciseName(row.name);
+    rank(
+      row,
+      nameKey === key
+        ? RANK.exactName
+        : nameKey.startsWith(key)
+          ? RANK.namePrefix
+          : RANK.nameContains
+    );
+  }
+  for (const row of aliasExerciseRows) {
+    rank(row, exactAliasIds.has(row.id) ? RANK.exactAlias : RANK.aliasContains);
+  }
+  for (const row of tagRows) {
+    rank(row, RANK.tag);
+  }
+
+  return uniqueExerciseRows([...nameRows, ...aliasExerciseRows, ...tagRows])
+    .sort(
+      (a, b) =>
+        rankById.get(a.id) - rankById.get(b.id) || compareNames(a.name, b.name)
+    )
+    .slice(offset, offset + limit);
+}
+
+function compareNames(a, b) {
+  return a < b ? -1 : a > b ? 1 : 0;
 }
 
 export async function selectOneExercise(client, identityFilter) {
