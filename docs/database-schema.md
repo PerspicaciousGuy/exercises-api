@@ -22,6 +22,7 @@ This document summarizes the Supabase/PostgreSQL migrations in `supabase/migrati
 | `supabase/migrations/014_add_core_movement_pattern.sql`               | Adds `core` to the `movement_pattern` enum.                                                                                        |
 | `supabase/migrations/015_unique_exercise_media_url.sql`               | Adds a unique index on `exercise_media(exercise_id, url)` so the seeder can upsert media.                                          |
 | `supabase/migrations/016_tracking_optional_equipment_search_keys.sql` | Adds the `tracking_type` enum and column, `exercise_optional_equipment`, and the generated `search_name` / `search_alias` columns. |
+| `supabase/migrations/017_progression_rule.sql`                        | Adds the `progression_rule` jsonb column (exported as `progressionRule`), checked to be an object.                                 |
 
 ## Scope Decisions
 
