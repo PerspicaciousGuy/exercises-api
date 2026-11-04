@@ -156,6 +156,12 @@
     "displayOrder": 220
   },
   {
+    "name": "Stability Ball",
+    "slug": "stability-ball",
+    "equipmentGroup": "implement",
+    "displayOrder": 222
+  },
+  {
     "name": "Sliders",
     "slug": "sliders",
     "equipmentGroup": "implement",

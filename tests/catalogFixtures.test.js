@@ -29,6 +29,28 @@ describe('catalog fixture validation', () => {
     expect(fixtures.exercises.length).toBeGreaterThanOrEqual(12);
   });
 
+  it('keeps every relation link reciprocal', async () => {
+    const { exercises } = await loadCatalogFixtures();
+    const bySlug = new Map(exercises.map((item) => [item.slug, item]));
+    const missing = [];
+
+    for (const exercise of exercises) {
+      for (const [key, reverse] of [
+        ['variationSlugs', 'variationSlugs'],
+        ['progressionSlugs', 'regressionSlugs'],
+        ['regressionSlugs', 'progressionSlugs']
+      ]) {
+        for (const slug of exercise[key]) {
+          if (!bySlug.get(slug)[reverse].includes(exercise.slug)) {
+            missing.push(`${exercise.slug} ${key} ${slug}`);
+          }
+        }
+      }
+    }
+
+    expect(missing).toEqual([]);
+  });
+
   it('accepts the Phase 2 reference fixtures', () => {
     const fixtures = parseReferenceFixtures({
       muscles: [

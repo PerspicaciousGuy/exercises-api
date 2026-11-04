@@ -69,6 +69,33 @@ describe('progressionRule shape', () => {
     ).toThrow(/distanceStepMeters must be set/);
   });
 
+  it('gives reps a load step exactly when optional equipment adds load', () => {
+    const loadedReps = rule({ model: 'reps' });
+    const assertWith = (optionalEquipmentSlugs, progressionRule) => () =>
+      assertProgressionRuleAgrees({
+        slug: 'x',
+        progressionRule,
+        optionalEquipmentSlugs
+      });
+
+    expect(assertWith(['dumbbell'], loadedReps)).not.toThrow();
+    expect(assertWith(['kettlebell'], loadedReps)).not.toThrow();
+    expect(assertWith(['resistance-band'], loadedReps)).toThrow(
+      /loadStepKg must be null for reps/
+    );
+    expect(
+      assertWith(
+        ['dumbbell'],
+        rule({
+          model: 'reps',
+          loadStepKg: null,
+          loadStepLb: null,
+          resetPercent: null
+        })
+      )
+    ).toThrow(/loadStepKg must be set for reps/);
+  });
+
   it('ties resetPercent to load and stallSessions to a real model', () => {
     expect(check({ resetPercent: null })).toThrow(/resetPercent/);
     expect(
@@ -112,7 +139,8 @@ describe('catalog progression rules', () => {
   });
 
   // The ten samples the app approved in FitTrackV2 docs/EXERCISES-API-SYNC.md
-  // (request 1), with resetPercent null where nothing is loaded.
+  // (request 1), with resetPercent null where nothing is loaded, and the
+  // optional-dumbbell reps exercises from request 4.
   it('keep the values agreed with the app', async () => {
     const { exercises } = await loadCatalogFixtures();
     const bySlug = new Map(exercises.map((item) => [item.slug, item]));
@@ -127,7 +155,16 @@ describe('catalog progression rules', () => {
       plank: ['duration', null, null, 10, null],
       'farmers-walk': ['load_then_reps', 2, 5, null, 10],
       'rowing-erg': ['none', null, null, null, null],
-      'weighted-pull-up': ['load_then_reps', 2.5, 5, null, 10]
+      'weighted-pull-up': ['load_then_reps', 2.5, 5, null, 10],
+      // Request 4: optional dumbbells, 2 / 5 per dumbbell.
+      'walking-lunge': ['reps', 2, 5, null, 10],
+      'forward-lunge': ['reps', 2, 5, null, 10],
+      'reverse-lunge': ['reps', 2, 5, null, 10],
+      'curtsy-lunge': ['reps', 2, 5, null, 10],
+      'split-squat': ['reps', 2, 5, null, 10],
+      'bulgarian-split-squat': ['reps', 2, 5, null, 10],
+      'step-up': ['reps', 2, 5, null, 10],
+      'single-leg-calf-raise': ['reps', 2, 5, null, 10]
     };
 
     for (const [slug, values] of Object.entries(agreed)) {

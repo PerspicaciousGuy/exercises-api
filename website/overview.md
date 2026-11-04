@@ -83,7 +83,7 @@ are always present and `null` when they don't apply.
 | Field | Meaning |
 | --- | --- |
 | `model` | `double` (fill the rep range, then add load), `load_then_reps` (fixed target, add load), `reps` (build reps, then move to a `progressions` link), `duration`, `distance`, or `none` (cardio) |
-| `loadStepKg`, `loadStepLb` | smallest sensible jump; per dumbbell or kettlebell, else the total on the bar or stack |
+| `loadStepKg`, `loadStepLb` | smallest sensible jump; per dumbbell or kettlebell, else the total on the bar or stack. A `reps` exercise has one only when `optionalEquipment` adds a dumbbell or kettlebell, for sets logged with weight |
 | `durationStepSeconds`, `distanceStepMeters` | step for the `duration` and `distance` models |
 | `stallSessions` | sessions without progress before a reset |
 | `resetPercent` | how much lighter a reset goes; `null` when nothing is loaded |

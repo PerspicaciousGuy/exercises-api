@@ -229,6 +229,8 @@ function assertUniqueSlugs(label, items) {
   }
 }
 
+const OPTIONAL_LOAD_EQUIPMENT = ['dumbbell', 'kettlebell'];
+
 const REPS_TEXT = /^(\d+)(?:-(\d+))?( each side)?$/;
 const METRES_TEXT = /^(\d+)-(\d+) metres( each side)?$/;
 
@@ -276,17 +278,28 @@ export function assertProgrammingAgrees({ slug, programming: p }) {
 /**
  * Each model carries exactly the steps it uses: `double` and `load_then_reps`
  * a kg and lb load step, `duration` a seconds step, `distance` a metres step.
- * `reps` may not take load (a harder variant is a progressions link). A reset
- * is a percentage of load, so resetPercent is set exactly when load steps are.
- * `none` has no steps, stall or reset at all.
+ * `reps` takes a load step only when its optional equipment adds load (a
+ * dumbbell or kettlebell, request 4 in the app sync file); otherwise a harder
+ * variant is a progressions link. A reset is a percentage of load, so
+ * resetPercent is set exactly when load steps are. `none` has no steps, stall
+ * or reset at all.
  */
-export function assertProgressionRuleAgrees({ slug, progressionRule: r }) {
+export function assertProgressionRuleAgrees({
+  slug,
+  progressionRule: r,
+  optionalEquipmentSlugs = []
+}) {
   const fail = (message) => {
     throw new Error(`Invalid progressionRule on "${slug}": ${message}`);
   };
+  const loadModels = optionalEquipmentSlugs.some((item) =>
+    OPTIONAL_LOAD_EQUIPMENT.includes(item)
+  )
+    ? ['double', 'load_then_reps', 'reps']
+    : ['double', 'load_then_reps'];
   const needs = {
-    loadStepKg: ['double', 'load_then_reps'],
-    loadStepLb: ['double', 'load_then_reps'],
+    loadStepKg: loadModels,
+    loadStepLb: loadModels,
     durationStepSeconds: ['duration'],
     distanceStepMeters: ['distance']
   };

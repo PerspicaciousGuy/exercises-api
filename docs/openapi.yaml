@@ -1379,7 +1379,9 @@ components:
           description: >
             Smallest sensible load jump in kg. Per dumbbell or kettlebell when
             the equipment has one, else the total on the bar or stack. For
-            assisted exercises, a step is that much less assistance.
+            assisted exercises, a step is that much less assistance. A `reps`
+            exercise has one only when `optionalEquipment` adds load (a dumbbell
+            or kettlebell): it applies once the user logs weight.
           example: 2.5
         loadStepLb:
           type: number
