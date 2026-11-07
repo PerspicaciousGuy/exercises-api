@@ -47,6 +47,8 @@ function exercise(overrides) {
       resetPercent: 10,
       note: null
     },
+    jointStress: { hip: 'moderate', knee: 'moderate' },
+    gentlerSwaps: {},
     trackingType: 'weight_reps',
     optionalEquipment: [],
     isPremium: false,
@@ -221,7 +223,7 @@ describe('catalog export', () => {
       equipment: [reference('barbell', 1)],
       categories: [],
       exerciseFlags: [],
-      jointRegions: [],
+      jointRegions: [reference('hip', 1), reference('knee', 2)],
       enums: CATALOG_ENUM_VALUES,
       exercises: [
         exercise({ regressions: [], media: [] }),
@@ -296,6 +298,35 @@ describe('catalog export', () => {
     await expect(
       build({ progressionRule: { ...rule, extra: 1 } })
     ).rejects.toThrow(/Invalid catalog export/);
+  });
+
+  it('rejects joint stress with a missing region, a swap off a high region or a swap outside the file', async () => {
+    const build = (overrides) => {
+      const { syncRepository, referenceRepository } = fakeRepositories([
+        exercise({ regressions: [], ...overrides })
+      ]);
+      return buildCatalogExport({ syncRepository, referenceRepository });
+    };
+    const outsider = { id: GOBLET_ID, slug: 'goblet-squat' };
+
+    await expect(build({ jointStress: { hip: 'moderate' } })).rejects.toThrow(
+      /jointStress must rate exactly hip, knee/
+    );
+    await expect(
+      build({ jointStress: { hip: 'moderate', knee: 'sky-high' } })
+    ).rejects.toThrow(/Invalid catalog export/);
+    await expect(build({ gentlerSwaps: { knee: [outsider] } })).rejects.toThrow(
+      /gentlerSwaps needs a key for exactly the high regions/
+    );
+    await expect(
+      build({
+        jointStress: { hip: 'moderate', knee: 'high' },
+        gentlerSwaps: { knee: [outsider] }
+      })
+    ).rejects.toThrow(/goblet-squat.{1,6}which is not in the export/);
+    await expect(
+      build({ jointStress: { hip: 'moderate', knee: 'high' } })
+    ).rejects.toThrow(/gentlerSwaps needs a key/);
   });
 
   it('rejects a record with a field the schema does not know', async () => {

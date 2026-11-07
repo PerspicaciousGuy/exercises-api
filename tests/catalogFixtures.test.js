@@ -131,6 +131,7 @@ describe('catalog fixture validation', () => {
         flagSlugs: [],
         programming: { perSide: false, defaultDurationSeconds: 30 },
         progressionRule: REPS_RULE,
+        jointStress: {},
         trackingType: 'reps',
         tags: [],
         aliases: [],
@@ -199,6 +200,7 @@ describe('catalog fixture validation', () => {
           perSide: false
         },
         progressionRule: REPS_RULE,
+        jointStress: { shoulder: 'moderate', elbow: 'moderate' },
         trackingType: 'reps',
         tags: ['bodyweight', 'push'],
         isPremium: false,
@@ -246,6 +248,7 @@ describe('catalog fixture validation', () => {
             flagSlugs: [],
             programming: { perSide: false, defaultDurationSeconds: 30 },
             progressionRule: REPS_RULE,
+            jointStress: {},
             trackingType: 'reps',
             tags: [],
             aliases: [],
@@ -276,6 +279,7 @@ describe('catalog fixture validation', () => {
       mechanics: 'compound',
       programming: { perSide: false, defaultDurationSeconds: 30 },
       progressionRule: REPS_RULE,
+      jointStress: {},
       trackingType: 'reps',
       aliases,
       primaryMuscleSlugs: ['chest']

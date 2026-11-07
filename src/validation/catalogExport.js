@@ -44,6 +44,17 @@ const progressionRule = z
   })
   .strict();
 
+// Request 5 in the same file: a level for every joint region, and for each
+// region rated high, 1-2 gentler exercises that are in the export.
+const jointStress = z.record(
+  z.string().min(1),
+  z.enum(ENUMS.jointStressLevels)
+);
+const gentlerSwaps = z.record(
+  z.string().min(1),
+  z.array(exerciseRef).min(1).max(2)
+);
+
 const exercise = z
   .object({
     id: z.string().uuid(),
@@ -72,6 +83,8 @@ const exercise = z
     flags: slugs,
     programming: z.record(z.unknown()),
     progressionRule,
+    jointStress,
+    gentlerSwaps,
     trackingType: z.enum(ENUMS.trackingTypes),
     optionalEquipment: slugs,
     isPremium: z.literal(false),
@@ -147,11 +160,32 @@ export const catalogExportSchema = z
         }
       }
 
+      const regionSlugs = file.jointRegions.map((region) => region.slug);
+
+      if (
+        [...regionSlugs].sort().join() !==
+        Object.keys(item.jointStress).sort().join()
+      ) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `${item.slug}: jointStress must rate exactly ${regionSlugs.join(', ')}`
+        });
+      }
+      for (const [region, level] of Object.entries(item.jointStress)) {
+        if ((level === 'high') !== region in item.gentlerSwaps) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `${item.slug}: gentlerSwaps needs a key for exactly the high regions`
+          });
+        }
+      }
+
       // A bundled record must never link to an exercise the bundle lacks.
       for (const ref of [
         ...item.variations,
         ...item.progressions,
-        ...item.regressions
+        ...item.regressions,
+        ...Object.values(item.gentlerSwaps).flat()
       ]) {
         if (!exerciseIds.has(ref.id)) {
           context.addIssue({

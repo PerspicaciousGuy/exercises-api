@@ -42,6 +42,8 @@ export type Exercise = ExerciseSummary & {
     flags: string[];
     programming: Programming;
     progressionRule: ProgressionRule | null;
+    jointStress: JointStress | null;
+    gentlerSwaps: GentlerSwaps | null;
     trackingType: TrackingType | null;
     optionalEquipment: string[];
     isPremium: boolean;
@@ -97,6 +99,15 @@ export type ProgressionRule = {
     resetPercent: number | null;
     note: string | null;
 };
+/**
+ * How hard the exercise loads each joint region (a key per region in
+ * `/joint-regions`): none, low, moderate or high.
+ */
+export type JointStress = Record<string, "none" | "low" | "moderate" | "high">;
+/**
+ * For each region rated high, one or two exercises that load it less.
+ */
+export type GentlerSwaps = Record<string, ExerciseRef[]>;
 /**
  * A link to another exercise; look the full record up by `id`.
  */

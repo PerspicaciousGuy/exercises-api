@@ -212,7 +212,11 @@ and `defaultDurationSeconds` (on every timed and cardio exercise).
 `progressionRule` says how the exercise progresses: `model` (`load_then_reps`,
 `double`, `reps`, `duration`, `distance`, `none`), `loadStepKg` / `loadStepLb`,
 `durationStepSeconds`, `distanceStepMeters`, `stallSessions`, `resetPercent` and
-`note`, every key present and `null` when unused. `media` is empty
+`note`, every key present and `null` when unused. `jointStress` rates how hard
+the exercise loads each joint region (`neck`, `shoulder`, `elbow`, `wrist`,
+`spine`, `hip`, `knee`, `ankle`) as `none`, `low`, `moderate` or `high`, and
+`gentlerSwaps` gives one or two `{ id, slug }` alternatives for each region
+rated `high`. `media` is empty
 for every exercise today; its shape (`type`, `url`, `thumbnailUrl`, `angle`,
 `caption`, `isPrimary`, `sortOrder`, `width`, `height`, `durationSeconds`) is
 fixed, so images and videos can be added later without a schema change. Any

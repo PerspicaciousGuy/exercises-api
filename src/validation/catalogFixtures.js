@@ -95,6 +95,15 @@ const progressionRuleSchema = z
   })
   .strict();
 
+// How hard an exercise loads each joint region (FitTrackV2
+// docs/EXERCISES-API-SYNC.md, request 5), and the 1-2 gentler exercises for
+// each region rated high. assertJointStressAgrees ties both to jointRegions.
+const jointStressSchema = z.record(slugSchema, z.enum(ENUMS.jointStressLevels));
+const gentlerSwapsSchema = z.record(
+  slugSchema,
+  z.array(slugSchema).min(1).max(2)
+);
+
 const exerciseSchema = z.object({
   name: z.string().min(1),
   slug: slugSchema,
@@ -118,6 +127,8 @@ const exerciseSchema = z.object({
   flagSlugs: z.array(slugSchema).default([]),
   programming: programmingSchema,
   progressionRule: progressionRuleSchema,
+  jointStress: jointStressSchema,
+  gentlerSwapSlugs: gentlerSwapsSchema.default({}),
   trackingType: z.enum(ENUMS.trackingTypes),
   tags: z.array(slugSchema).default([]),
   isPremium: z.boolean().default(false),
@@ -173,6 +184,7 @@ export function parseExerciseFixtures(source) {
   for (const exercise of exercises) {
     assertProgrammingAgrees(exercise);
     assertProgressionRuleAgrees(exercise);
+    assertJointStressAgrees(exercise);
   }
 
   return exercises;
@@ -319,6 +331,47 @@ export function assertProgressionRuleAgrees({
   }
 }
 
+/**
+ * jointRegions says a joint is involved; jointStress says how hard. A region
+ * rated none is never listed, a moderate or high one always is (low may be
+ * either), and gentlerSwapSlugs has a key for exactly the regions rated high.
+ */
+export function assertJointStressAgrees({
+  slug,
+  jointStress,
+  jointRegionSlugs,
+  gentlerSwapSlugs = {}
+}) {
+  const fail = (message) => {
+    throw new Error(`Invalid jointStress on "${slug}": ${message}`);
+  };
+  const high = [];
+
+  for (const [region, level] of Object.entries(jointStress)) {
+    const listed = jointRegionSlugs.includes(region);
+
+    if (level === 'none' && listed) {
+      fail(`${region} is rated none but listed in jointRegionSlugs`);
+    }
+    if ((level === 'moderate' || level === 'high') && !listed) {
+      fail(`${region} is rated ${level} but not in jointRegionSlugs`);
+    }
+    if (level === 'high') {
+      high.push(region);
+    }
+  }
+  for (const region of jointRegionSlugs) {
+    if (!(region in jointStress)) {
+      fail(`${region} is in jointRegionSlugs but has no rating`);
+    }
+  }
+  if ([...high].sort().join() !== Object.keys(gentlerSwapSlugs).sort().join()) {
+    fail(
+      `gentlerSwapSlugs needs a key for exactly the high regions (${high.join(', ') || 'none'})`
+    );
+  }
+}
+
 // Every name and alias must resolve to one exercise, ignoring case and
 // punctuation, or a client looking a name up cannot tell which record it means.
 function assertUniqueNames(exercises) {
@@ -373,6 +426,49 @@ function assertExerciseReferences(references, exercises) {
       allRelatedExerciseSlugs(exercise),
       'exercise'
     );
+    assertJointStressReferences(references, exercise, exercises);
+  }
+}
+
+// A rating for every joint region and no other, and swaps that exist, are
+// active, and really are gentler on the region they replace.
+function assertJointStressReferences(references, exercise, exercises) {
+  const fail = (message) => {
+    throw new Error(`Invalid jointStress on "${exercise.slug}": ${message}`);
+  };
+  const regions = references.jointRegions.map((item) => item.slug);
+  const rated = Object.keys(exercise.jointStress);
+
+  if ([...regions].sort().join() !== [...rated].sort().join()) {
+    fail(`needs a rating for exactly ${regions.join(', ')}`);
+  }
+
+  const levels = ENUMS.jointStressLevels;
+  const bySlug = new Map(exercises.map((item) => [item.slug, item]));
+
+  for (const [region, swapSlugs] of Object.entries(exercise.gentlerSwapSlugs)) {
+    assertKnownSlugs(new Set(bySlug.keys()), swapSlugs, 'swap exercise');
+    if (new Set(swapSlugs).size !== swapSlugs.length) {
+      fail(`${region} lists the same swap twice`);
+    }
+    for (const swapSlug of swapSlugs) {
+      const swap = bySlug.get(swapSlug);
+
+      if (swap.slug === exercise.slug) {
+        fail(`${region} swaps the exercise for itself`);
+      }
+      if (swap.status !== 'active') {
+        fail(`${region} swap "${swapSlug}" is not active`);
+      }
+      if (
+        levels.indexOf(swap.jointStress[region]) >=
+        levels.indexOf(exercise.jointStress[region])
+      ) {
+        fail(
+          `${region} swap "${swapSlug}" (${swap.jointStress[region]}) is not gentler than ${exercise.jointStress[region]}`
+        );
+      }
+    }
   }
 }
 

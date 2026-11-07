@@ -42,6 +42,8 @@
  *   flags: string[],
  *   programming: Programming,
  *   progressionRule: ProgressionRule | null,
+ *   jointStress: JointStress | null,
+ *   gentlerSwaps: GentlerSwaps | null,
  *   trackingType: TrackingType | null,
  *   optionalEquipment: string[],
  *   isPremium: boolean,
@@ -89,6 +91,17 @@
  * @property {number | null} stallSessions
  * @property {number | null} resetPercent - Null when nothing is loaded.
  * @property {string | null} note
+ */
+
+/**
+ * How hard the exercise loads each joint region (a key per region in
+ * `/joint-regions`): none, low, moderate or high.
+ * @typedef {Record<string, 'none' | 'low' | 'moderate' | 'high'>} JointStress
+ */
+
+/**
+ * For each region rated high, one or two exercises that load it less.
+ * @typedef {Record<string, ExerciseRef[]>} GentlerSwaps
  */
 
 /**

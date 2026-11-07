@@ -25,6 +25,8 @@ export const DETAIL_COLUMNS = [
   'flags',
   'programming',
   'progression_rule',
+  'joint_stress',
+  'gentler_swaps',
   'tags',
   'is_premium',
   'catalog_version',
@@ -84,6 +86,8 @@ export function mapExerciseDetail(row) {
     flags: row.flags,
     programming: row.programming,
     progressionRule: row.progression_rule ?? null,
+    jointStress: row.joint_stress ?? null,
+    gentlerSwaps: row.gentler_swaps ?? null,
     isPremium: row.is_premium,
     catalogVersion: row.catalog_version,
     primaryMuscles: slugsByDisplayOrder(

@@ -141,10 +141,25 @@ function mapExerciseRow(exercise, lookups) {
     flags: exercise.flagSlugs,
     programming: exercise.programming,
     progression_rule: exercise.progressionRule,
+    joint_stress: exercise.jointStress,
+    gentler_swaps: mapGentlerSwaps(exercise, lookups),
     tags: exercise.tags,
     is_premium: exercise.isPremium,
     catalog_version: exercise.catalogVersion
   };
+}
+
+// Swaps are stored as {id, slug} like the relation links, resolved to ids here.
+function mapGentlerSwaps(exercise, lookups) {
+  return Object.fromEntries(
+    Object.entries(exercise.gentlerSwapSlugs ?? {}).map(([region, slugs]) => [
+      region,
+      slugs.map((slug) => ({
+        id: requiredLookup(lookups.exerciseIdsBySlug, slug, 'exercise'),
+        slug
+      }))
+    ])
+  );
 }
 
 function mapAliasRows(exercise, lookups) {

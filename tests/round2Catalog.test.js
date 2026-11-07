@@ -186,6 +186,7 @@ describe('optional equipment and trackingType', () => {
       resetPercent: null,
       note: null
     },
+    jointStress: {},
     trackingType: 'reps',
     primaryMuscleSlugs: ['quadriceps'],
     equipmentSlugs: ['bodyweight'],

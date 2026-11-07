@@ -58,7 +58,9 @@ export const CATALOG_ENUM_VALUES = {
     'duration',
     'distance',
     'none'
-  ]
+  ],
+  // Stored inside the joint_stress jsonb column, not a Postgres enum.
+  jointStressLevels: ['none', 'low', 'moderate', 'high']
 };
 
 // Enums the fixtures use that the API does not publish under `enums`.

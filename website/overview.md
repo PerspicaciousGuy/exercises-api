@@ -89,6 +89,25 @@ are always present and `null` when they don't apply.
 | `resetPercent` | how much lighter a reset goes; `null` when nothing is loaded |
 | `note` | why the exercise is set up this way |
 
+## Going easy on a joint: `jointStress`
+
+`jointRegions` says which joints an exercise involves. `jointStress` says how
+hard it loads each of them, so an app can skip or swap exercises for a user with
+a sore knee or shoulder. It has a key for every region (`neck`, `shoulder`,
+`elbow`, `wrist`, `spine`, `hip`, `knee`, `ankle`):
+
+| Level | Meaning |
+| --- | --- |
+| `high` | heavy load or loaded end range; the kind of exercise someone with a sore joint is told to skip or modify |
+| `moderate` | clearly loaded, manageable with lighter weight or a shorter range |
+| `low` | involved lightly, as a stabiliser or a grip |
+| `none` | not involved |
+
+For each region rated `high`, `gentlerSwaps` lists one or two exercises (`{ id,
+slug }`) that load that region less, in the same movement pattern where
+possible. Ratings describe the default setup; optional equipment does not raise
+them.
+
 This split is why `GET /exercises` stays fast. Ask for details only when a user
 opens something.
 

@@ -181,6 +181,8 @@ describe('createExerciseRepository', () => {
       flags: ['beginner-friendly'],
       programming: { defaultSets: 3 },
       progressionRule: null,
+      jointStress: null,
+      gentlerSwaps: null,
       tags: ['bodyweight'],
       isPremium: false,
       catalogVersion: 1,

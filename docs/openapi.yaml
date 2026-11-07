@@ -1229,6 +1229,10 @@ components:
               $ref: '#/components/schemas/Programming'
             progressionRule:
               $ref: '#/components/schemas/ProgressionRule'
+            jointStress:
+              $ref: '#/components/schemas/JointStress'
+            gentlerSwaps:
+              $ref: '#/components/schemas/GentlerSwaps'
             trackingType:
               type: string
               nullable: true
@@ -1344,6 +1348,41 @@ components:
           type: integer
           minimum: 1
           description: Kept for existing clients; always defaultDurationSeconds / 60.
+
+    JointStress:
+      type: object
+      nullable: true
+      description: >
+        How hard the exercise loads each joint region, for every region in
+        `/joint-regions` (neck, shoulder, elbow, wrist, spine, hip, knee,
+        ankle). high: heavy load or loaded end range, the kind of exercise
+        someone with a sore joint is told to skip or modify. moderate: clearly
+        loaded, manageable with lighter weight or a shorter range. low: involved
+        lightly, as a stabiliser or grip. none: not involved. Rated for the
+        default setup; optional equipment does not raise a rating. A region
+        rated moderate or high is always in `jointRegions`, one rated none never.
+      additionalProperties:
+        type: string
+        enum: [none, low, moderate, high]
+      example: { neck: low, shoulder: moderate, knee: high, ankle: moderate }
+
+    GentlerSwaps:
+      type: object
+      nullable: true
+      description: >
+        For each region rated high, one or two exercises that load that region
+        less. Same movement pattern where possible. Keys are exactly the
+        regions rated high.
+      additionalProperties:
+        type: array
+        minItems: 1
+        maxItems: 2
+        items:
+          type: object
+          required: [id, slug]
+          properties:
+            id: { type: string, format: uuid }
+            slug: { type: string }
 
     ProgressionRule:
       type: object

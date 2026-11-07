@@ -1,5 +1,11 @@
 [
   {
+    "name": "Neck",
+    "slug": "neck",
+    "regionGroup": "upper_body",
+    "displayOrder": 5
+  },
+  {
     "name": "Shoulder",
     "slug": "shoulder",
     "regionGroup": "upper_body",
