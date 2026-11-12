@@ -60,6 +60,21 @@ const TEXT_KEYED_TABLES = [
   { table: 'exercise_media', keyColumn: 'url', planKey: 'media' }
 ];
 
+// A PostgREST `in.(...)` filter goes in the request URL, and the hosting layer
+// rejects URLs past about 16 KB. 409 exercises' ids no longer fit in one, so
+// every long id or slug list is sent in batches of this size.
+const IN_FILTER_BATCH_SIZE = 100;
+
+function inBatches(items) {
+  const batches = [];
+
+  for (let index = 0; index < items.length; index += IN_FILTER_BATCH_SIZE) {
+    batches.push(items.slice(index, index + IN_FILTER_BATCH_SIZE));
+  }
+
+  return batches;
+}
+
 export async function seedReferenceData({ client, references }) {
   const rows = buildReferenceSeedRows(references);
   const categories = await client.upsert('categories', rows.categories, {
@@ -148,12 +163,18 @@ async function selectExistingExerciseIds(client, exercises) {
     return [];
   }
 
-  return client.select('exercises', {
-    columns: 'id,slug',
-    filters: {
-      slug: `in.(${exercises.map((exercise) => exercise.slug).join(',')})`
-    }
-  });
+  const rows = [];
+
+  for (const slugs of inBatches(exercises.map((exercise) => exercise.slug))) {
+    rows.push(
+      ...(await client.select('exercises', {
+        columns: 'id,slug',
+        filters: { slug: `in.(${slugs.join(',')})` }
+      }))
+    );
+  }
+
+  return rows;
 }
 
 async function upsertExercisePlan(client, plan) {
@@ -257,17 +278,26 @@ async function deleteStaleTextKeyedRows(
 
   const rowKey = (row) => `${row.exercise_id}\u0000${row[keyColumn]}`;
   const kept = new Set(keptRows.map(rowKey));
-  const existingRows = await client.select(table, {
-    columns: `id,exercise_id,${keyColumn}`,
-    filters: { exercise_id: `in.(${exerciseIds.join(',')})` }
-  });
-  const staleIds = existingRows
-    .filter((row) => !kept.has(rowKey(row)))
-    .map((row) => row.id);
+  const staleIds = [];
 
-  if (staleIds.length > 0) {
+  // One select per batch of exercises also keeps each response well under the
+  // max-rows cap that the shortcut above warns about.
+  for (const ids of inBatches(exerciseIds)) {
+    const existingRows = await client.select(table, {
+      columns: `id,exercise_id,${keyColumn}`,
+      filters: { exercise_id: `in.(${ids.join(',')})` }
+    });
+
+    staleIds.push(
+      ...existingRows
+        .filter((row) => !kept.has(rowKey(row)))
+        .map((row) => row.id)
+    );
+  }
+
+  for (const ids of inBatches(staleIds)) {
     await client.delete(table, {
-      filters: { id: `in.(${staleIds.join(',')})` },
+      filters: { id: `in.(${ids.join(',')})` },
       select: 'id'
     });
   }

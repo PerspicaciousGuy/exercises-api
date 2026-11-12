@@ -347,6 +347,64 @@ describe('catalog seeder', () => {
     );
   });
 
+  it('keeps every in-list filter short by batching, however many exercises there are', async () => {
+    const count = 450;
+    const exercises = Array.from({ length: count }, (_, index) =>
+      baseExercise({ name: `Move ${index}`, slug: `move-${index}` })
+    );
+    const staleAliasRows = exercises.map((_, index) => ({
+      id: `a-${index}`,
+      exercise_id: `exercise-${index}`,
+      alias: 'Old Alias'
+    }));
+    const client = {
+      // Answer like PostgREST: only the rows for the ids in the filter.
+      select: vi.fn(async (table, options) => {
+        if (table !== 'exercise_aliases') {
+          return [];
+        }
+
+        const wanted = new Set(
+          options.filters.exercise_id.slice(4, -1).split(',')
+        );
+
+        return staleAliasRows.filter((row) => wanted.has(row.exercise_id));
+      }),
+      upsert: vi.fn(async (table, rows) => rows),
+      insert: vi.fn(async (table, rows) => rows),
+      delete: vi.fn(async () => [])
+    };
+    let next = 0;
+
+    await importExerciseData({
+      client,
+      idFactory: () => `exercise-${next++}`,
+      referenceLookups: {
+        categoryIdsBySlug: new Map([['strength', 1]]),
+        muscleIdsBySlug: new Map([['chest', 10]]),
+        equipmentIdsBySlug: new Map([['bodyweight', 20]])
+      },
+      exercises
+    });
+
+    const filterValues = [
+      ...client.select.mock.calls,
+      ...client.delete.mock.calls
+    ].flatMap(([, options]) => Object.values(options.filters));
+    const longest = Math.max(...filterValues.map((value) => value.length));
+
+    // 100 uuid-length ids is about 3.7 KB; the unbatched list was 16 KB+.
+    expect(longest).toBeLessThan(5000);
+    expect(
+      client.select.mock.calls.filter(([table]) => table === 'exercises')
+    ).toHaveLength(5);
+    // Every stale alias is still deleted, just across several requests.
+    const deletedIds = client.delete.mock.calls
+      .filter(([table]) => table === 'exercise_aliases')
+      .flatMap(([, options]) => options.filters.id.slice(4, -1).split(','));
+    expect(deletedIds).toHaveLength(count);
+  });
+
   it('reconciles only after every upsert, so a mid-run failure leaves a superset', async () => {
     const calls = [];
     const client = {
