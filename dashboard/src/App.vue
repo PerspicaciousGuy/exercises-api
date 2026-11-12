@@ -26,7 +26,7 @@ const initial = computed(() => user.value?.email?.[0] ?? '?');
   <div v-else class="layout">
     <aside class="sidebar">
       <div class="sidebar__brand">
-        <span class="sidebar__brand-mark" aria-hidden="true">E</span>
+        <span class="sidebar__brand-mark" aria-hidden="true">DB</span>
         ExerciseDB
       </div>
 

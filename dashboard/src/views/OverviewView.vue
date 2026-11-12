@@ -7,6 +7,14 @@ import { session } from '../stores/session.js';
 
 const PURCHASABLE_TIERS = ['basic', 'pro', 'enterprise'];
 
+/* Daily request limits per tier, shown on the plan cards. These mirror the
+ * quotas the API enforces; the API remains the source of truth. */
+const TIER_LIMITS = {
+  basic: '10,000',
+  pro: '100,000',
+  enterprise: '1,000,000'
+};
+
 const user = computed(() => session.state.user);
 const errorMessage = ref('');
 const pendingTier = ref('');
@@ -69,6 +77,8 @@ async function upgrade(tier) {
           <span class="plan__name">{{ tier }}</span>
           <span v-if="user?.tier === tier" class="plan__tag">Current plan</span>
         </div>
+        <p class="plan__limit">{{ TIER_LIMITS[tier] }}</p>
+        <p class="plan__unit">requests a day</p>
         <button
           class="button button--block"
           :class="{ 'button--ghost': user?.tier === tier }"

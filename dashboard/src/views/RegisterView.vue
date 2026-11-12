@@ -50,7 +50,7 @@ async function copyKey() {
   <div class="auth-shell">
     <div class="auth-card">
       <div class="auth-brand">
-        <span class="sidebar__brand-mark" aria-hidden="true">E</span>
+        <span class="sidebar__brand-mark" aria-hidden="true">DB</span>
         ExerciseDB
       </div>
 

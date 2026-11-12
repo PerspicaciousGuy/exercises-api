@@ -408,3 +408,64 @@ html.dark .vp-doc .shiki span {
   --scalar-radius: var(--ex-radius-sm);
   --scalar-radius-lg: var(--ex-radius-md);
 }
+
+/* ---- missing page --------------------------------------------------------- */
+
+.ex-missing {
+  max-width: 40rem;
+  margin: var(--ex-space-9) auto;
+  padding: var(--ex-space-7) var(--ex-space-6);
+  border: var(--ex-border-width) solid var(--ex-color-border-ink);
+  border-radius: var(--ex-radius-sm);
+  background: var(--ex-color-surface);
+  box-shadow: var(--ex-shadow-pop);
+}
+
+.ex-missing__title {
+  margin: var(--ex-space-3) 0 var(--ex-space-3);
+  font-size: var(--ex-text-4xl);
+  font-weight: var(--ex-weight-extrabold);
+  line-height: var(--ex-leading-tight);
+  letter-spacing: var(--ex-tracking-display);
+  color: var(--ex-color-ink);
+}
+
+.ex-missing__body {
+  margin: 0;
+  color: var(--ex-color-text-muted);
+}
+
+.ex-missing__note {
+  margin: var(--ex-space-5) 0 var(--ex-space-3);
+  font-size: var(--ex-text-2xl);
+}
+
+.ex-missing__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ex-space-3);
+}
+
+.ex-missing__button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 var(--ex-space-5);
+  border: var(--ex-border-width) solid var(--ex-color-border-ink);
+  border-radius: var(--ex-radius-md);
+  background: var(--ex-color-surface);
+  color: var(--ex-color-ink);
+  font-weight: var(--ex-weight-bold);
+  text-decoration: none;
+  box-shadow: var(--ex-shadow-md);
+}
+
+.ex-missing__button--primary {
+  background: var(--ex-color-brand);
+  color: var(--ex-color-on-brand);
+}
+
+.ex-missing__button:hover {
+  background: var(--ex-color-highlight);
+  color: var(--ex-color-on-highlight);
+}

@@ -23,6 +23,24 @@ const meterModifier = computed(() => {
   return '';
 });
 
+/* Oldest day first, each bar sized as a share of that day's limit. */
+const chartDays = computed(() =>
+  [...usage.value].reverse().map((row) => ({
+    date: row.date,
+    count: row.requestCount,
+    percent: Math.min(percentUsed(row), 100)
+  }))
+);
+
+const chartLabel = computed(() => {
+  const peak = usage.value.reduce(
+    (best, row) => (row.requestCount > best.requestCount ? row : best),
+    usage.value[0]
+  );
+
+  return `Requests per day for the last ${usage.value.length} days. Busiest day ${peak.date} with ${peak.requestCount} requests.`;
+});
+
 async function load() {
   try {
     usage.value = await api.getUsage();
@@ -95,6 +113,26 @@ onMounted(load);
       <div class="card__header">
         <h2 class="card__title">Last 30 days</h2>
       </div>
+
+      <div
+        v-if="usage.length > 0"
+        class="chart"
+        role="img"
+        :aria-label="chartLabel"
+      >
+        <div
+          v-for="day in chartDays"
+          :key="day.date"
+          class="chart__col"
+          :title="`${day.date}: ${day.count} requests`"
+        >
+          <span class="chart__bar" :style="{ height: `${Math.max(day.percent, 2)}%` }"></span>
+        </div>
+      </div>
+      <p v-if="usage.length > 0" class="chart__axis ex-type" aria-hidden="true">
+        <span>{{ chartDays[0].date }}</span>
+        <span>{{ chartDays[chartDays.length - 1].date }}</span>
+      </p>
 
       <div v-if="usage.length === 0" class="state">
         <AppIcon class="state__icon" name="usage" />

@@ -6,6 +6,7 @@ import LoginView from './views/LoginView.vue';
 import OverviewView from './views/OverviewView.vue';
 import RegisterView from './views/RegisterView.vue';
 import SettingsView from './views/SettingsView.vue';
+import NotFoundView from './views/NotFoundView.vue';
 import UsageView from './views/UsageView.vue';
 
 const routes = [
@@ -24,7 +25,9 @@ const routes = [
     name: 'register',
     component: RegisterView,
     meta: { public: true }
-  }
+  },
+  // Must stay last: matches any address no route above claims.
+  { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFoundView }
 ];
 
 export const router = createRouter({
