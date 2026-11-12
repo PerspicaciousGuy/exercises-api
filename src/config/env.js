@@ -19,7 +19,8 @@ const envSchema = z.object({
   SERVICE_NAME: z.string().min(1).default(SERVICE_NAME),
   API_VERSION: z.string().min(1).default(API_VERSION),
   DASHBOARD_ORIGINS: z.string().min(1).default(DEFAULT_DASHBOARD_ORIGINS),
-  LOG_LEVEL: z.enum(LOG_LEVELS).default(DEFAULT_LOG_LEVEL)
+  LOG_LEVEL: z.enum(LOG_LEVELS).default(DEFAULT_LOG_LEVEL),
+  TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0)
 });
 
 export function parseEnv(source) {
@@ -31,7 +32,8 @@ export function parseEnv(source) {
     serviceName: parsed.SERVICE_NAME,
     apiVersion: parsed.API_VERSION,
     dashboardOrigins: splitOrigins(parsed.DASHBOARD_ORIGINS),
-    logLevel: parsed.LOG_LEVEL
+    logLevel: parsed.LOG_LEVEL,
+    trustProxyHops: parsed.TRUST_PROXY_HOPS
   };
 }
 

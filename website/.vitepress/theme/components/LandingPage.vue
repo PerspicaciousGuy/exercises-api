@@ -10,28 +10,138 @@
  * Prices are not decided yet, so every tier shows the PRICE placeholder.
  */
 
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
+
 const REGISTER_URL = 'https://app.harshitbishnoi.dev/register';
 
-const SEARCH_RESULTS = [
-  {
-    name: 'Split Squat',
-    muscles: 'quadriceps, glutes',
-    equipment: 'bodyweight',
-    active: true
-  },
-  {
-    name: 'Bulgarian Split Squat',
-    muscles: 'quadriceps, glutes',
-    equipment: 'bench',
-    active: false
-  },
-  {
-    name: 'Smith Machine Split Squat',
-    muscles: 'quadriceps, glutes',
-    equipment: 'machine',
-    active: false
-  }
+/*
+ * Live search, backed by GET /public/search on the API. That route needs no key
+ * and is built for exactly this: it returns at most 6 slim results and is rate
+ * limited, so the catalogue cannot be copied through it. The page never holds
+ * the catalogue itself.
+ *
+ * The box starts with the results for its first query already on screen, so the
+ * static build is never empty and nothing is fetched until someone types.
+ */
+/* Local development talks to a local API; anything else to the live one. */
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ??
+  (import.meta.env.DEV ? 'http://localhost:3000' : 'https://api.harshitbishnoi.dev');
+const SEARCH_PATH = '/public/search';
+const START_QUERY = 'split squat';
+const MIN_QUERY_LENGTH = 2;
+const DEBOUNCE_MS = 250;
+const HTTP_RATE_LIMITED = 429;
+
+const STARTING_ROWS = [
+  { name: 'Split Squat', slug: 'split-squat', category: 'strength', difficulty: 'beginner' },
+  { name: 'Bulgarian Split Squat', slug: 'bulgarian-split-squat', category: 'strength', difficulty: 'intermediate' },
+  { name: 'Smith Machine Split Squat', slug: 'smith-machine-split-squat', category: 'strength', difficulty: 'intermediate' }
 ];
+
+const query = ref(START_QUERY);
+const rows = ref(STARTING_ROWS);
+const selected = ref(0);
+/* 'ready' | 'idle' | 'loading' | 'busy' | 'error' */
+const status = ref('ready');
+
+const answers = new Map();
+let timer = null;
+let inFlight = null;
+
+const current = computed(() => rows.value[selected.value] ?? null);
+
+const footLabel = computed(() => {
+  switch (status.value) {
+    case 'idle':
+      return `Type at least ${MIN_QUERY_LENGTH} letters`;
+    case 'loading':
+      return 'Searching…';
+    case 'busy':
+      return 'Search is busy, try again in a moment';
+    case 'error':
+      return 'Search is unavailable right now';
+    default:
+      return rows.value.length === 1 ? '1 result' : `${rows.value.length} results`;
+  }
+});
+
+const emptyLabel = computed(() => {
+  if (status.value === 'idle') return 'Start typing an exercise name.';
+  if (status.value === 'busy' || status.value === 'error') return footLabel.value;
+  return `Nothing matches “${query.value.trim()}”. Try another name.`;
+});
+
+function move(step) {
+  if (rows.value.length === 0) {
+    return;
+  }
+
+  selected.value =
+    (selected.value + step + rows.value.length) % rows.value.length;
+}
+
+async function search(text) {
+  if (answers.has(text)) {
+    rows.value = answers.get(text);
+    status.value = 'ready';
+    return;
+  }
+
+  inFlight?.abort();
+  inFlight = new AbortController();
+  status.value = 'loading';
+
+  try {
+    const response = await fetch(
+      `${API_BASE}${SEARCH_PATH}?q=${encodeURIComponent(text)}`,
+      { signal: inFlight.signal }
+    );
+
+    if (response.status === HTTP_RATE_LIMITED) {
+      status.value = 'busy';
+      rows.value = [];
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error(`Search failed with ${response.status}`);
+    }
+
+    const body = await response.json();
+    answers.set(text, body.data);
+    rows.value = body.data;
+    status.value = 'ready';
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      return;
+    }
+
+    status.value = 'error';
+    rows.value = [];
+  }
+}
+
+watch(query, (value) => {
+  selected.value = 0;
+  clearTimeout(timer);
+
+  const text = value.trim();
+
+  if (text.length < MIN_QUERY_LENGTH) {
+    inFlight?.abort();
+    rows.value = [];
+    status.value = 'idle';
+    return;
+  }
+
+  timer = setTimeout(() => search(text), DEBOUNCE_MS);
+});
+
+onBeforeUnmount(() => {
+  clearTimeout(timer);
+  inFlight?.abort();
+});
 
 const CATEGORIES = [
   { label: 'Strength', count: 334 },
@@ -172,32 +282,63 @@ const TIERS = [
             type anything<br />↘
           </p>
           <p class="ex-hand lp__note lp__note--right" aria-hidden="true">
-            ← real results,<br />straight from the API
+            ← real results,<br />live from the API
           </p>
 
-          <div class="lp__search" role="img" aria-label="Example search for split squat, returning three exercises">
-            <div class="lp__search-input">
+          <div class="lp__search" role="search">
+            <label class="lp__search-input">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
                 <circle cx="11" cy="11" r="7" />
                 <path d="M20 20l-4-4" />
               </svg>
-              <span>split squat</span>
-              <span class="lp__caret" aria-hidden="true"></span>
-              <kbd>GET /exercises/search?q=</kbd>
-            </div>
-            <div
-              v-for="result in SEARCH_RESULTS"
-              :key="result.name"
-              class="lp__result"
-              :class="{ 'lp__result--on': result.active }"
-            >
-              <span class="lp__dot lp__dot--strength"></span>
-              <span>
-                <strong>{{ result.name }}</strong>
-                <span class="lp__muted"> · {{ result.muscles }}</span>
+              <span class="lp__sr">Search the exercise catalogue</span>
+              <input
+                v-model="query"
+                class="lp__search-field"
+                type="search"
+                placeholder="Try squat, push-up or kettlebell swing"
+                autocomplete="off"
+                spellcheck="false"
+                role="combobox"
+                aria-expanded="true"
+                aria-controls="lp-results"
+                :aria-activedescendant="rows.length ? `lp-result-${selected}` : undefined"
+                @keydown.down.prevent="move(1)"
+                @keydown.up.prevent="move(-1)"
+              />
+              <kbd>GET /public/search?q=</kbd>
+            </label>
+
+            <ul id="lp-results" class="lp__results" role="listbox" aria-label="Matching exercises">
+              <li
+                v-for="(row, i) in rows"
+                :id="`lp-result-${i}`"
+                :key="row.slug"
+                class="lp__result"
+                :class="{ 'lp__result--on': i === selected }"
+                role="option"
+                :aria-selected="i === selected"
+                @mouseenter="selected = i"
+                @click="selected = i"
+              >
+                <span class="lp__dot" :class="`lp__dot--${row.category}`" aria-hidden="true"></span>
+                <span class="lp__result-text">
+                  <strong>{{ row.name }}</strong>
+                  <span class="lp__muted"> · {{ row.difficulty }}</span>
+                </span>
+                <span class="lp__chip">{{ row.category }}</span>
+              </li>
+              <li v-if="!rows.length" class="lp__empty" role="presentation">
+                {{ emptyLabel }}
+              </li>
+            </ul>
+
+            <p class="lp__search-foot ex-type" aria-live="polite">
+              <span>{{ footLabel }}</span>
+              <span v-if="current" class="lp__search-call">
+                GET /exercises/slug/{{ current.slug }}
               </span>
-              <span class="lp__chip">{{ result.equipment }}</span>
-            </div>
+            </p>
           </div>
         </div>
 
@@ -607,11 +748,78 @@ curl 'https://api.harshitbishnoi.dev/sync/exercises?limit=100' \
   font-weight: var(--ex-weight-medium);
 }
 
-.lp__caret {
-  width: 2px;
-  height: 1.75rem;
-  margin-left: calc(var(--ex-space-2) * -1);
-  background: var(--ex-color-pen);
+.lp__search:focus-within {
+  outline: 3px solid var(--ex-color-highlight);
+  outline-offset: 4px;
+}
+
+.lp__search-field {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  outline: none;
+  caret-color: var(--ex-color-pen);
+}
+
+.lp__search-field::placeholder {
+  color: var(--ex-color-text-subtle);
+  font-weight: var(--ex-weight-regular);
+}
+
+/* Visually hidden, still read by screen readers. */
+.lp__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.lp__results {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lp__result {
+  cursor: pointer;
+}
+
+.lp__result-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lp__empty {
+  padding: var(--ex-space-5);
+  color: var(--ex-color-text-muted);
+  font-size: var(--ex-text-base);
+}
+
+.lp__search-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ex-space-2) var(--ex-space-4);
+  justify-content: space-between;
+  margin: 0;
+  padding: var(--ex-space-3) var(--ex-space-5);
+  border-top: var(--ex-border-width) solid var(--ex-color-border-ink);
+  background: var(--ex-color-surface-sunken);
+}
+
+.lp__search-call {
+  font-family: var(--ex-font-mono);
+  font-size: var(--ex-text-xs);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ex-color-ink);
 }
 
 .lp__result {

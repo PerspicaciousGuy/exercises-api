@@ -21,6 +21,7 @@ import { createAuthRouter } from './routes/auth.js';
 import { createBillingRouter } from './routes/billing.js';
 import { createExercisesRouter } from './routes/exercises.js';
 import { createHealthRouter } from './routes/health.js';
+import { createPublicSearchRouter } from './routes/publicSearch.js';
 import { createReferencesRouter } from './routes/references.js';
 import { createSyncRouter } from './routes/sync.js';
 import { createWebhooksRouter } from './routes/webhooks.js';
@@ -61,6 +62,11 @@ export function createApp({
   // Express's built-in weak one so the two do not fight over the header.
   app.set('etag', false);
 
+  // How many reverse proxies sit in front of the app. Zero trusts no forwarded
+  // header, so `request.ip` is the socket peer; set TRUST_PROXY_HOPS to the real
+  // hop count in production or every visitor shares the proxy's address.
+  app.set('trust proxy', env.trustProxyHops);
+
   // First: every subsequent middleware, including the webhook raw-body parser
   // and anything that throws, must run inside a request context so its logs
   // and its error response carry the same request id.
@@ -76,6 +82,9 @@ export function createApp({
   app.use(express.json());
 
   app.use(createHealthRouter());
+  // The one catalog read that needs no key: capped, slim and rate limited so it
+  // can feed the docs site's search box without exposing the catalog.
+  app.use(createPublicSearchRouter({ exerciseService }));
   app.use(
     createAuthRouter({
       authService,

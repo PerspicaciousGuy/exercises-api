@@ -404,6 +404,54 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /public/search:
+    get:
+      summary: Search exercise names without an API key
+      description: >
+        A small, rate-limited search for demos such as the docs site's search
+        box. It returns at most 6 results, only the fields needed to draw a
+        result row, never premium exercises, and offers no paging. It is not a
+        way to read the catalog: use the keyed endpoints for that. Matching
+        works as in `/exercises/search`.
+      operationId: publicSearchExercises
+      tags: [Exercises]
+      security: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Between 2 and 60 characters once trimmed.
+          schema: { type: string, minLength: 2, maxLength: 60, example: split squat }
+      responses:
+        '200':
+          description: Up to 6 matching exercises, cacheable for 60 seconds.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success: { type: boolean, example: true }
+                  data:
+                    type: array
+                    maxItems: 6
+                    items:
+                      type: object
+                      required: [slug, name, category, difficulty]
+                      properties:
+                        slug: { type: string, example: split-squat }
+                        name: { type: string, example: Split Squat }
+                        category: { type: string, example: strength }
+                        difficulty:
+                          type: string
+                          enum: [beginner, intermediate, advanced]
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /exercises/bulk:
     get:
       summary: Fetch up to 50 exercises by id

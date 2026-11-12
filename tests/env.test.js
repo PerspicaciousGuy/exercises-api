@@ -12,7 +12,8 @@ describe('parseEnv', () => {
       serviceName: 'exercisedb-api',
       apiVersion: '0.1.0',
       dashboardOrigins: ['http://localhost:5173'],
-      logLevel: 'info'
+      logLevel: 'info',
+      trustProxyHops: 0
     });
   });
 
@@ -27,7 +28,8 @@ describe('parseEnv', () => {
       SERVICE_NAME: 'exercise-service',
       API_VERSION: '1.2.3',
       DASHBOARD_ORIGINS: 'https://dash.example.com',
-      LOG_LEVEL: 'debug'
+      LOG_LEVEL: 'debug',
+      TRUST_PROXY_HOPS: '1'
     });
 
     expect(env).toEqual({
@@ -36,7 +38,8 @@ describe('parseEnv', () => {
       serviceName: 'exercise-service',
       apiVersion: '1.2.3',
       dashboardOrigins: ['https://dash.example.com'],
-      logLevel: 'debug'
+      logLevel: 'debug',
+      trustProxyHops: 1
     });
   });
 

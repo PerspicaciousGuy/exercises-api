@@ -37,6 +37,7 @@ Docker `ARG`, or in git.
 | `SUPABASE_URL`              | yes         |                                                                         |
 | `SUPABASE_SERVICE_ROLE_KEY` | yes         | Full database access. Never expose to a browser.                        |
 | `DASHBOARD_ORIGINS`         | yes         | `https://app.harshitbishnoi.dev`. Comma-separated for more than one.    |
+| `TRUST_PROXY_HOPS`          | yes         | Reverse proxies in front of the app. Set `1` on Render. Needed for per-client limits on `/public/search`; at `0` every visitor shares the proxy's address. |
 | `LEMON_SQUEEZY_*`           | for billing | Six values. Catalog and sync boot without them.                         |
 
 The dashboard needs `VITE_API_BASE_URL` at **build** time. Vite inlines it, so
