@@ -108,6 +108,14 @@ whole repository, so this resolves.
 Root Directory `dashboard`, build `npm ci && npm run build`, publish `dist`,
 with `VITE_API_BASE_URL=https://api.harshitbishnoi.dev`.
 
+**Add a rewrite rule, or every page except `/` returns "Not Found".** The
+dashboard is a single-page app with real URLs (`/register`, `/login`, `/keys`).
+Render only has a file for `/`, so a link to `/register` or a refresh on any
+other page gets a plain-text 404. Under the static site's **Redirects/Rewrites**
+tab, add one rule: Source `/*`, Destination `/index.html`, Action **Rewrite**
+(not Redirect). The docs site does not need it, since VitePress writes one HTML
+file per page.
+
 The dashboard imports the design system from
 `website/.vitepress/theme/design-system.css` rather than copying it, so there is
 one source of design values. That path also resolves outside its root directory.
