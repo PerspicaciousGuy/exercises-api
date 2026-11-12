@@ -1,0 +1,410 @@
+/**
+ * Restyles the VitePress default theme as "search on paper".
+ *
+ * Only design-system tokens are used here; see design-system.css. The structure
+ * of the default theme is left alone, so navigation, search, the sidebar and
+ * the outline keep their built-in behaviour. Selectors are VitePress's own.
+ */
+
+:root {
+  --vp-layout-max-width: 90rem;
+  --vp-nav-bg-color: var(--ex-color-page);
+  --vp-sidebar-bg-color: transparent;
+  --vp-nav-height: 4.5rem;
+}
+
+/* ---- top bar ------------------------------------------------------------ */
+
+.VPNav,
+.VPNavBar,
+.VPNavBar .content-body,
+.VPNavBar.has-sidebar .content-body {
+  background: var(--ex-color-page);
+}
+
+.VPNavBar .divider-line,
+.VPNavBar.has-sidebar .divider-line {
+  height: var(--ex-border-width);
+  background: var(--ex-color-border-ink);
+}
+
+.VPNavBarTitle .title {
+  font-size: var(--ex-text-xl);
+  font-weight: var(--ex-weight-extrabold);
+  letter-spacing: var(--ex-tracking-tight);
+  color: var(--ex-color-ink);
+  border-bottom: 0;
+}
+
+/* The navigation is one pill; the current page fills in ink. */
+/* VitePress's own rules are scoped (class plus attribute), so these selectors
+ * are one class longer to win regardless of load order. */
+.VPNavBar .VPNavBarMenu {
+  align-items: center;
+  gap: var(--ex-space-1);
+  height: auto;
+  margin-right: var(--ex-space-4);
+  padding: var(--ex-space-1);
+  border: var(--ex-border-width) solid var(--ex-color-border-ink);
+  border-radius: var(--ex-radius-full);
+  background: var(--ex-color-surface);
+  box-shadow: var(--ex-shadow-sm);
+}
+
+.VPNavBar .VPNavBarMenu .VPNavBarMenuLink {
+  height: auto;
+  padding: var(--ex-space-2) var(--ex-space-4);
+  border-radius: var(--ex-radius-full);
+  font-size: var(--ex-text-sm);
+  font-weight: var(--ex-weight-semibold);
+  line-height: var(--ex-leading-snug);
+  color: var(--ex-color-text-muted);
+  transition: background var(--ex-duration-fast) var(--ex-ease-standard);
+}
+
+.VPNavBar .VPNavBarMenu .VPNavBarMenuLink:hover {
+  background: var(--ex-color-highlight);
+  color: var(--ex-color-on-highlight);
+}
+
+.VPNavBar .VPNavBarMenu .VPNavBarMenuLink.active,
+.VPNavBar .VPNavBarMenu .VPNavBarMenuLink.active:hover {
+  background: var(--ex-color-brand);
+  color: var(--ex-color-on-brand);
+}
+
+.VPNavBarSearch .DocSearch-Button,
+.VPNavBarSearch .VPNavBarSearchButton {
+  min-height: 2.75rem;
+  padding: 0 var(--ex-space-3) 0 var(--ex-space-4);
+  border: var(--ex-border-width) solid var(--ex-color-border-ink);
+  border-radius: var(--ex-radius-full);
+  background: var(--ex-color-surface);
+}
+
+.VPNavBarSearch .DocSearch-Button:hover {
+  background: var(--ex-color-highlight-soft);
+}
+
+.ex-nav-cta {
+  display: none;
+  align-items: center;
+  min-height: 2.75rem;
+  margin-left: var(--ex-space-3);
+  padding: 0 var(--ex-space-5);
+  border: var(--ex-border-width) solid var(--ex-color-border-ink);
+  border-radius: var(--ex-radius-md);
+  background: var(--ex-color-brand);
+  color: var(--ex-color-on-brand);
+  font-size: var(--ex-text-sm);
+  font-weight: var(--ex-weight-bold);
+  text-decoration: none;
+  box-shadow: var(--ex-shadow-md);
+  transition:
+    transform var(--ex-duration-fast) var(--ex-ease-standard),
+    box-shadow var(--ex-duration-fast) var(--ex-ease-standard);
+}
+
+.ex-nav-cta:hover {
+  transform: translate(1px, 1px);
+  box-shadow: var(--ex-shadow-sm);
+}
+
+@media (min-width: 768px) {
+  .ex-nav-cta {
+    display: inline-flex;
+  }
+}
+
+/* ---- sidebar ------------------------------------------------------------ */
+
+.VPSidebar {
+  background: transparent;
+}
+
+.VPSidebarItem.level-0 > .item > .text,
+.VPSidebarItem.level-0 > .item > .VPLink > .text {
+  font-family: var(--ex-font-type);
+  font-size: var(--ex-text-sm);
+  font-weight: var(--ex-weight-regular);
+  letter-spacing: var(--ex-tracking-caps);
+  text-transform: uppercase;
+  color: var(--ex-color-text-subtle);
+}
+
+.VPSidebarItem .VPLink.link {
+  margin-left: calc(var(--ex-space-3) * -1);
+  padding: 0 var(--ex-space-3);
+  border-radius: var(--ex-radius-md);
+}
+
+.VPSidebarItem .VPLink.link:hover {
+  background: var(--ex-color-highlight-soft);
+}
+
+.VPSidebar .VPSidebarItem.is-active > .item > .VPLink.link {
+  background: var(--ex-color-brand);
+}
+
+.VPSidebar .VPSidebarItem.is-active > .item > .VPLink.link > .text,
+.VPSidebar .VPSidebarItem.is-active > .item > .VPLink.link:hover > .text {
+  color: var(--ex-color-on-brand);
+  font-weight: var(--ex-weight-semibold);
+}
+
+.VPSidebarItem .indicator {
+  display: none;
+}
+
+/* ---- the page itself is a sheet laid on the grid paper ------------------- */
+
+.VPDoc.has-aside .content-container {
+  max-width: 56rem;
+}
+
+.VPDoc .content > .content-container > main {
+  padding: var(--ex-space-7) var(--ex-space-8) var(--ex-space-8);
+  border: var(--ex-border-width) solid var(--ex-color-border-ink);
+  border-radius: var(--ex-radius-sm);
+  background: var(--ex-color-surface);
+  box-shadow: var(--ex-shadow-lg);
+}
+
+@media (max-width: 768px) {
+  .VPDoc .content > .content-container > main {
+    padding: var(--ex-space-5);
+  }
+}
+
+.vp-doc h1 {
+  font-size: var(--ex-text-5xl);
+  font-weight: var(--ex-weight-extrabold);
+  line-height: var(--ex-leading-tight);
+  letter-spacing: var(--ex-tracking-display);
+  color: var(--ex-color-ink);
+}
+
+.vp-doc h2 {
+  margin-top: var(--ex-space-8);
+  padding-top: var(--ex-space-5);
+  border-top: var(--ex-border-width) dotted var(--ex-color-border-strong);
+  font-size: var(--ex-text-3xl);
+  font-weight: var(--ex-weight-extrabold);
+  letter-spacing: var(--ex-tracking-display);
+  color: var(--ex-color-ink);
+}
+
+.vp-doc h3 {
+  font-weight: var(--ex-weight-bold);
+  letter-spacing: var(--ex-tracking-tight);
+  color: var(--ex-color-ink);
+}
+
+.vp-doc a {
+  color: var(--ex-color-brand);
+  font-weight: var(--ex-weight-semibold);
+  text-decoration-line: underline;
+  text-decoration-color: var(--ex-color-pen);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.vp-doc a:hover {
+  background: var(--ex-color-highlight-soft);
+}
+
+.vp-doc :not(pre, h1, h2, h3, h4, h5, h6) > code {
+  padding: 1px var(--ex-space-2);
+  border: var(--ex-border-width-thin) solid var(--ex-color-border);
+  border-radius: var(--ex-radius-sm);
+  background: var(--ex-color-surface-sunken);
+  color: var(--ex-color-ink);
+  font-size: 0.88em;
+}
+
+/* Code blocks are always dark ink. */
+.vp-doc div[class*='language-'],
+.vp-block {
+  border-radius: var(--ex-radius-sm);
+  background: var(--ex-color-code-bg);
+}
+
+.vp-doc [class*='language-'] > span.lang {
+  color: var(--ex-color-code-muted);
+}
+
+/* The code surface is dark in both themes, so syntax colours must come from
+ * Shiki's dark palette even when the page is light. */
+html:not(.dark) .vp-doc .shiki span,
+html.dark .vp-doc .shiki span {
+  color: var(--shiki-dark);
+}
+
+/* Tables */
+.vp-doc table {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+  border: var(--ex-border-width) solid var(--ex-color-border-ink);
+}
+
+.vp-doc th {
+  background: var(--ex-color-surface-sunken);
+  border: 0;
+  border-bottom: var(--ex-border-width) solid var(--ex-color-border-ink);
+  font-family: var(--ex-font-type);
+  font-size: var(--ex-text-sm);
+  font-weight: var(--ex-weight-regular);
+  letter-spacing: var(--ex-tracking-caps);
+  text-transform: uppercase;
+  color: var(--ex-color-text-subtle);
+}
+
+.vp-doc td {
+  border: 0;
+  border-bottom: var(--ex-border-width-thin) solid var(--ex-color-border);
+}
+
+.vp-doc tr:last-child td {
+  border-bottom: 0;
+}
+
+.vp-doc tr,
+.vp-doc tr:nth-child(2n) {
+  background: transparent;
+}
+
+/* Callouts. Warnings are sticky notes; the rest are plain ruled boxes. */
+.vp-doc .custom-block {
+  border: var(--ex-border-width) solid var(--ex-color-border-ink);
+  border-radius: var(--ex-radius-sm);
+  box-shadow: var(--ex-shadow-sm);
+}
+
+.vp-doc .custom-block.warning,
+.vp-doc .custom-block.danger {
+  position: relative;
+  background: var(--ex-color-highlight-soft);
+  color: var(--ex-color-text);
+}
+
+.vp-doc .custom-block.warning .custom-block-title,
+.vp-doc .custom-block.danger .custom-block-title {
+  font-family: var(--ex-font-hand);
+  font-size: var(--ex-text-2xl);
+  font-weight: var(--ex-weight-bold);
+  line-height: var(--ex-leading-tight);
+  color: var(--ex-color-note);
+}
+
+.vp-doc .custom-block.warning::before,
+.vp-doc .custom-block.danger::before {
+  content: '';
+  position: absolute;
+  top: -0.8rem;
+  left: 50%;
+  width: 4.5rem;
+  height: 1.4rem;
+  margin-left: -2.25rem;
+  background: var(--ex-color-tape);
+  opacity: 0.9;
+  transform: rotate(2deg);
+}
+
+/* ---- outline (on this page) -------------------------------------------- */
+
+.VPDocAsideOutline .outline-title {
+  font-family: var(--ex-font-type);
+  font-size: var(--ex-text-sm);
+  font-weight: var(--ex-weight-regular);
+  letter-spacing: var(--ex-tracking-caps);
+  text-transform: uppercase;
+  color: var(--ex-color-text-subtle);
+}
+
+.VPDocAsideOutline .outline-marker {
+  width: 4px;
+  background: var(--ex-color-brand);
+}
+
+.VPDocAsideOutline .outline-link.active {
+  font-weight: var(--ex-weight-bold);
+  color: var(--ex-color-ink);
+}
+
+/* ---- previous / next ----------------------------------------------------- */
+
+.VPDocFooter .pager-link {
+  border: var(--ex-border-width) solid var(--ex-color-border-ink);
+  border-radius: var(--ex-radius-md);
+  background: var(--ex-color-surface);
+  box-shadow: var(--ex-shadow-md);
+}
+
+.VPDocFooter .pager-link.next {
+  background: var(--ex-color-highlight-soft);
+}
+
+.VPDocFooter .pager-link:hover {
+  border-color: var(--ex-color-border-ink);
+}
+
+.VPDocFooter .pager-link .desc {
+  font-family: var(--ex-font-type);
+  font-size: var(--ex-text-xs);
+  font-weight: var(--ex-weight-regular);
+  letter-spacing: var(--ex-tracking-caps);
+  text-transform: uppercase;
+}
+
+.VPDocFooter .pager-link .title {
+  color: var(--ex-color-ink);
+  font-weight: var(--ex-weight-bold);
+}
+
+/* ---- home and footer ----------------------------------------------------- */
+
+.VPHome {
+  margin-bottom: 0;
+}
+
+.VPFooter {
+  border-top: var(--ex-border-width) solid var(--ex-color-border-ink);
+  background: var(--ex-color-page);
+}
+
+.VPFooter .message,
+.VPFooter .copyright {
+  font-family: var(--ex-font-type);
+  font-size: var(--ex-text-sm);
+  color: var(--ex-color-text-subtle);
+}
+
+/* ---- API reference (Scalar) --------------------------------------------- *
+ * Scalar styles itself from its own custom properties. Both modes are pointed
+ * at the design system so the reference reads as part of the same paper.
+ * ------------------------------------------------------------------------- */
+
+.light-mode,
+.dark-mode {
+  --scalar-font: var(--ex-font-sans);
+  --scalar-font-code: var(--ex-font-mono);
+  --scalar-background-1: var(--ex-color-surface);
+  --scalar-background-2: var(--ex-color-surface-sunken);
+  --scalar-background-3: var(--ex-color-surface-sunken);
+  --scalar-background-accent: var(--ex-color-highlight-soft);
+  --scalar-color-1: var(--ex-color-text);
+  --scalar-color-2: var(--ex-color-text-muted);
+  --scalar-color-3: var(--ex-color-text-subtle);
+  --scalar-color-accent: var(--ex-color-brand);
+  --scalar-border-color: var(--ex-color-border);
+  --scalar-sidebar-background-1: var(--ex-color-page);
+  --scalar-sidebar-color-1: var(--ex-color-text);
+  --scalar-sidebar-color-2: var(--ex-color-text-muted);
+  --scalar-sidebar-border-color: var(--ex-color-border);
+  --scalar-sidebar-item-hover-background: var(--ex-color-highlight-soft);
+  --scalar-sidebar-item-active-background: var(--ex-color-brand);
+  --scalar-sidebar-color-active: var(--ex-color-on-brand);
+  --scalar-radius: var(--ex-radius-sm);
+  --scalar-radius-lg: var(--ex-radius-md);
+}

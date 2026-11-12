@@ -1,17 +1,23 @@
 /**
  * ExerciseDB API — Design System
  *
- * The single source of truth for every design value in this project.
+ * The single source of truth for every design value in this project. The
+ * website and the dashboard both import this file.
  *
  * No color, font size, spacing value, radius, shadow, breakpoint, z-index, or
  * animation duration may be written anywhere else. If a value is needed and
  * does not exist here, add it here first, then reference the token.
  *
+ * The look is "search on paper": a grid-paper page, ink-blue outlines with hard
+ * offset shadows, a yellow highlighter, and taped-on index cards. Exercise
+ * categories get their own marker colours and nothing else does.
+ *
  * Structure:
  *   1. Primitives      raw scales, theme-independent, never used directly
  *   2. Semantic tokens meaning-bearing aliases that DO get used
  *   3. Dark theme      semantic tokens re-pointed at different primitives
- *   4. VitePress map   bridges our tokens onto the default theme
+ *   4. Paper           the grid-paper page and shared type utilities
+ *   5. VitePress map   bridges our tokens onto the default theme
  *
  * Primitives are never referenced by a component. Components reference
  * semantic tokens only, which is what lets the dark theme re-point them
@@ -23,110 +29,154 @@
    * 1. PRIMITIVES — raw scales. Never reference these outside this file.
    * ------------------------------------------------------------------ */
 
-  /* Brand. Teal-green: reads as vitality without the alarm of pure red or
-   * the genericism of SaaS indigo.
-   * Contrast on white: 600 = 4.75:1, 700 = 6.70:1, 800 = 8.95:1.
-   * 500 is only 3.17:1 — never use it for text or icons on a light surface.
-   * Steps 400 and lighter are for dark surfaces only. */
-  --ex-teal-50: #eefbf6;
-  --ex-teal-100: #d5f5e7;
-  --ex-teal-200: #aeead4;
-  --ex-teal-300: #79d8ba;
-  --ex-teal-400: #43be9b;
-  --ex-teal-500: #1fa382;
-  --ex-teal-600: #128269;
-  --ex-teal-700: #0f6856;
-  --ex-teal-800: #105345;
-  --ex-teal-900: #0e453a;
-  --ex-teal-950: #04271f;
+  /* Ink. A deep navy used for outlines, headings and filled controls, as a
+   * pen would. Contrast on paper-50: 900 = 13.4:1, 800 = 10.1:1, 700 = 7.6:1. */
+  --ex-ink-50: #eceff9;
+  --ex-ink-100: #d8dff2;
+  --ex-ink-200: #b7c2e4;
+  --ex-ink-300: #93a2d4;
+  --ex-ink-400: #6f82c0;
+  --ex-ink-500: #4a5fa4;
+  --ex-ink-600: #36498a;
+  --ex-ink-700: #2a3a72;
+  --ex-ink-800: #1d2a57;
+  --ex-ink-900: #111a3d;
+  --ex-ink-950: #0b1230;
 
-  /* Neutrals. Slightly warm so long-form prose does not read clinical. */
-  --ex-gray-50: #f8f9f8;
-  --ex-gray-100: #f1f2f1;
-  --ex-gray-200: #e4e6e5;
-  --ex-gray-300: #cdd1cf;
-  --ex-gray-400: #9ba39f;
-  /* Exists so dark-theme subtle text clears 4.5:1; gray-500 reaches only
-   * 4.11:1 on gray-950. */
-  --ex-gray-450: #87908c;
-  --ex-gray-500: #6f7874;
-  --ex-gray-600: #565e5b;
-  --ex-gray-700: #454b49;
-  --ex-gray-800: #2c3130;
-  --ex-gray-900: #1b1f1e;
-  --ex-gray-950: #101312;
+  /* Paper. Warm off-whites for the page, the sheets laid on it and sunken
+   * wells. */
+  --ex-paper-0: #fffefa;
+  --ex-paper-50: #f8f5ec;
+  --ex-paper-100: #f1eddd;
+  --ex-paper-200: #e6e0cc;
+  --ex-paper-300: #d9d4c4;
+  --ex-paper-400: #b9b3a0;
+
+  /* Pencil greys for secondary text, warm to sit on paper. */
+  --ex-pencil-500: #68675f;
+  --ex-pencil-600: #4c4d55;
+  --ex-pencil-700: #3b3e49;
+  --ex-pencil-900: #1f2127;
+  --ex-pencil-200: #c9ccde;
+  --ex-pencil-300: #9a9ca8;
+
+  /* Highlighter and the grid lines of the paper. */
+  --ex-highlight-300: #ffe55c;
+  --ex-highlight-200: #fff1a8;
+  --ex-highlight-100: #fff6bf;
+  --ex-grid-light: #dce7ec;
+  --ex-grid-dark: #1a2348;
+  --ex-tape: #e8d9a8;
+
+  /* Red pen. Decoration and handwritten notes only: 400 is 2.9:1 on paper and
+   * must never carry text that has to be read. 600 is 5.1:1 and may. */
+  --ex-red-400: #d9625b;
+  --ex-red-600: #b23a1e;
+
+  /* Exercise categories. Shown only as markers beside a text label, never as
+   * the sole carrier of meaning. */
+  --ex-cat-strength: #d9625b;
+  --ex-cat-cardio: #2f6fd8;
+  --ex-cat-plyometrics: #d9a400;
+  --ex-cat-mobility: #1e8a52;
+  --ex-cat-flexibility: #6c7080;
 
   --ex-white: #ffffff;
   --ex-black: #000000;
 
-  /* Status. Used for callouts, HTTP status badges, and diff highlighting.
-   * Each hue carries two steps because no single value clears 4.5:1 against
-   * both a white and a near-black surface. Light themes take the darker
-   * step, dark themes the lighter one. */
-  --ex-green-600: #15803d; /* 5.02:1 on white */
-  --ex-green-500: #16a34a; /* 5.67:1 on gray-950 */
-  --ex-green-100: #dcfce7;
-  --ex-amber-700: #b45309; /* 5.02:1 on white */
-  --ex-amber-500: #d97706; /* 5.86:1 on gray-950 */
-  --ex-amber-100: #fef3c7;
-  --ex-red-500: #dc2626; /* 4.83:1 on white */
-  --ex-red-400: #f87171; /* 6.75:1 on gray-950 */
-  --ex-red-100: #fee2e2;
-  --ex-blue-500: #2563eb; /* 5.17:1 on white */
-  --ex-blue-400: #60a5fa; /* 7.35:1 on gray-950 */
-  --ex-blue-100: #dbeafe;
+  /* Status. Each hue carries two steps because no single value clears 4.5:1
+   * against both paper and a near-black surface. */
+  --ex-green-700: #17673f; /* 6.4:1 on paper-0 */
+  --ex-green-400: #4ec48a; /* 8.5:1 on ink-950 */
+  --ex-green-100: #d9f2e4;
+  --ex-amber-700: #8f5400; /* 6.0:1 on paper-0 */
+  --ex-amber-300: #f0b94a; /* 9.9:1 on ink-950 */
+  --ex-amber-100: #fbecc4;
+  --ex-danger-700: #b3261e; /* 6.5:1 on paper-0 */
+  --ex-danger-300: #ff8f84; /* 8.4:1 on ink-950 */
+  --ex-danger-100: #fbdad6;
+  --ex-blue-700: #2554b8; /* 6.9:1 on paper-0 */
+  --ex-blue-300: #8fb0f5; /* 8.0:1 on ink-950 */
+  --ex-blue-100: #dbe6fb;
 
   /* ---------------------------------------------------------------------
    * 2. SEMANTIC TOKENS — reference these.
    * ------------------------------------------------------------------ */
 
-  /* Brand. On a light surface, interaction states darken. A lighter hover
-   * would drop contrast below 4.5:1 for link text. */
-  --ex-color-brand: var(--ex-teal-600);
-  --ex-color-brand-hover: var(--ex-teal-700);
-  --ex-color-brand-active: var(--ex-teal-800);
-  --ex-color-brand-subtle: var(--ex-teal-50);
-  --ex-color-brand-border: var(--ex-teal-200);
-  --ex-color-on-brand: var(--ex-white);
+  /* Brand. Ink. On a light surface interaction states lighten slightly
+   * toward the mid-ink, staying above 7:1. */
+  --ex-color-brand: var(--ex-ink-800);
+  --ex-color-brand-hover: var(--ex-ink-700);
+  --ex-color-brand-active: var(--ex-ink-900);
+  --ex-color-brand-subtle: var(--ex-ink-50);
+  --ex-color-brand-border: var(--ex-ink-200);
+  --ex-color-on-brand: var(--ex-paper-50);
 
-  /* Surfaces */
-  --ex-color-surface: var(--ex-white);
-  --ex-color-surface-raised: var(--ex-gray-50);
-  --ex-color-surface-sunken: var(--ex-gray-100);
-  --ex-color-surface-inverse: var(--ex-gray-900);
+  /* Ink as an outline colour, and the highlighter. */
+  --ex-color-ink: var(--ex-ink-800);
+  --ex-color-highlight: var(--ex-highlight-300);
+  --ex-color-highlight-soft: var(--ex-highlight-100);
+  --ex-color-on-highlight: var(--ex-ink-800);
+  --ex-color-note: var(--ex-red-600);
+  --ex-color-pen: var(--ex-red-400);
+  --ex-color-tape: var(--ex-tape);
+
+  /* Surfaces. The page is paper; cards and sheets sit on it. */
+  --ex-color-page: var(--ex-paper-50);
+  --ex-color-grid: var(--ex-grid-light);
+  --ex-color-surface: var(--ex-paper-0);
+  --ex-color-surface-raised: var(--ex-paper-50);
+  --ex-color-surface-sunken: var(--ex-paper-100);
+  --ex-color-surface-inverse: var(--ex-ink-800);
+
+  /* Code blocks are always dark ink, in both themes. */
+  --ex-color-code-bg: var(--ex-ink-800);
+  --ex-color-code-bar: var(--ex-ink-900);
+  --ex-color-code-text: #edebdd;
+  --ex-color-code-muted: #8791b8;
+  --ex-color-code-key: #9db0de;
+  --ex-color-code-string: var(--ex-highlight-300);
+  --ex-color-code-alert: #ff9d94;
 
   /* Text. `-muted` is the lightest value still passing 4.5:1 on surface. */
-  --ex-color-text: var(--ex-gray-900);
-  --ex-color-text-muted: var(--ex-gray-600);
-  --ex-color-text-subtle: var(--ex-gray-500);
-  --ex-color-text-inverse: var(--ex-gray-50);
+  --ex-color-text: var(--ex-pencil-900);
+  --ex-color-text-muted: var(--ex-pencil-600);
+  --ex-color-text-subtle: var(--ex-pencil-500);
+  --ex-color-text-inverse: var(--ex-paper-50);
 
-  /* Borders */
-  --ex-color-border: var(--ex-gray-200);
-  --ex-color-border-strong: var(--ex-gray-300);
+  /* Borders. `-border-ink` is the heavy outline that frames sheets, cards
+   * and buttons. */
+  --ex-color-border: var(--ex-paper-300);
+  --ex-color-border-strong: var(--ex-paper-400);
+  --ex-color-border-ink: var(--ex-ink-800);
 
   /* Status */
-  --ex-color-success: var(--ex-green-600);
+  --ex-color-success: var(--ex-green-700);
   --ex-color-success-subtle: var(--ex-green-100);
   --ex-color-warning: var(--ex-amber-700);
   --ex-color-warning-subtle: var(--ex-amber-100);
-  --ex-color-danger: var(--ex-red-500);
-  --ex-color-danger-subtle: var(--ex-red-100);
-  --ex-color-info: var(--ex-blue-500);
+  --ex-color-danger: var(--ex-danger-700);
+  --ex-color-danger-subtle: var(--ex-danger-100);
+  --ex-color-info: var(--ex-blue-700);
   --ex-color-info-subtle: var(--ex-blue-100);
 
   /* ---------------------------------------------------------------------
    * Typography
    * ------------------------------------------------------------------ */
 
+  /* Onest for the interface, Geist Mono for code and labels, Caveat for the
+   * handwritten notes, Special Elite for typewriter captions. The last two are
+   * decoration: never set body copy or anything essential in them. */
   --ex-font-sans:
-    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Onest', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
   --ex-font-mono:
-    ui-monospace, 'JetBrains Mono', 'SFMono-Regular', 'Menlo', 'Consolas',
+    'Geist Mono', ui-monospace, 'SFMono-Regular', 'Menlo', 'Consolas',
     monospace;
+  --ex-font-hand: 'Caveat', 'Bradley Hand', cursive;
+  --ex-font-type: 'Special Elite', 'Courier New', monospace;
 
-  /* Modular scale, ratio 1.2, 16px base. */
+  /* Modular scale, ratio 1.2, 16px base, with display steps for headlines. */
   --ex-text-xs: 0.75rem;
   --ex-text-sm: 0.875rem;
   --ex-text-base: 1rem;
@@ -135,20 +185,26 @@
   --ex-text-2xl: 1.625rem;
   --ex-text-3xl: 2rem;
   --ex-text-4xl: 2.5rem;
+  --ex-text-5xl: 3.5rem;
+  --ex-text-6xl: 5.25rem;
 
   --ex-weight-regular: 400;
   --ex-weight-medium: 500;
   --ex-weight-semibold: 600;
   --ex-weight-bold: 700;
+  --ex-weight-extrabold: 800;
 
+  --ex-leading-none: 1;
   --ex-leading-tight: 1.2;
   --ex-leading-snug: 1.4;
   --ex-leading-normal: 1.6;
   --ex-leading-relaxed: 1.75;
 
+  --ex-tracking-display: -0.045em;
   --ex-tracking-tight: -0.02em;
   --ex-tracking-normal: 0;
   --ex-tracking-wide: 0.02em;
+  --ex-tracking-caps: 0.05em;
 
   /* ---------------------------------------------------------------------
    * Spacing — 4px base unit.
@@ -164,19 +220,27 @@
   --ex-space-7: 3rem;
   --ex-space-8: 4rem;
   --ex-space-9: 6rem;
+  --ex-space-10: 8rem;
 
   /* ---------------------------------------------------------------------
-   * Radius, shadow, motion, layering
+   * Outline, radius, shadow, motion, layering
    * ------------------------------------------------------------------ */
 
+  --ex-border-width: 2px;
+  --ex-border-width-thin: 1px;
+  --ex-grid-size: 32px;
+
   --ex-radius-sm: 4px;
-  --ex-radius-md: 8px;
-  --ex-radius-lg: 12px;
+  --ex-radius-md: 10px;
+  --ex-radius-lg: 14px;
   --ex-radius-full: 9999px;
 
-  --ex-shadow-sm: 0 1px 2px rgb(16 19 18 / 6%);
-  --ex-shadow-md: 0 2px 8px rgb(16 19 18 / 8%);
-  --ex-shadow-lg: 0 8px 24px rgb(16 19 18 / 12%);
+  /* Shadows are hard offsets in ink, as if the card were cut out and laid on
+   * the page. Never blurred. */
+  --ex-shadow-sm: 2px 3px 0 rgb(29 42 87 / 25%);
+  --ex-shadow-md: 3px 3px 0 var(--ex-color-border-ink);
+  --ex-shadow-lg: 6px 7px 0 rgb(29 42 87 / 16%);
+  --ex-shadow-pop: 6px 7px 0 var(--ex-color-border-ink);
 
   --ex-duration-fast: 100ms;
   --ex-duration-base: 200ms;
@@ -204,52 +268,110 @@
 /* -----------------------------------------------------------------------
  * 3. DARK THEME
  *
- * Only semantic tokens are re-pointed. Primitives are unchanged, and no
- * component needs to know a dark theme exists. VitePress toggles `.dark`
- * on the <html> element.
+ * Night paper: a deep ink ground with paler ink for sheets. Only semantic
+ * tokens are re-pointed. Primitives are unchanged, and no component needs to
+ * know a dark theme exists. VitePress toggles `.dark` on the <html> element.
  * -------------------------------------------------------------------- */
 
 .dark {
   /* Direction inverts against a dark surface: interaction states lighten. */
-  --ex-color-brand: var(--ex-teal-400);
-  --ex-color-brand-hover: var(--ex-teal-300);
-  --ex-color-brand-active: var(--ex-teal-200);
-  --ex-color-brand-subtle: var(--ex-teal-950);
-  --ex-color-brand-border: var(--ex-teal-800);
-  --ex-color-on-brand: var(--ex-gray-950);
+  --ex-color-brand: var(--ex-ink-200);
+  --ex-color-brand-hover: var(--ex-ink-100);
+  --ex-color-brand-active: var(--ex-ink-50);
+  --ex-color-brand-subtle: var(--ex-ink-900);
+  --ex-color-brand-border: var(--ex-ink-600);
+  --ex-color-on-brand: var(--ex-ink-950);
 
-  --ex-color-surface: var(--ex-gray-950);
-  --ex-color-surface-raised: var(--ex-gray-900);
-  --ex-color-surface-sunken: var(--ex-black);
-  --ex-color-surface-inverse: var(--ex-gray-50);
+  --ex-color-ink: var(--ex-ink-200);
+  --ex-color-on-highlight: var(--ex-ink-950);
+  --ex-color-note: var(--ex-red-400);
+  --ex-color-highlight-soft: #4a4318;
 
-  --ex-color-text: var(--ex-gray-100);
-  --ex-color-text-muted: var(--ex-gray-400);
-  --ex-color-text-subtle: var(--ex-gray-450);
-  --ex-color-text-inverse: var(--ex-gray-900);
+  --ex-color-page: var(--ex-ink-950);
+  --ex-color-grid: var(--ex-grid-dark);
+  --ex-color-surface: #131b3e;
+  --ex-color-surface-raised: #0f1737;
+  --ex-color-surface-sunken: #0a1129;
+  --ex-color-surface-inverse: var(--ex-paper-50);
 
-  --ex-color-border: var(--ex-gray-800);
-  --ex-color-border-strong: var(--ex-gray-700);
+  --ex-color-code-bg: #0a1129;
+  --ex-color-code-bar: #070d20;
+
+  --ex-color-text: #ecebdd;
+  --ex-color-text-muted: var(--ex-pencil-200);
+  --ex-color-text-subtle: var(--ex-pencil-300);
+  --ex-color-text-inverse: var(--ex-ink-950);
+
+  --ex-color-border: #27346a;
+  --ex-color-border-strong: #3a4b8a;
+  --ex-color-border-ink: var(--ex-ink-300);
 
   /* Status hues lighten in dark mode to hold contrast against a dark
    * surface; the `-subtle` fills become dark tints rather than pale ones. */
-  --ex-color-success: var(--ex-green-500);
-  --ex-color-warning: var(--ex-amber-500);
-  --ex-color-danger: var(--ex-red-400);
-  --ex-color-info: var(--ex-blue-400);
+  --ex-color-success: var(--ex-green-400);
+  --ex-color-warning: var(--ex-amber-300);
+  --ex-color-danger: var(--ex-danger-300);
+  --ex-color-info: var(--ex-blue-300);
 
-  --ex-color-success-subtle: #052e16;
-  --ex-color-warning-subtle: #3a2506;
-  --ex-color-danger-subtle: #3f1414;
-  --ex-color-info-subtle: #0d1f4a;
+  --ex-color-success-subtle: #0d2a1e;
+  --ex-color-warning-subtle: #36270a;
+  --ex-color-danger-subtle: #3c1613;
+  --ex-color-info-subtle: #0f2152;
 
-  --ex-shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
-  --ex-shadow-md: 0 2px 8px rgb(0 0 0 / 48%);
-  --ex-shadow-lg: 0 8px 24px rgb(0 0 0 / 56%);
+  --ex-shadow-sm: 2px 3px 0 rgb(0 0 0 / 55%);
+  --ex-shadow-md: 3px 3px 0 var(--ex-ink-950);
+  --ex-shadow-lg: 6px 7px 0 rgb(0 0 0 / 45%);
+  --ex-shadow-pop: 6px 7px 0 var(--ex-ink-950);
 }
 
 /* -----------------------------------------------------------------------
- * 4. VITEPRESS BRIDGE
+ * 4. PAPER
+ *
+ * The grid-paper page, and the type utilities the handwritten and typewriter
+ * touches share. Applied to <body>, so the website and the dashboard both sit
+ * on the same sheet.
+ * -------------------------------------------------------------------- */
+
+body {
+  background-color: var(--ex-color-page);
+  background-image:
+    linear-gradient(var(--ex-color-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ex-color-grid) 1px, transparent 1px);
+  background-size: var(--ex-grid-size) var(--ex-grid-size);
+  color: var(--ex-color-text);
+}
+
+/* Typewriter caption: small caps label, used for kickers and field names. */
+.ex-type {
+  font-family: var(--ex-font-type);
+  font-size: var(--ex-text-sm);
+  letter-spacing: var(--ex-tracking-caps);
+  text-transform: uppercase;
+  color: var(--ex-color-text-subtle);
+}
+
+/* Handwritten note, in red pen. Decoration only. */
+.ex-hand {
+  font-family: var(--ex-font-hand);
+  font-weight: var(--ex-weight-bold);
+  line-height: var(--ex-leading-none);
+  color: var(--ex-color-note);
+}
+
+/* Highlighter swipe behind inline text. */
+.ex-highlight {
+  background: linear-gradient(
+    transparent 56%,
+    var(--ex-color-highlight) 56%,
+    var(--ex-color-highlight) 92%,
+    transparent 92%
+  );
+  color: inherit;
+  padding: 0 var(--ex-space-2);
+}
+
+/* -----------------------------------------------------------------------
+ * 5. VITEPRESS BRIDGE
  *
  * Maps our tokens onto VitePress's own custom properties so the default
  * theme inherits the design system rather than fighting it. This is the
@@ -262,16 +384,17 @@
   --vp-c-brand-3: var(--ex-color-brand-active);
   --vp-c-brand-soft: var(--ex-color-brand-subtle);
 
-  --vp-c-bg: var(--ex-color-surface);
+  --vp-c-bg: var(--ex-color-page);
   --vp-c-bg-alt: var(--ex-color-surface-raised);
-  --vp-c-bg-soft: var(--ex-color-surface-raised);
+  --vp-c-bg-soft: var(--ex-color-surface-sunken);
+  --vp-c-bg-elv: var(--ex-color-surface);
 
   --vp-c-text-1: var(--ex-color-text);
   --vp-c-text-2: var(--ex-color-text-muted);
   --vp-c-text-3: var(--ex-color-text-subtle);
 
   --vp-c-divider: var(--ex-color-border);
-  --vp-c-border: var(--ex-color-border);
+  --vp-c-border: var(--ex-color-border-strong);
   --vp-c-gutter: var(--ex-color-border);
 
   --vp-c-tip-1: var(--ex-color-info);
@@ -288,7 +411,10 @@
   --vp-button-brand-hover-bg: var(--ex-color-brand-hover);
   --vp-button-brand-active-bg: var(--ex-color-brand-active);
   --vp-button-brand-text: var(--ex-color-on-brand);
-  --vp-button-brand-border: transparent;
+  --vp-button-brand-border: var(--ex-color-border-ink);
+
+  --vp-code-block-bg: var(--ex-color-code-bg);
+  --vp-code-block-color: var(--ex-color-code-text);
 
   --vp-shadow-1: var(--ex-shadow-sm);
   --vp-shadow-2: var(--ex-shadow-md);

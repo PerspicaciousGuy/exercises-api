@@ -12,7 +12,19 @@ export default defineConfig({
   lastUpdated: true,
 
   head: [
-    ['meta', { name: 'theme-color', content: '#128269' }],
+    ['meta', { name: 'theme-color', content: '#f8f5ec' }],
+    ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
+    [
+      'link',
+      { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }
+    ],
+    [
+      'link',
+      {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=Caveat:wght@500;700&family=Special+Elite&family=Geist+Mono:wght@400;500;600&display=swap'
+      }
+    ],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:title', content: SITE_TITLE }],
     ['meta', { property: 'og:description', content: SITE_DESCRIPTION }]

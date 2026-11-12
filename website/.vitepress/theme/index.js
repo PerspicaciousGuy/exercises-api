@@ -2,6 +2,8 @@ import { defineClientComponent } from 'vitepress';
 import DefaultTheme from 'vitepress/theme';
 
 import './design-system.css';
+import './custom.css';
+import Layout from './Layout.vue';
 import LandingPage from './components/LandingPage.vue';
 
 /**
@@ -14,6 +16,7 @@ const ApiReference = defineClientComponent(
 
 export default {
   extends: DefaultTheme,
+  Layout,
   enhanceApp({ app }) {
     app.component('ApiReference', ApiReference);
     app.component('LandingPage', LandingPage);
