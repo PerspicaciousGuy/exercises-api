@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 import { session } from './stores/session.js';
 import KeysView from './views/KeysView.vue';
@@ -31,7 +31,11 @@ const routes = [
 ];
 
 export const router = createRouter({
-  history: createWebHistory(),
+  // Hash URLs (/#/register), not real paths. The dashboard is a static site and
+  // the host only has a file for `/`, so a real path like /register is a 404
+  // unless the host is configured to rewrite it. A hash is never sent to the
+  // server, so every page and every refresh works with no host setup.
+  history: createWebHashHistory(),
   routes
 });
 

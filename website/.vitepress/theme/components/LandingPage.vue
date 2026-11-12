@@ -12,7 +12,7 @@
 
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
-const REGISTER_URL = 'https://app.harshitbishnoi.dev/register';
+const REGISTER_URL = 'https://app.harshitbishnoi.dev/#/register';
 
 /*
  * Live search, backed by GET /public/search on the API. That route needs no key

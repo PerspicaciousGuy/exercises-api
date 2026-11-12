@@ -9,7 +9,7 @@ import DefaultTheme from 'vitepress/theme';
  */
 const { Layout } = DefaultTheme;
 
-const REGISTER_URL = 'https://app.harshitbishnoi.dev/register';
+const REGISTER_URL = 'https://app.harshitbishnoi.dev/#/register';
 </script>
 
 <template>
