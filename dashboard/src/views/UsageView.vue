@@ -3,13 +3,18 @@ import { computed, onMounted, ref } from 'vue';
 
 import AppIcon from '../components/AppIcon.vue';
 import { api } from '../api/client.js';
+import { viewCache } from '../stores/viewCache.js';
 
 const WARNING_THRESHOLD = 75;
 const DANGER_THRESHOLD = 90;
+const CACHE_KEY = 'usage';
 
-const usage = ref([]);
+// Start from the last figures we saw, so coming back to this tab shows them at
+// once; the spinner is only for the very first load.
+const cachedUsage = viewCache.get(CACHE_KEY);
+const usage = ref(cachedUsage ?? []);
 const errorMessage = ref('');
-const isLoading = ref(true);
+const isLoading = ref(!cachedUsage);
 
 const today = computed(() => usage.value[0] ?? null);
 
@@ -44,6 +49,7 @@ const chartLabel = computed(() => {
 async function load() {
   try {
     usage.value = await api.getUsage();
+    viewCache.set(CACHE_KEY, usage.value);
   } catch (error) {
     errorMessage.value = error.detail ?? 'Could not load usage.';
   } finally {

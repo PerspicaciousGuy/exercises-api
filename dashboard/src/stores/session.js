@@ -1,6 +1,7 @@
 import { reactive, readonly } from 'vue';
 
 import { api, ApiError } from '../api/client.js';
+import { viewCache } from './viewCache.js';
 
 const state = reactive({
   user: null,
@@ -28,17 +29,20 @@ async function resolve() {
 
 async function login(credentials) {
   const result = await api.login(credentials);
+  viewCache.clear();
   state.user = result.user;
 }
 
 async function register(details) {
   const result = await api.register(details);
+  viewCache.clear();
   state.user = result.user;
   return result.apiKey;
 }
 
 async function logout() {
   await api.logout();
+  viewCache.clear();
   state.user = null;
 }
 

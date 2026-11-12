@@ -3,20 +3,26 @@ import { onMounted, ref } from 'vue';
 
 import AppIcon from '../components/AppIcon.vue';
 import { api } from '../api/client.js';
+import { viewCache } from '../stores/viewCache.js';
 
-const keys = ref([]);
+const CACHE_KEY = 'keys';
+
+// Start from the last list we saw, so coming back to this tab shows it at once.
+const cachedKeys = viewCache.get(CACHE_KEY);
+const keys = ref(cachedKeys ?? []);
 const label = ref('');
 const issuedKey = ref('');
 const errorMessage = ref('');
-const isLoading = ref(true);
+// The spinner is only for the very first load. Refreshes, including after
+// creating or revoking a key, update the list in place.
+const isLoading = ref(!cachedKeys);
 const isCreating = ref(false);
 const copied = ref(false);
 
 async function load() {
-  isLoading.value = true;
-
   try {
     keys.value = await api.listApiKeys();
+    viewCache.set(CACHE_KEY, keys.value);
   } catch (error) {
     errorMessage.value = error.detail ?? 'Could not load API keys.';
   } finally {
